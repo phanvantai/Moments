@@ -1,32 +1,33 @@
-//
-//  MomentsApp.swift
-//  Moments
-//
-//  Created by TaiPV on 14/3/26.
-//
-
 import SwiftUI
 import SwiftData
 
 @main
 struct MomentsApp: App {
-    var sharedModelContainer: ModelContainer = {
+    let container: DependencyContainer
+
+    init() {
         let schema = Schema([
-            Item.self,
+            SDMoment.self,
+            SDMediaItem.self,
+            SDUser.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            let modelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
+            self.container = DependencyContainer(modelContainer: modelContainer)
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
-    }()
+    }
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(container: container)
+                .task {
+                    await container.ensureDefaultUser()
+                }
         }
-        .modelContainer(sharedModelContainer)
+        .modelContainer(container.modelContainer)
     }
 }
