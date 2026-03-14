@@ -1,5 +1,6 @@
 # MOMENTS
-### Personal Moment Keeper
+
+## Personal Moment Keeper
 
 **Product Requirements Document**
 Version 1.0 · March 2026
@@ -41,7 +42,7 @@ Thiết kế ưu tiên sự đơn giản cho MVP, nhưng cấu trúc sẵn sàng
 ### 2.1 User (local-first, future: multi-user)
 
 | Field | Type | Description |
-|---|---|---|
+| --- | --- | --- |
 | id | UUID | Unique identifier |
 | displayName | String | Tên hiển thị |
 | avatarPath | String? | Ảnh đại diện (local file) |
@@ -53,7 +54,7 @@ Thiết kế ưu tiên sự đơn giản cho MVP, nhưng cấu trúc sẵn sàng
 ### 2.2 Moment Entity
 
 | Field | Type | Description |
-|---|---|---|
+| --- | --- | --- |
 | id | UUID | Unique identifier, primary key |
 | userId | UUID | Foreign key → User (MVP: mặc định 1 user) |
 | createdAt | Date | Thời gian tạo moment |
@@ -72,7 +73,7 @@ Thiết kế ưu tiên sự đơn giản cho MVP, nhưng cấu trúc sẵn sàng
 ### 2.3 MediaItem
 
 | Field | Type | Description |
-|---|---|---|
+| --- | --- | --- |
 | id | UUID | Unique identifier |
 | momentId | UUID | Foreign key → Moment |
 | type | Enum | .photo \| .video |
@@ -86,7 +87,7 @@ Thiết kế ưu tiên sự đơn giản cho MVP, nhưng cấu trúc sẵn sàng
 ### 2.4 VoiceNote
 
 | Field | Type | Description |
-|---|---|---|
+| --- | --- | --- |
 | filePath | String | Đường dẫn file audio (.m4a) |
 | duration | TimeInterval | Thời lượng ghi âm |
 | transcript | String? | AI transcribe voice → text (on-device Speech framework) |
@@ -94,7 +95,7 @@ Thiết kế ưu tiên sự đơn giản cho MVP, nhưng cấu trúc sẵn sàng
 ### 2.5 Location
 
 | Field | Type | Description |
-|---|---|---|
+| --- | --- | --- |
 | latitude | Double | Vĩ độ |
 | longitude | Double | Kinh độ |
 | name | String? | Tên địa điểm (reverse geocode hoặc user nhập) |
@@ -104,7 +105,7 @@ Thiết kế ưu tiên sự đơn giản cho MVP, nhưng cấu trúc sẵn sàng
 ### 2.6 Category (Predefined)
 
 | Icon | Key | Label | Auto-detect signals |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | ⭐ | first-time | Lần đầu tiên | Keywords: đầu tiên, lần đầu, biết... |
 | 🏆 | milestone | Cột mốc | Keywords: tuổi, sinh nhật, tháng... |
 | ☀️ | daily | Hàng ngày | Default khi không match category khác |
@@ -121,7 +122,7 @@ Thiết kế ưu tiên sự đơn giản cho MVP, nhưng cấu trúc sẵn sàng
 ### 2.7 Weather (Auto-fetch)
 
 | Field | Type | Description |
-|---|---|---|
+| --- | --- | --- |
 | condition | String | Sunny, Cloudy, Rainy, Stormy... |
 | temperature | Double | Nhiệt độ (°C) |
 | icon | String | SF Symbol name (sun.max, cloud.rain...) |
@@ -131,7 +132,7 @@ Thiết kế ưu tiên sự đơn giản cho MVP, nhưng cấu trúc sẵn sàng
 Những entity này chưa cần build, nhưng data model đã tính sẵn để khi mở rộng không phải restructure:
 
 | Entity | Mục đích | Khi nào cần |
-|---|---|---|
+| --- | --- | --- |
 | Reaction | Emoji reactions trên moment (❤️ 😢 🔥) | Social features |
 | Comment | Bình luận trên shared moments | Social features |
 | Collection | Nhóm moments thành album/bộ sưu tập | v1.x |
@@ -171,7 +172,7 @@ Nguyên tắc thiết kế: càng ít thao tác càng tốt. Mục tiêu là t�
 **Flow:** Mở app → Tap nút (+) → Chọn 1 trong 3 cách capture:
 
 | Lựa chọn | Mô tả |
-|---|---|
+| --- | --- |
 | 📷 Camera | Mở camera để chụp ảnh hoặc quay video |
 | 🎙️ Voice | Bật mic ghi âm voice note ngay |
 | 🖼️ Thư viện | Chọn photo/video có sẵn từ gallery |
@@ -181,18 +182,21 @@ Sau khi capture xong → màn hình review hiện ra → Tap "Lưu".
 **Điều kiện lưu:** chỉ cần tối thiểu **1 media** (ảnh, video, hoặc voice note). Không bắt buộc phải có đủ cả ảnh lẫn text lẫn voice.
 
 **Những gì tự động** (user không cần làm gì):
+
 - Timestamp — gắn ngay lúc tạo
 - Location — auto GPS + reverse geocode hiển thị tên địa điểm
 - Weather — auto fetch từ WeatherKit
 - Categories — AI gợi ý dựa trên content + location
 
 **Những gì user có thể thêm** (optional, không bắt buộc):
+
 - Thêm text mô tả
 - Thêm media khác (đã chụp ảnh → có thể ghi thêm voice, hoặc ngược lại)
 - Điều chỉnh categories do AI gợi ý
 - Thêm custom tags
 
 **Ví dụ các trường hợp sử dụng:**
+
 - Nhanh nhất: tap (+) → chụp ảnh → tap "Lưu" = **2 taps, vài giây**
 - Chỉ voice: tap (+) → ghi âm "con gái vừa biết đi!" → tap "Lưu" = **cũng chỉ vài giây**
 - Đầy đủ: tap (+) → chọn ảnh từ gallery → thêm text → ghi voice → adjust tags → tap "Lưu"
@@ -215,7 +219,7 @@ Tất cả những tính năng dưới đây đã được tính trong data mode
 ## 5. Tech Stack
 
 | Layer | Technology |
-|---|---|
+| --- | --- |
 | UI Framework | SwiftUI (iOS 17+) |
 | Architecture | MVVM + Swift Observation (@Observable) |
 | Local Storage | SwiftData (Core Data replacement, native Swift) |
@@ -235,14 +239,95 @@ SwiftData là lựa chọn tối ưu cho app này vì: native Swift (không cầ
 
 ### 5.2 Project Structure
 
-```
+Clean Architecture with three layers (Domain → Data → Presentation), strict dependency rule (outer layers depend inward).
+
+```bash
 Moments/
-├── App/            MomentsApp.swift, AppDelegate
-├── Models/         Moment.swift, MediaItem.swift, VoiceNote.swift, Location.swift
-├── Views/          TimelineView, MomentDetailView, CreateMomentView, GridView
-├── ViewModels/     TimelineViewModel, CreateMomentViewModel
-├── Services/       LocationService, WeatherService, CategoryEngine, MediaService
-└── Utils/          Extensions, Constants
+├── MomentsApp.swift                        # App entry point
+├── ContentView.swift                       # Root navigation + FAB + view mode toggle
+│
+├── DI/
+│   └── DependencyContainer.swift           # Wires all dependencies, ViewModel factories
+│
+├── Domain/                                 # Pure Swift, no framework imports
+│   ├── Entities/
+│   │   ├── Moment.swift                    # Core entity: media, voice, location, categories, tags
+│   │   ├── MediaItem.swift                 # Photo/video with file paths
+│   │   ├── VoiceNote.swift                 # Audio recording with transcript
+│   │   ├── Location.swift                  # Lat/lng + name
+│   │   ├── Weather.swift                   # Temperature, condition, icon
+│   │   ├── Category.swift                  # MomentCategory with emoji, color, keywords
+│   │   ├── User.swift                      # User entity (MVP: single default user)
+│   │   └── MomentVisibility.swift          # Private/shared enum
+│   ├── Repositories/
+│   │   ├── MomentRepositoryProtocol.swift  # CRUD for moments
+│   │   └── MediaRepositoryProtocol.swift   # Save/delete media files
+│   ├── Services/
+│   │   ├── PermissionServiceProtocol.swift  # Camera, mic, photo library, location, speech
+│   │   ├── LocationServiceProtocol.swift    # Current location lookup
+│   │   ├── WeatherServiceProtocol.swift     # Weather for location
+│   │   └── CategoryEngineProtocol.swift     # Multi-signal category suggestion
+│   └── UseCases/
+│       ├── CreateMomentUseCase.swift        # Validates ≥1 media, persists moment
+│       ├── FetchMomentsUseCase.swift         # Load all moments sorted by date
+│       └── DeleteMomentUseCase.swift         # Cascade-deletes media files + moment
+│
+├── Data/                                   # Framework imports allowed
+│   ├── SwiftData/
+│   │   ├── SDMoment.swift                  # @Model class for persistence
+│   │   ├── SDMediaItem.swift               # @Model class for media
+│   │   ├── SDUser.swift                    # @Model class for user
+│   │   └── MomentMapper.swift              # Domain ↔ SwiftData bidirectional mapping
+│   ├── Repositories/
+│   │   ├── MomentRepository.swift          # SwiftData implementation
+│   │   └── MediaRepository.swift           # File system implementation
+│   └── Services/
+│       ├── PermissionService.swift          # AVFoundation/Photos/CoreLocation permissions
+│       ├── LocationService.swift            # CLLocationManager wrapper
+│       ├── WeatherService.swift             # WeatherKit integration
+│       ├── CategoryEngine.swift             # NLP + Vision + Location analysis
+│       ├── MediaFileService.swift           # File I/O for media storage
+│       ├── PermissionStatusMapper.swift     # Maps system status to domain enum
+│       └── AVThumbnailGenerator.swift       # Video thumbnail extraction
+│
+└── Presentation/                           # SwiftUI
+    ├── Models/
+    │   ├── ViewMode.swift                  # .timeline / .grid enum
+    │   ├── CreateMomentStep.swift          # .captureMenu / .camera / .voice / .gallery / .review
+    │   └── GalleryMediaResult.swift        # Photo picker result wrapper
+    ├── ViewModels/
+    │   ├── TimelineViewModel.swift         # Main list state, view mode, delete
+    │   ├── CreateMomentViewModel.swift     # Capture flow, permissions, smart features, save
+    │   ├── MomentDetailViewModel.swift     # Detail sheet data accessors
+    │   ├── GridCardViewModel.swift         # Grid card computed properties
+    │   ├── TimelineNodeViewModel.swift     # Timeline node computed properties
+    │   ├── MediaViewerViewModel.swift      # Paged media viewer state
+    │   └── VoicePlayerViewModel.swift      # Audio playback state
+    ├── Views/
+    │   ├── TimelineView.swift              # Horizontal scrolling timeline
+    │   ├── GridView.swift                  # 2-column grid with date sections
+    │   ├── TimelineNodeView.swift          # Timeline card with thumbnail + category node
+    │   ├── GridCardView.swift              # Grid card with cached thumbnail
+    │   ├── MomentDetailView.swift          # Detail sheet: media, text, map, weather
+    │   ├── MediaViewer.swift               # Paged media viewer with pinch-to-zoom
+    │   ├── CreateMomentView.swift          # Capture flow coordinator
+    │   ├── ReviewMomentView.swift          # Review + edit before save (+ FlowLayout)
+    │   ├── CameraView.swift                # AVCaptureSession photo/video capture
+    │   ├── VoiceRecorderView.swift         # Recording with waveform + live transcription
+    │   ├── VoicePlayerView.swift           # Playback with waveform progress
+    │   ├── CaptureMenuView.swift           # Camera/Voice/Gallery option menu
+    │   ├── GalleryPickerView.swift         # PhotosPicker wrapper
+    │   ├── EmptyMomentsView.swift          # Shared empty state component
+    │   ├── CategoryBadgeView.swift         # Toggleable category chip
+    │   ├── WeatherBadgeView.swift          # Weather condition display
+    │   └── LocationBadgeView.swift         # Location name with remove button
+    └── Utils/
+        ├── BrandColors.swift               # Warm coral accent, gradient definitions
+        ├── HapticManager.swift             # Contextual haptic feedback
+        ├── ThumbnailCache.swift            # LRU image cache (100 items, 50MB)
+        ├── MomentDisplayHelper.swift       # Display title, category color, media helpers
+        ├── DurationFormatter.swift         # M:SS and MM:SS formatting
+        └── AudioLevelNormalizer.swift       # Microphone dB → 0..1 normalization
 ```
 
 ---
@@ -254,7 +339,7 @@ App sử dụng nhiều quyền hệ thống. Nguyên tắc: **chỉ hỏi khi c
 ### 6.1 Danh sách quyền
 
 | Permission | Khi nào hỏi | Lý do hiển thị cho user | Nếu từ chối |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | 📷 Camera | User tap "Camera" lần đầu | "Để chụp ảnh và quay video cho khoảnh khắc của bạn" | Ẩn nút Camera, chỉ hiện Thư viện và Voice |
 | 🖼️ Photo Library | User tap "Thư viện" lần đầu | "Để chọn ảnh và video có sẵn" | Ẩn nút Thư viện, chỉ hiện Camera và Voice |
 | 🎙️ Microphone | User tap "Voice" lần đầu | "Để ghi lại giọng nói của bạn" | Ẩn nút Voice, chỉ hiện Camera và Thư viện |
@@ -281,7 +366,7 @@ App sử dụng nhiều quyền hệ thống. Nguyên tắc: **chỉ hỏi khi c
 ### 7.2 Animation & Micro-interactions
 
 | Interaction | Animation |
-|---|---|
+| --- | --- |
 | Mở app | Staggered reveal các nodes trên timeline |
 | Tap (+) | FAB button morph thành capture menu (spring animation) |
 | Capture xong | Media slide up + review panel fade in |
@@ -302,7 +387,7 @@ App sử dụng nhiều quyền hệ thống. Nguyên tắc: **chỉ hỏi khi c
 ## 8. Non-functional Requirements
 
 | Requirement | Detail |
-|---|---|
+| --- | --- |
 | Platform | iOS 17.0+ (iPhone only cho MVP, iPad vòng sau) |
 | Privacy | 100% on-device data. Không gửi dữ liệu lên server. AI chạy local (Vision, NLP, Speech). |
 | Performance | App launch < 1s. Tạo moment < 3 taps từ màn hình chính. Timeline scroll 60fps. Animations 60fps. |
@@ -316,7 +401,7 @@ App sử dụng nhiều quyền hệ thống. Nguyên tắc: **chỉ hỏi khi c
 ## 9. Development Milestones
 
 | Phase | Timeline | Deliverables |
-|---|---|---|
+| --- | --- | --- |
 | Phase 1 | Week 1–2 | Data model (SwiftData) + Create Moment flow (camera, voice, gallery) + Local storage |
 | Phase 2 | Week 3–4 | Timeline view + Grid view + Moment Detail screen + Animations |
 | Phase 3 | Week 5–6 | Smart categorization (Vision + NLP) + Location + Weather + Permission handling |
@@ -325,4 +410,61 @@ App sử dụng nhiều quyền hệ thống. Nguyên tắc: **chỉ hỏi khi c
 
 ---
 
-*— End of Document —*
+## 10. Product Roadmap
+
+### v1.0 — MVP (current)
+
+*Mục tiêu: App hoạt động, 2 tính năng core chạy tốt, lên App Store.*
+
+- Tạo moment (camera, voice, gallery)
+- Xem moments (timeline, grid, detail)
+- Smart categorization (on-device AI)
+- Auto location + weather
+- Offline-first, 100% privacy
+
+### v1.x — Personal Enhancement
+
+*Mục tiêu: Biến app thành công cụ cá nhân mạnh mẽ hơn. Giữ chân user hàng ngày.*
+
+- Search & Filter (theo category, thời gian, địa điểm, full-text)
+- Favorite moments
+- On This Day (nhắc kỷ niệm năm trước — push notification)
+- Collections / Albums (nhóm moments thành bộ sưu tập)
+- People (tag ai có mặt trong khoảnh khắc)
+- Mood (ghi cảm xúc lúc tạo moment)
+- iCloud Sync (đồng bộ multi-device qua CloudKit)
+- Home Screen Widget (random moment hoặc On This Day)
+- Map View (xem tất cả moments trên bản đồ)
+
+### v2.0 — Share & Relive
+
+*Mục tiêu: Mở rộng từ cá nhân sang chia sẻ với người thân. Tăng emotional value.*
+
+- Share Moment (gửi qua Messages, AirDrop, link)
+- Video Recap (auto-generate montage từ moments trong khoảng thời gian)
+- Collaborative Moments (mời người khác thêm moment vào cùng Collection)
+- Export Album (xuất PDF / photo book đẹp)
+- iPad support
+- Apple Watch quick capture (chụp nhanh từ đồng hồ)
+
+### v3.0 — Social Platform
+
+*Mục tiêu: Trở thành mạng xã hội kiểu mới — chia sẻ khoảnh khắc thật, không filters, không likes chạy đua.*
+
+- User profiles (public / private)
+- Public moments (visibility control)
+- Reactions (emoji reactions thay vì likes — ❤️ 😢 🔥 👏)
+- Comments trên shared moments
+- Follow / Following (theo dõi moments của người khác)
+- Discovery feed (khám phá moments công khai theo location, category)
+- Privacy-first: end-to-end encryption cho shared content
+- Backend migration: Data layer chuyển từ SwiftData local → server API (Clean Architecture cho phép swap mà không đụng Domain + Presentation)
+
+### Nguyên tắc phát triển
+
+- Mỗi version phải **hoàn chỉnh và có giá trị riêng**. v1.0 đã đủ dùng, không cần v2.0 để có ý nghĩa.
+- **Không thêm features chỉ vì có thể**. Mỗi feature phải trả lời: "điều này giúp user lưu giữ khoảnh khắc tốt hơn không?"
+- **Privacy là core value**, không bao giờ thỏa hiệp. Dù trở thành social platform, user data vẫn được bảo vệ tuyệt đối.
+- **Clean Architecture** đảm bảo codebase scale được từ local-only app sang full social platform mà không cần rewrite.
+
+---
