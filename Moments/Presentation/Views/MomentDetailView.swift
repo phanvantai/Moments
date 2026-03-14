@@ -12,10 +12,13 @@ struct MomentDetailView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     if viewModel.hasMedia {
-                        MediaViewer(viewModel: MediaViewerViewModel(mediaItems: viewModel.mediaItems))
-                            .frame(height: 300)
-                            .opacity(appeared ? 1 : 0)
-                            .offset(y: appeared ? 0 : 10)
+                        GeometryReader { geometry in
+                            MediaViewer(viewModel: MediaViewerViewModel(mediaItems: viewModel.mediaItems))
+                                .frame(width: geometry.size.width)
+                        }
+                        .frame(height: min(400, UIScreen.main.bounds.height * 0.45))
+                        .opacity(appeared ? 1 : 0)
+                        .offset(y: appeared ? 0 : 10)
                     }
 
                     VStack(alignment: .leading, spacing: 12) {
@@ -174,6 +177,25 @@ struct MomentDetailView: View {
             .frame(height: 150)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .allowsHitTesting(false)
+            .overlay(alignment: .bottomTrailing) {
+                Label("Open in Maps", systemImage: "arrow.up.right.square")
+                    .font(.system(.caption2, design: .rounded, weight: .medium))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Capsule().fill(.black.opacity(0.5)))
+                    .padding(8)
+            }
+            .onTapGesture {
+                let coordinate = CLLocationCoordinate2D(
+                    latitude: location.latitude,
+                    longitude: location.longitude
+                )
+                let placemark = MKPlacemark(coordinate: coordinate)
+                let mapItem = MKMapItem(placemark: placemark)
+                mapItem.name = location.name ?? "Location"
+                mapItem.openInMaps()
+            }
         }
     }
 

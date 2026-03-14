@@ -8,7 +8,8 @@ struct GridViewTests {
         let view = GridView(
             moments: [],
             onMomentTap: { _ in },
-            onDelete: { _ in }
+            onDeleteRequest: { _ in },
+            onRefresh: {}
         )
 
         #expect(view.moments.isEmpty)
@@ -23,7 +24,8 @@ struct GridViewTests {
         let view = GridView(
             moments: moments,
             onMomentTap: { _ in },
-            onDelete: { _ in }
+            onDeleteRequest: { _ in },
+            onRefresh: {}
         )
 
         #expect(view.moments.count == 3)

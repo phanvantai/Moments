@@ -27,6 +27,11 @@ struct GridCardViewModel {
         MomentDisplayHelper.thumbnailURL(for: moment)
     }
 
+    var thumbnailPath: String? {
+        guard let firstMedia = moment.mediaItems.first else { return nil }
+        return firstMedia.thumbnailPath ?? firstMedia.filePath
+    }
+
     var placeholderEmoji: String? {
         moment.categories.first?.emoji
     }

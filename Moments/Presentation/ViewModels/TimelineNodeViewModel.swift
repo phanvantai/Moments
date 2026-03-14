@@ -39,4 +39,9 @@ struct TimelineNodeViewModel {
     var momentId: UUID {
         moment.id
     }
+
+    var thumbnailPath: String? {
+        guard let firstMedia = moment.mediaItems.first else { return nil }
+        return firstMedia.thumbnailPath ?? firstMedia.filePath
+    }
 }

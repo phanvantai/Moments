@@ -174,7 +174,7 @@ struct ReviewMomentView: View {
                     addCurrentTag()
                 } label: {
                     Image(systemName: "plus.circle.fill")
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(BrandColors.accent)
                 }
                 .disabled(newTag.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
@@ -242,10 +242,10 @@ struct ReviewMomentView: View {
                 Text("Add more media")
             }
             .font(.system(.body, design: .rounded))
-            .foregroundStyle(.blue)
+            .foregroundStyle(BrandColors.accent)
             .frame(maxWidth: .infinity)
             .padding(12)
-            .background(RoundedRectangle(cornerRadius: 12).stroke(.blue.opacity(0.3), lineWidth: 1))
+            .background(RoundedRectangle(cornerRadius: 12).stroke(BrandColors.accent.opacity(0.3), lineWidth: 1))
         }
     }
 
@@ -267,16 +267,37 @@ private struct MediaThumbnailView: View {
     let item: MediaItem
     let onRemove: () -> Void
 
+    @State private var thumbnailImage: UIImage?
+
     var body: some View {
         ZStack(alignment: .topTrailing) {
             RoundedRectangle(cornerRadius: 12)
                 .fill(.gray.opacity(0.2))
                 .frame(width: 120, height: 120)
                 .overlay {
-                    Image(systemName: item.type == .video ? "video.fill" : "photo.fill")
-                        .font(.title2)
-                        .foregroundStyle(.secondary)
+                    if let image = thumbnailImage {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 120, height: 120)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    } else {
+                        Image(systemName: item.type == .video ? "video.fill" : "photo.fill")
+                            .font(.title2)
+                            .foregroundStyle(.secondary)
+                    }
                 }
+
+            // Media type badge
+            if thumbnailImage != nil {
+                Image(systemName: item.type == .video ? "video.fill" : "photo.fill")
+                    .font(.caption2)
+                    .foregroundStyle(.white)
+                    .padding(4)
+                    .background(Circle().fill(.black.opacity(0.5)))
+                    .offset(x: -8, y: 8)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            }
 
             Button(action: onRemove) {
                 Image(systemName: "xmark.circle.fill")
@@ -285,6 +306,9 @@ private struct MediaThumbnailView: View {
                     .background(Circle().fill(.black.opacity(0.5)))
             }
             .offset(x: 6, y: -6)
+        }
+        .task {
+            thumbnailImage = await ThumbnailCache.shared.loadThumbnail(for: item.filePath)
         }
     }
 }

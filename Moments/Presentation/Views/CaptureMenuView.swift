@@ -24,6 +24,7 @@ struct CaptureMenuView: View {
                 )
                 .offset(y: appeared ? 0 : 30)
                 .opacity(appeared ? 1 : 0)
+                .animation(.spring(response: 0.45, dampingFraction: 0.7).delay(0), value: appeared)
             }
 
             if isVoiceAvailable {
@@ -36,6 +37,7 @@ struct CaptureMenuView: View {
                 )
                 .offset(y: appeared ? 0 : 30)
                 .opacity(appeared ? 1 : 0)
+                .animation(.spring(response: 0.45, dampingFraction: 0.7).delay(0.06), value: appeared)
             }
 
             if isGalleryAvailable {
@@ -48,6 +50,7 @@ struct CaptureMenuView: View {
                 )
                 .offset(y: appeared ? 0 : 30)
                 .opacity(appeared ? 1 : 0)
+                .animation(.spring(response: 0.45, dampingFraction: 0.7).delay(0.12), value: appeared)
             }
 
             Button("Cancel", action: onDismiss)
@@ -55,6 +58,7 @@ struct CaptureMenuView: View {
                 .foregroundStyle(.secondary)
                 .padding(.top, 8)
                 .opacity(appeared ? 1 : 0)
+                .animation(.spring(response: 0.45, dampingFraction: 0.7).delay(0.18), value: appeared)
         }
         .padding(24)
         .background(
@@ -63,10 +67,9 @@ struct CaptureMenuView: View {
         )
         .padding(.horizontal, 24)
         .scaleEffect(appeared ? 1 : 0.8)
+        .animation(.spring(response: 0.45, dampingFraction: 0.7), value: appeared)
         .onAppear {
-            withAnimation(.spring(response: 0.45, dampingFraction: 0.7)) {
-                appeared = true
-            }
+            appeared = true
         }
     }
 }

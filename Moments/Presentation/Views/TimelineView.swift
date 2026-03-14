@@ -3,33 +3,18 @@ import SwiftUI
 struct TimelineView: View {
     let moments: [Moment]
     let onMomentTap: (Moment) -> Void
-    let onDelete: (UUID) -> Void
+    let onDeleteRequest: (UUID) -> Void
+    let onRefresh: () async -> Void
 
     @State private var appearedNodes: Set<UUID> = []
 
     var body: some View {
         if moments.isEmpty {
-            emptyState
+            EmptyMomentsView()
                 .transition(.opacity.combined(with: .scale(scale: 0.9)))
         } else {
             timelineContent
         }
-    }
-
-    // MARK: - Empty State
-
-    private var emptyState: some View {
-        VStack(spacing: 20) {
-            Text("📸")
-                .font(.system(size: 64))
-            Text("No moments yet")
-                .font(.system(.title3, design: .rounded, weight: .semibold))
-                .foregroundStyle(.primary)
-            Text("Tap  +  to capture your first moment")
-                .font(.system(.body, design: .rounded))
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     // MARK: - Timeline Content
@@ -51,9 +36,7 @@ struct TimelineView: View {
                         .offset(y: appearedNodes.contains(moment.id) ? 0 : 20)
                         .contextMenu {
                             Button(role: .destructive) {
-                                withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
-                                    onDelete(moment.id)
-                                }
+                                onDeleteRequest(moment.id)
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }

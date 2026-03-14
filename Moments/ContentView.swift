@@ -9,6 +9,7 @@ struct ContentView: View {
     @State private var createMomentViewModel: CreateMomentViewModel?
     @State private var fabScale: CGFloat = 1.0
     @State private var fabRotation: Double = 0
+    @State private var momentToDelete: UUID?
     @Namespace private var animationNamespace
 
     var body: some View {
@@ -52,6 +53,29 @@ struct ContentView: View {
                         }
                     }
                 }
+            }
+            .confirmationDialog(
+                "Delete this moment?",
+                isPresented: Binding(
+                    get: { momentToDelete != nil },
+                    set: { if !$0 { momentToDelete = nil } }
+                ),
+                titleVisibility: .visible
+            ) {
+                Button("Delete", role: .destructive) {
+                    if let id = momentToDelete {
+                        HapticManager.deleteWarning()
+                        Task {
+                            await timelineViewModel?.deleteMoment(id: id)
+                        }
+                    }
+                    momentToDelete = nil
+                }
+                Button("Cancel", role: .cancel) {
+                    momentToDelete = nil
+                }
+            } message: {
+                Text("This will permanently delete the moment and all its media.")
             }
         }
         .fullScreenCover(isPresented: $showCreateMoment) {
@@ -107,11 +131,12 @@ struct ContentView: View {
                 .font(.title2.weight(.semibold))
                 .foregroundStyle(.white)
                 .frame(width: 56, height: 56)
-                .background(Circle().fill(.blue))
-                .shadow(color: .blue.opacity(0.3), radius: 8, y: 4)
+                .background(Circle().fill(BrandColors.fabGradient))
+                .shadow(color: BrandColors.accent.opacity(0.3), radius: 8, y: 4)
                 .scaleEffect(fabScale)
                 .rotationEffect(.degrees(fabRotation))
         }
+        .accessibilityLabel("Create new moment")
     }
 
     // MARK: - Main Content
@@ -133,9 +158,11 @@ struct ContentView: View {
                             selectedMoment = moment
                         }
                     },
-                    onDelete: { id in
-                        HapticManager.deleteWarning()
-                        Task { await vm.deleteMoment(id: id) }
+                    onDeleteRequest: { id in
+                        momentToDelete = id
+                    },
+                    onRefresh: {
+                        await vm.loadMoments()
                     }
                 )
                 .transition(.move(edge: .leading).combined(with: .opacity))
@@ -147,9 +174,11 @@ struct ContentView: View {
                             selectedMoment = moment
                         }
                     },
-                    onDelete: { id in
-                        HapticManager.deleteWarning()
-                        Task { await vm.deleteMoment(id: id) }
+                    onDeleteRequest: { id in
+                        momentToDelete = id
+                    },
+                    onRefresh: {
+                        await vm.loadMoments()
                     }
                 )
                 .transition(.move(edge: .trailing).combined(with: .opacity))

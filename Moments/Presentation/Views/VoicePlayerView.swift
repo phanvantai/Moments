@@ -11,10 +11,11 @@ struct VoicePlayerView: View {
                 } label: {
                     Image(systemName: viewModel.isPlaying ? "pause.circle.fill" : "play.circle.fill")
                         .font(.system(size: 36))
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(BrandColors.accent)
                 }
 
                 waveformView
+                    .accessibilityHidden(true)
 
                 VStack(alignment: .trailing, spacing: 2) {
                     Text(viewModel.currentTimeFormatted)
@@ -72,6 +73,6 @@ struct VoicePlayerView: View {
 
     private func barColor(at index: Int) -> Color {
         let barProgress = Double(index) / Double(max(1, waveformBarCount(for: 200) - 1))
-        return barProgress <= viewModel.progress ? .blue : .blue.opacity(0.2)
+        return barProgress <= viewModel.progress ? BrandColors.accent : BrandColors.accent.opacity(0.2)
     }
 }

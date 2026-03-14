@@ -28,6 +28,7 @@ struct VoiceRecorderView: View {
             WaveformView(levels: recorder.audioLevels, isRecording: recorder.isRecording)
                 .frame(height: 100)
                 .padding(.horizontal, 32)
+                .accessibilityHidden(true)
 
             // Timer
             Text(recorder.formattedDuration)

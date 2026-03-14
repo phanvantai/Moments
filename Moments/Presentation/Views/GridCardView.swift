@@ -3,6 +3,8 @@ import SwiftUI
 struct GridCardView: View {
     let viewModel: GridCardViewModel
 
+    @State private var thumbnailImage: UIImage?
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             thumbnailView
@@ -33,30 +35,22 @@ struct GridCardView: View {
             RoundedRectangle(cornerRadius: 14)
                 .stroke(Color.primary.opacity(0.06), lineWidth: 1)
         )
+        .task {
+            if let path = viewModel.thumbnailPath {
+                thumbnailImage = await ThumbnailCache.shared.loadThumbnail(for: path)
+            }
+        }
     }
 
     // MARK: - Thumbnail
 
     @ViewBuilder
     private var thumbnailView: some View {
-        if let url = viewModel.thumbnailURL {
-            AsyncImage(url: url) { phase in
-                switch phase {
-                case .success(let image):
-                    image
-                        .resizable()
-                        .scaledToFill()
-                        .transition(.opacity)
-                case .failure:
-                    placeholderView
-                default:
-                    placeholderView
-                        .overlay {
-                            ProgressView()
-                                .controlSize(.small)
-                        }
-                }
-            }
+        if let image = thumbnailImage {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFill()
+                .transition(.opacity)
         } else {
             placeholderView
         }

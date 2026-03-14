@@ -8,7 +8,8 @@ struct TimelineViewTests {
         let view = TimelineView(
             moments: [],
             onMomentTap: { _ in },
-            onDelete: { _ in }
+            onDeleteRequest: { _ in },
+            onRefresh: {}
         )
 
         #expect(view.moments.isEmpty)
@@ -22,7 +23,8 @@ struct TimelineViewTests {
         let view = TimelineView(
             moments: moments,
             onMomentTap: { _ in },
-            onDelete: { _ in }
+            onDeleteRequest: { _ in },
+            onRefresh: {}
         )
 
         #expect(view.moments.count == 2)
