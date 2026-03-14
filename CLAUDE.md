@@ -26,7 +26,7 @@ No linter or formatter is configured. No package manager (SPM/CocoaPods) — all
 
 Clean Architecture with three layers, strict dependency rule (outer layers depend inward):
 
-```
+```bash
 Domain (pure Swift, no imports)
   ├── Entities/        — value types (struct): Moment, MediaItem, User, Location, etc.
   ├── Repositories/    — protocols: MomentRepositoryProtocol, MediaRepositoryProtocol
@@ -62,6 +62,7 @@ Presentation (SwiftUI)
 - **Naming**: `test_methodName_condition_expectedResult` pattern.
 
 When adding a new service or repository:
+
 1. Define protocol in `Domain/Services/` or `Domain/Repositories/`
 2. Write tests using a mock
 3. Create mock in `MomentsTests/Mocks/`
