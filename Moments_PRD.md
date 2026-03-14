@@ -9,6 +9,15 @@ Status: MVP feature-complete — QC in progress
 
 ---
 
+## Changelog
+
+| Version | Date | Changes |
+| --- | --- | --- |
+| v1.1 | March 2026 | Updated project structure (§5.2) to match actual codebase; updated status to QC in progress |
+| v1.0 | March 2026 | Initial PRD — data model, architecture, MVP features, tech stack, roadmap |
+
+---
+
 ## 1. Overview
 
 ### 1.1 Vision
