@@ -3,8 +3,9 @@
 ## Personal Moment Keeper
 
 **Product Requirements Document**
-Version 1.0 · March 2026
+Version 1.1 · March 2026
 Platform: iOS (Native – SwiftUI)
+Status: MVP feature-complete — QC in progress
 
 ---
 
@@ -221,7 +222,7 @@ Tất cả những tính năng dưới đây đã được tính trong data mode
 | Layer | Technology |
 | --- | --- |
 | UI Framework | SwiftUI (iOS 17+) |
-| Architecture | MVVM + Swift Observation (@Observable) |
+| Architecture | Clean Architecture (Domain → Data → Presentation) + MVVM + Swift Observation (@Observable) |
 | Local Storage | SwiftData (Core Data replacement, native Swift) |
 | Media Storage | FileManager – app sandbox (Documents directory) |
 | Camera / Gallery | PhotosUI (PhotosPicker) + AVFoundation |
@@ -400,27 +401,38 @@ App sử dụng nhiều quyền hệ thống. Nguyên tắc: **chỉ hỏi khi c
 
 ## 9. Development Milestones
 
-| Phase | Timeline | Deliverables |
-| --- | --- | --- |
-| Phase 1 | Week 1–2 | Data model (SwiftData) + Create Moment flow (camera, voice, gallery) + Local storage |
-| Phase 2 | Week 3–4 | Timeline view + Grid view + Moment Detail screen + Animations |
-| Phase 3 | Week 5–6 | Smart categorization (Vision + NLP) + Location + Weather + Permission handling |
-| Phase 4 | Week 7–8 | Polish UI + Micro-interactions + Dark mode + Bug fixes + Performance tuning |
-| Launch | Week 9 | TestFlight beta → App Store submission |
+| Phase | Timeline | Deliverables | Status |
+| --- | --- | --- | --- |
+| Phase 1 | Week 1–2 | Data model (SwiftData) + Create Moment flow (camera, voice, gallery) + Local storage | Done |
+| Phase 2 | Week 3–4 | Timeline view + Grid view + Moment Detail screen + Animations | Done |
+| Phase 3 | Week 5–6 | Smart categorization (Vision + NLP) + Location + Weather + Permission handling | Done |
+| Phase 4 | Week 7–8 | Polish UI + Micro-interactions + Brand colors + Accessibility + Bug fixes | Done |
+| QC | Week 9 | Testing on device, edge cases, performance profiling, final bug fixes | **In Progress** |
+| Launch | Week 10 | TestFlight beta → App Store submission | Pending |
 
 ---
 
 ## 10. Product Roadmap
 
-### v1.0 — MVP (current)
+### v1.0 — MVP (QC in progress)
 
 *Mục tiêu: App hoạt động, 2 tính năng core chạy tốt, lên App Store.*
 
-- Tạo moment (camera, voice, gallery)
-- Xem moments (timeline, grid, detail)
-- Smart categorization (on-device AI)
-- Auto location + weather
-- Offline-first, 100% privacy
+All features implemented, currently in QC phase:
+
+- [x] Tạo moment (camera, voice, gallery)
+- [x] Xem moments (timeline, grid, detail)
+- [x] Smart categorization (on-device AI — NLP + Vision + Location, 60% confidence threshold)
+- [x] Auto location + weather (WeatherKit)
+- [x] Offline-first, 100% privacy
+- [x] Delete confirmation dialog (cascade-deletes media)
+- [x] Pull-to-refresh + date section headers in grid
+- [x] Thumbnail caching (LRU, 100 items, 50MB)
+- [x] Brand identity (warm coral accent, SF Pro Rounded typography)
+- [x] Haptic feedback throughout
+- [x] VoiceOver accessibility (labels, hidden decorative elements)
+- [x] Lazy permission requests with graceful degradation
+- [ ] QC: device testing, edge cases, performance profiling
 
 ### v1.x — Personal Enhancement
 
