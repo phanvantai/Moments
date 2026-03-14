@@ -79,6 +79,54 @@ struct TimelineViewModelTests {
         // Moment should still be in list since delete failed
         #expect(vm.moments.count == 1)
     }
+
+    // MARK: - View Mode
+
+    @Test func test_defaultViewMode_isTimeline() {
+        UserDefaults.standard.removeObject(forKey: TimelineViewModel.viewModeKey)
+        let vm = sut
+
+        #expect(vm.viewMode == .timeline)
+    }
+
+    @Test func test_toggleViewMode_switchesToGrid() {
+        UserDefaults.standard.removeObject(forKey: TimelineViewModel.viewModeKey)
+        let vm = sut
+
+        vm.toggleViewMode()
+
+        #expect(vm.viewMode == .grid)
+    }
+
+    @Test func test_toggleViewMode_switchesBackToTimeline() {
+        UserDefaults.standard.removeObject(forKey: TimelineViewModel.viewModeKey)
+        let vm = sut
+
+        vm.toggleViewMode()
+        vm.toggleViewMode()
+
+        #expect(vm.viewMode == .timeline)
+    }
+
+    @Test func test_viewMode_persistedToUserDefaults() {
+        UserDefaults.standard.removeObject(forKey: TimelineViewModel.viewModeKey)
+        let vm = sut
+
+        vm.toggleViewMode()
+
+        let stored = UserDefaults.standard.string(forKey: TimelineViewModel.viewModeKey)
+        #expect(stored == ViewMode.grid.rawValue)
+    }
+
+    @Test func test_viewMode_restoredFromUserDefaults() {
+        UserDefaults.standard.set(ViewMode.grid.rawValue, forKey: TimelineViewModel.viewModeKey)
+
+        let vm = sut
+
+        #expect(vm.viewMode == .grid)
+        // Cleanup
+        UserDefaults.standard.removeObject(forKey: TimelineViewModel.viewModeKey)
+    }
 }
 
 // MARK: - Mock Use Cases for ViewModel tests

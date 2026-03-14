@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 @Observable
 @MainActor
@@ -6,6 +7,13 @@ final class TimelineViewModel {
     private(set) var moments: [Moment] = []
     private(set) var isLoading = false
     private(set) var errorMessage: String?
+    var viewMode: ViewMode {
+        didSet {
+            UserDefaults.standard.set(viewMode.rawValue, forKey: Self.viewModeKey)
+        }
+    }
+
+    static let viewModeKey = "moments_view_mode"
 
     private let fetchMomentsUseCase: FetchMomentsUseCaseProtocol
     private let deleteMomentUseCase: DeleteMomentUseCaseProtocol
@@ -16,6 +24,8 @@ final class TimelineViewModel {
     ) {
         self.fetchMomentsUseCase = fetchMomentsUseCase
         self.deleteMomentUseCase = deleteMomentUseCase
+        let stored = UserDefaults.standard.string(forKey: Self.viewModeKey)
+        self.viewMode = ViewMode(rawValue: stored ?? "") ?? .timeline
     }
 
     func loadMoments() async {
@@ -36,5 +46,9 @@ final class TimelineViewModel {
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+
+    func toggleViewMode() {
+        viewMode = viewMode == .timeline ? .grid : .timeline
     }
 }
