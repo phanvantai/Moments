@@ -20,7 +20,7 @@ struct LocationBadgeView: View {
                     .foregroundStyle(.secondary)
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(String(localized: "remove.location"))
+            .accessibilityLabel(String(localized: "remove.location", bundle: LanguageManager.shared.bundle))
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
@@ -28,7 +28,7 @@ struct LocationBadgeView: View {
             Capsule()
                 .fill(BrandColors.categoryRed.opacity(0.10))
         )
-        .accessibilityLabel(String(localized: "location.label \(location.name ?? locationCoordinateText)"))
+        .accessibilityLabel(String(localized: "location.label \(location.name ?? locationCoordinateText)", bundle: LanguageManager.shared.bundle))
     }
 
     private var locationCoordinateText: String {

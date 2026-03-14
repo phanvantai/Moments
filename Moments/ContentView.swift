@@ -4,6 +4,7 @@ struct ContentView: View {
     let container: DependencyContainer
 
     @State private var showCreateMoment = false
+    @State private var showSettings = false
     @State private var selectedMoment: Moment?
     @State private var timelineViewModel: TimelineViewModel?
     @State private var createMomentViewModel: CreateMomentViewModel?
@@ -34,9 +35,18 @@ struct ContentView: View {
                     }
                 }
             }
-            .navigationTitle(String(localized: "moments.title"))
+            .navigationTitle(String(localized: "moments.title", bundle: LanguageManager.shared.bundle))
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        showSettings = true
+                    } label: {
+                        Image(systemName: "gearshape")
+                            .font(.body)
+                            .foregroundStyle(BrandColors.accent)
+                    }
+                }
                 if let vm = timelineViewModel {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
@@ -56,14 +66,14 @@ struct ContentView: View {
                 }
             }
             .confirmationDialog(
-                String(localized: "delete.confirm.title"),
+                String(localized: "delete.confirm.title", bundle: LanguageManager.shared.bundle),
                 isPresented: Binding(
                     get: { momentToDelete != nil },
                     set: { if !$0 { momentToDelete = nil } }
                 ),
                 titleVisibility: .visible
             ) {
-                Button(String(localized: "delete"), role: .destructive) {
+                Button(String(localized: "delete", bundle: LanguageManager.shared.bundle), role: .destructive) {
                     if let id = momentToDelete {
                         HapticManager.deleteWarning()
                         Task {
@@ -72,11 +82,11 @@ struct ContentView: View {
                     }
                     momentToDelete = nil
                 }
-                Button(String(localized: "cancel"), role: .cancel) {
+                Button(String(localized: "cancel", bundle: LanguageManager.shared.bundle), role: .cancel) {
                     momentToDelete = nil
                 }
             } message: {
-                Text(String(localized: "delete.confirm.message"))
+                Text(String(localized: "delete.confirm.message", bundle: LanguageManager.shared.bundle))
             }
         }
         .tint(BrandColors.accent)
@@ -103,6 +113,9 @@ struct ContentView: View {
                 viewModel: MomentDetailViewModel(moment: moment),
                 onDismiss: { selectedMoment = nil }
             )
+        }
+        .sheet(isPresented: $showSettings) {
+            SettingsView()
         }
         .task {
             let vm = container.makeTimelineViewModel()
@@ -141,7 +154,7 @@ struct ContentView: View {
                 .scaleEffect(fabScale)
                 .rotationEffect(.degrees(fabRotation))
         }
-        .accessibilityLabel(String(localized: "fab.accessibility"))
+        .accessibilityLabel(String(localized: "fab.accessibility", bundle: LanguageManager.shared.bundle))
     }
 
     // MARK: - Main Content
@@ -204,7 +217,7 @@ struct ContentView: View {
                     .foregroundStyle(.orange)
             }
 
-            Text(String(localized: "error.title"))
+            Text(String(localized: "error.title", bundle: LanguageManager.shared.bundle))
                 .font(.system(.title3, design: .rounded, weight: .semibold))
                 .foregroundStyle(.primary)
             Text(message)
@@ -215,7 +228,7 @@ struct ContentView: View {
             Button {
                 Task { await vm.loadMoments() }
             } label: {
-                Text(String(localized: "try.again"))
+                Text(String(localized: "try.again", bundle: LanguageManager.shared.bundle))
                     .font(.system(.body, design: .rounded, weight: .semibold))
                     .padding(.horizontal, 28)
                     .padding(.vertical, 12)

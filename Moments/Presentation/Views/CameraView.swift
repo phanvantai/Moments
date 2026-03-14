@@ -49,8 +49,8 @@ struct CameraView: View {
                     .padding(.bottom, 40)
             }
         }
-        .alert(String(localized: "camera.error"), isPresented: $showError) {
-            Button(String(localized: "ok"), role: .cancel) { onDismiss() }
+        .alert(String(localized: "camera.error", bundle: LanguageManager.shared.bundle), isPresented: $showError) {
+            Button(String(localized: "ok", bundle: LanguageManager.shared.bundle), role: .cancel) { onDismiss() }
         } message: {
             Text(errorText)
         }
@@ -150,7 +150,7 @@ final class CameraViewController: UIViewController {
 
         guard let camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
               let input = try? AVCaptureDeviceInput(device: camera) else {
-            onError?(String(localized: "camera.access.error"))
+            onError?(String(localized: "camera.access.error", bundle: LanguageManager.shared.bundle))
             return
         }
 
@@ -230,7 +230,7 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
             return
         }
         guard let data = photo.fileDataRepresentation() else {
-            onError?(String(localized: "photo.process.error"))
+            onError?(String(localized: "photo.process.error", bundle: LanguageManager.shared.bundle))
             return
         }
         onPhotoCaptured?(data)

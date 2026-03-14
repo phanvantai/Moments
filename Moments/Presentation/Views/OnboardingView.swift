@@ -16,7 +16,7 @@ struct OnboardingView: View {
                 HStack {
                     Spacer()
                     if currentPage < pages.count - 1 {
-                        Button(String(localized: "onboarding.skip")) { complete() }
+                        Button(String(localized: "onboarding.skip", bundle: LanguageManager.shared.bundle)) { complete() }
                             .font(.system(.body, design: .rounded, weight: .medium))
                             .foregroundStyle(BrandColors.textSecondary)
                             .padding(.trailing, 24)
@@ -110,7 +110,7 @@ struct OnboardingView: View {
     private var bottomArea: some View {
         if currentPage == pages.count - 1 {
             Button { complete() } label: {
-                Text(String(localized: "onboarding.get.started"))
+                Text(String(localized: "onboarding.get.started", bundle: LanguageManager.shared.bundle))
                     .font(.system(.body, design: .rounded, weight: .semibold))
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
@@ -155,20 +155,20 @@ private struct OnboardingPage {
         OnboardingPage(
             icon: "camera.on.rectangle.fill",
             iconColor: BrandColors.accent,
-            title: String(localized: "onboarding.capture.title"),
-            subtitle: String(localized: "onboarding.capture.subtitle")
+            title: String(localized: "onboarding.capture.title", bundle: LanguageManager.shared.bundle),
+            subtitle: String(localized: "onboarding.capture.subtitle", bundle: LanguageManager.shared.bundle)
         ),
         OnboardingPage(
             icon: "sparkles.rectangle.stack.fill",
             iconColor: BrandColors.categoryPurple,
-            title: String(localized: "onboarding.categories.title"),
-            subtitle: String(localized: "onboarding.categories.subtitle")
+            title: String(localized: "onboarding.categories.title", bundle: LanguageManager.shared.bundle),
+            subtitle: String(localized: "onboarding.categories.subtitle", bundle: LanguageManager.shared.bundle)
         ),
         OnboardingPage(
             icon: "rectangle.grid.1x2.fill",
             iconColor: BrandColors.categoryBlue,
-            title: String(localized: "onboarding.views.title"),
-            subtitle: String(localized: "onboarding.views.subtitle")
+            title: String(localized: "onboarding.views.title", bundle: LanguageManager.shared.bundle),
+            subtitle: String(localized: "onboarding.views.subtitle", bundle: LanguageManager.shared.bundle)
         ),
     ]
 }

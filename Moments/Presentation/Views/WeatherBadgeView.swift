@@ -20,6 +20,6 @@ struct WeatherBadgeView: View {
             Capsule()
                 .fill(BrandColors.categoryOrange.opacity(0.10))
         )
-        .accessibilityLabel(String(localized: "weather.accessibility \(weather.condition) \(Int(weather.temperature))"))
+        .accessibilityLabel(String(localized: "weather.accessibility \(weather.condition) \(Int(weather.temperature))", bundle: LanguageManager.shared.bundle))
     }
 }

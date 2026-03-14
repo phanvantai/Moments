@@ -84,7 +84,7 @@ struct GridCardView: View {
                     Image(systemName: "waveform")
                         .font(.system(size: 28, weight: .light))
                         .foregroundStyle(viewModel.categoryColor.opacity(0.5))
-                    Text(String(localized: "voice.note"))
+                    Text(String(localized: "voice.note", bundle: LanguageManager.shared.bundle))
                         .font(.system(.caption2, design: .rounded))
                         .foregroundStyle(viewModel.categoryColor.opacity(0.4))
                 }

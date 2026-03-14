@@ -23,11 +23,11 @@ struct EmptyMomentsView: View {
             .opacity(appeared ? 1.0 : 0)
 
             VStack(spacing: 8) {
-                Text(String(localized: "empty.title"))
+                Text(String(localized: "empty.title", bundle: LanguageManager.shared.bundle))
                     .font(.system(.title3, design: .rounded, weight: .semibold))
                     .foregroundStyle(.primary)
 
-                Text(String(localized: "empty.subtitle"))
+                Text(String(localized: "empty.subtitle", bundle: LanguageManager.shared.bundle))
                     .font(.system(.subheadline, design: .rounded))
                     .foregroundStyle(BrandColors.textSecondary)
                     .multilineTextAlignment(.center)

@@ -23,8 +23,8 @@ struct CaptureMenuView: View {
             if isCameraAvailable {
                 CaptureOptionButton(
                     icon: "camera.fill",
-                    title: String(localized: "capture.camera"),
-                    subtitle: String(localized: "capture.camera.subtitle"),
+                    title: String(localized: "capture.camera", bundle: LanguageManager.shared.bundle),
+                    subtitle: String(localized: "capture.camera.subtitle", bundle: LanguageManager.shared.bundle),
                     color: BrandColors.categoryBlue,
                     action: onCameraTap
                 )
@@ -36,8 +36,8 @@ struct CaptureMenuView: View {
             if isVoiceAvailable {
                 CaptureOptionButton(
                     icon: "mic.fill",
-                    title: String(localized: "capture.voice"),
-                    subtitle: String(localized: "capture.voice.subtitle"),
+                    title: String(localized: "capture.voice", bundle: LanguageManager.shared.bundle),
+                    subtitle: String(localized: "capture.voice.subtitle", bundle: LanguageManager.shared.bundle),
                     color: BrandColors.categoryRed,
                     action: onVoiceTap
                 )
@@ -49,8 +49,8 @@ struct CaptureMenuView: View {
             if isGalleryAvailable {
                 CaptureOptionButton(
                     icon: "photo.on.rectangle.angled",
-                    title: String(localized: "capture.gallery"),
-                    subtitle: String(localized: "capture.gallery.subtitle"),
+                    title: String(localized: "capture.gallery", bundle: LanguageManager.shared.bundle),
+                    subtitle: String(localized: "capture.gallery.subtitle", bundle: LanguageManager.shared.bundle),
                     color: BrandColors.categoryGreen,
                     action: onGalleryTap
                 )
@@ -59,7 +59,7 @@ struct CaptureMenuView: View {
                 .animation(.spring(response: 0.45, dampingFraction: 0.75).delay(0.12), value: appeared)
             }
 
-            Button(String(localized: "cancel"), action: onDismiss)
+            Button(String(localized: "cancel", bundle: LanguageManager.shared.bundle), action: onDismiss)
                 .font(.system(.body, design: .rounded, weight: .medium))
                 .foregroundStyle(.secondary)
                 .padding(.top, 4)

@@ -38,7 +38,7 @@ struct TimelineView: View {
                             Button(role: .destructive) {
                                 onDeleteRequest(moment.id)
                             } label: {
-                                Label(String(localized: "delete"), systemImage: "trash")
+                                Label(String(localized: "delete", bundle: LanguageManager.shared.bundle), systemImage: "trash")
                             }
                         }
                         .onAppear {

@@ -152,14 +152,14 @@ struct CreateMomentView: View {
             Image(systemName: "exclamationmark.circle.fill")
                 .foregroundStyle(.orange)
             VStack(alignment: .leading, spacing: 2) {
-                Text(String(localized: "permission.denied \(type)"))
+                Text(String(localized: "permission.denied \(type)", bundle: LanguageManager.shared.bundle))
                     .font(.system(.subheadline, design: .rounded, weight: .medium))
-                Text(String(localized: "permission.enable.settings"))
+                Text(String(localized: "permission.enable.settings", bundle: LanguageManager.shared.bundle))
                     .font(.system(.caption, design: .rounded))
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            Button(String(localized: "settings")) {
+            Button(String(localized: "settings", bundle: LanguageManager.shared.bundle)) {
                 if let url = URL(string: UIApplication.openSettingsURLString) {
                     UIApplication.shared.open(url)
                 }
@@ -188,24 +188,24 @@ struct CreateMomentView: View {
                     Image(systemName: "photo.on.rectangle.angled")
                         .font(.system(size: 48))
                         .foregroundStyle(.secondary)
-                    Text(String(localized: "gallery.select.prompt"))
+                    Text(String(localized: "gallery.select.prompt", bundle: LanguageManager.shared.bundle))
                         .font(.system(.body, design: .rounded))
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .photosPickerStyle(.inline)
-            .navigationTitle(String(localized: "gallery.title"))
+            .navigationTitle(String(localized: "gallery.title", bundle: LanguageManager.shared.bundle))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(String(localized: "back")) {
+                    Button(String(localized: "back", bundle: LanguageManager.shared.bundle)) {
                         currentStep = viewModel.capturedMediaItems.isEmpty ? .captureMenu : .review
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     if !selectedPhotos.isEmpty {
-                        Button(String(localized: "done")) {
+                        Button(String(localized: "done", bundle: LanguageManager.shared.bundle)) {
                             Task { await loadSelectedPhotos() }
                         }
                         .disabled(isLoadingPhotos)
@@ -214,7 +214,7 @@ struct CreateMomentView: View {
             }
             .overlay {
                 if isLoadingPhotos {
-                    ProgressView(String(localized: "loading.media"))
+                    ProgressView(String(localized: "loading.media", bundle: LanguageManager.shared.bundle))
                         .padding()
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
                 }

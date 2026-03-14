@@ -5,6 +5,8 @@ import SwiftData
 struct MomentsApp: App {
     let container: DependencyContainer
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @State private var languageManager = LanguageManager.shared
+    @State private var languageId = UUID()
 
     init() {
         let schema = Schema([
@@ -28,16 +30,24 @@ struct MomentsApp: App {
 
     var body: some Scene {
         WindowGroup {
-            if hasCompletedOnboarding {
-                ContentView(container: container)
-                    .task {
-                        await container.ensureDefaultUser()
-                    }
-            } else {
-                OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding)
-                    .task {
-                        await container.ensureDefaultUser()
-                    }
+            Group {
+                if hasCompletedOnboarding {
+                    ContentView(container: container)
+                        .task {
+                            await container.ensureDefaultUser()
+                        }
+                } else {
+                    OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding)
+                        .task {
+                            await container.ensureDefaultUser()
+                        }
+                }
+            }
+            .id(languageId)
+            .environment(languageManager)
+            .environment(\.locale, Locale(identifier: languageManager.currentLanguage.rawValue))
+            .onChange(of: languageManager.currentLanguage) {
+                languageId = UUID()
             }
         }
         .modelContainer(container.modelContainer)

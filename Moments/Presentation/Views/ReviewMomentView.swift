@@ -36,14 +36,14 @@ struct ReviewMomentView: View {
             .task {
                 await viewModel.loadSmartFeatures()
             }
-            .navigationTitle(String(localized: "review.title"))
+            .navigationTitle(String(localized: "review.title", bundle: LanguageManager.shared.bundle))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(String(localized: "cancel")) { onDismiss() }
+                    Button(String(localized: "cancel", bundle: LanguageManager.shared.bundle)) { onDismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(String(localized: "save")) {
+                    Button(String(localized: "save", bundle: LanguageManager.shared.bundle)) {
                         Task { await viewModel.save() }
                     }
                     .disabled(!viewModel.canSave)
@@ -59,7 +59,7 @@ struct ReviewMomentView: View {
                         VStack(spacing: 12) {
                             ProgressView()
                                 .controlSize(.regular)
-                            Text(String(localized: "saving"))
+                            Text(String(localized: "saving", bundle: LanguageManager.shared.bundle))
                                 .font(.system(.subheadline, design: .rounded, weight: .medium))
                                 .foregroundStyle(.secondary)
                         }
@@ -69,13 +69,13 @@ struct ReviewMomentView: View {
                     .transition(.opacity)
                 }
             }
-            .alert(String(localized: "save.failed"), isPresented: showSaveError) {
-                Button(String(localized: "retry")) {
+            .alert(String(localized: "save.failed", bundle: LanguageManager.shared.bundle), isPresented: showSaveError) {
+                Button(String(localized: "retry", bundle: LanguageManager.shared.bundle)) {
                     Task { await viewModel.save() }
                 }
-                Button(String(localized: "cancel"), role: .cancel) {}
+                Button(String(localized: "cancel", bundle: LanguageManager.shared.bundle), role: .cancel) {}
             } message: {
-                Text(viewModel.errorMessage ?? String(localized: "save.error.message"))
+                Text(viewModel.errorMessage ?? String(localized: "save.error.message", bundle: LanguageManager.shared.bundle))
             }
         }
     }
@@ -115,7 +115,7 @@ struct ReviewMomentView: View {
                 .frame(width: 28)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(String(localized: "voice.note"))
+                Text(String(localized: "voice.note", bundle: LanguageManager.shared.bundle))
                     .font(.system(.subheadline, design: .rounded, weight: .medium))
                 Text(DurationFormatter.shortFormat(voiceNote.duration))
                     .font(.system(.caption, design: .rounded))
@@ -150,11 +150,11 @@ struct ReviewMomentView: View {
 
     private var textSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(String(localized: "description"))
+            Text(String(localized: "description", bundle: LanguageManager.shared.bundle))
                 .font(.system(.subheadline, design: .rounded, weight: .medium))
                 .foregroundStyle(BrandColors.sectionHeader)
 
-            TextField(String(localized: "description.placeholder"), text: $viewModel.text, axis: .vertical)
+            TextField(String(localized: "description.placeholder", bundle: LanguageManager.shared.bundle), text: $viewModel.text, axis: .vertical)
                 .lineLimit(3...6)
                 .font(.system(.body, design: .rounded))
                 .padding(14)
@@ -169,7 +169,7 @@ struct ReviewMomentView: View {
 
     private var tagsSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(String(localized: "tags"))
+            Text(String(localized: "tags", bundle: LanguageManager.shared.bundle))
                 .font(.system(.subheadline, design: .rounded, weight: .medium))
                 .foregroundStyle(BrandColors.sectionHeader)
 
@@ -186,7 +186,7 @@ struct ReviewMomentView: View {
 
             // Add new tag
             HStack {
-                TextField(String(localized: "tags.placeholder"), text: $newTag)
+                TextField(String(localized: "tags.placeholder", bundle: LanguageManager.shared.bundle), text: $newTag)
                     .font(.system(.body, design: .rounded))
                     .onSubmit {
                         addCurrentTag()
@@ -229,7 +229,7 @@ struct ReviewMomentView: View {
             // Suggested Categories
             if !viewModel.suggestedCategoryKeys.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(String(localized: "categories"))
+                    Text(String(localized: "categories", bundle: LanguageManager.shared.bundle))
                         .font(.system(.subheadline, design: .rounded, weight: .medium))
                         .foregroundStyle(BrandColors.sectionHeader)
 
@@ -252,7 +252,7 @@ struct ReviewMomentView: View {
                 HStack(spacing: 8) {
                     ProgressView()
                         .controlSize(.small)
-                    Text(String(localized: "analyzing"))
+                    Text(String(localized: "analyzing", bundle: LanguageManager.shared.bundle))
                         .font(.system(.caption, design: .rounded))
                         .foregroundStyle(BrandColors.textSecondary)
                 }
@@ -267,7 +267,7 @@ struct ReviewMomentView: View {
             HStack(spacing: 6) {
                 Image(systemName: "plus.circle")
                     .font(.system(size: 16, weight: .medium))
-                Text(String(localized: "add.more.media"))
+                Text(String(localized: "add.more.media", bundle: LanguageManager.shared.bundle))
                     .font(.system(.body, design: .rounded, weight: .medium))
             }
             .foregroundStyle(BrandColors.accent)
