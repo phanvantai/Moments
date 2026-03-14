@@ -29,7 +29,10 @@ struct ReviewMomentViewTests {
         let vm = CreateMomentViewModel(
             createMomentUseCase: mockUseCase,
             permissionService: mockPermissionService,
-            mediaRepository: mockMediaRepo
+            mediaRepository: mockMediaRepo,
+            locationService: MockLocationService(),
+            weatherService: MockWeatherService(),
+            categoryEngine: MockCategoryEngine()
         )
 
         let view = ReviewMomentView(
@@ -51,7 +54,10 @@ struct ReviewMomentViewTests {
         let vm = CreateMomentViewModel(
             createMomentUseCase: mockUseCase,
             permissionService: mockPermissionService,
-            mediaRepository: mockMediaRepo
+            mediaRepository: mockMediaRepo,
+            locationService: MockLocationService(),
+            weatherService: MockWeatherService(),
+            categoryEngine: MockCategoryEngine()
         )
 
         let voiceNote = VoiceNote(filePath: "test.m4a", duration: 125, transcript: "Hello world")

@@ -7,12 +7,18 @@ struct CreateMomentViewModelTests {
     let mockUseCase = MockCreateMomentUseCase()
     let mockPermissionService = MockPermissionService()
     let mockMediaRepository = MockMediaRepository()
+    let mockLocationService = MockLocationService()
+    let mockWeatherService = MockWeatherService()
+    let mockCategoryEngine = MockCategoryEngine()
 
     func makeSUT() -> CreateMomentViewModel {
         CreateMomentViewModel(
             createMomentUseCase: mockUseCase,
             permissionService: mockPermissionService,
-            mediaRepository: mockMediaRepository
+            mediaRepository: mockMediaRepository,
+            locationService: mockLocationService,
+            weatherService: mockWeatherService,
+            categoryEngine: mockCategoryEngine
         )
     }
 
@@ -645,6 +651,205 @@ struct CreateMomentViewModelTests {
 
         #expect(vm.capturedMediaItems[0].sortOrder == 0)
         #expect(vm.capturedMediaItems[1].sortOrder == 1)
+    }
+
+    // MARK: - Smart Features: Load
+
+    @Test func test_loadSmartFeatures_callsLocationService() async {
+        mockLocationService.locationToReturn = MockMomentFactory.makeLocation()
+        let vm = makeSUT()
+
+        await vm.loadSmartFeatures()
+
+        #expect(mockLocationService.getCurrentLocationCallCount == 1)
+        #expect(vm.currentLocation != nil)
+    }
+
+    @Test func test_loadSmartFeatures_callsWeatherService_whenLocationAvailable() async {
+        let location = MockMomentFactory.makeLocation()
+        mockLocationService.locationToReturn = location
+        mockWeatherService.weatherToReturn = MockMomentFactory.makeWeather()
+        let vm = makeSUT()
+
+        await vm.loadSmartFeatures()
+
+        #expect(mockWeatherService.fetchWeatherCallCount == 1)
+        #expect(mockWeatherService.lastLatitude == location.latitude)
+        #expect(mockWeatherService.lastLongitude == location.longitude)
+        #expect(vm.currentWeather != nil)
+    }
+
+    @Test func test_loadSmartFeatures_skipsWeather_whenNoLocation() async {
+        mockLocationService.locationToReturn = nil
+        let vm = makeSUT()
+
+        await vm.loadSmartFeatures()
+
+        #expect(mockWeatherService.fetchWeatherCallCount == 0)
+        #expect(vm.currentWeather == nil)
+    }
+
+    @Test func test_loadSmartFeatures_callsCategoryEngine() async {
+        mockCategoryEngine.categoriesToReturn = ["outdoor", "food"]
+        let vm = makeSUT()
+
+        await vm.loadSmartFeatures()
+
+        #expect(mockCategoryEngine.suggestCallCount == 1)
+        #expect(vm.suggestedCategoryKeys == ["outdoor", "food"])
+        #expect(vm.selectedCategoryKeys == Set(["outdoor", "food"]))
+    }
+
+    // MARK: - Smart Features: Location Denied
+
+    @Test func test_save_locationDenied_savedWithoutLocation() async {
+        mockLocationService.locationToReturn = nil
+        mockCategoryEngine.categoriesToReturn = ["daily"]
+        let vm = makeSUT()
+        vm.addMedia(MockMomentFactory.makePhotoMediaItem())
+        await vm.loadSmartFeatures()
+
+        await vm.save()
+
+        let savedMoment = mockUseCase.lastExecutedMoment
+        #expect(savedMoment?.location == nil)
+    }
+
+    // MARK: - Smart Features: Weather Fail
+
+    @Test func test_save_weatherFail_savedWithoutWeather() async {
+        mockLocationService.locationToReturn = MockMomentFactory.makeLocation()
+        mockWeatherService.weatherToReturn = nil
+        mockCategoryEngine.categoriesToReturn = ["daily"]
+        let vm = makeSUT()
+        vm.addMedia(MockMomentFactory.makePhotoMediaItem())
+        await vm.loadSmartFeatures()
+
+        await vm.save()
+
+        let savedMoment = mockUseCase.lastExecutedMoment
+        #expect(savedMoment?.weather == nil)
+    }
+
+    // MARK: - Smart Features: Toggle Category
+
+    @Test func test_toggleCategory_off_removesFromSelected() async {
+        mockCategoryEngine.categoriesToReturn = ["outdoor", "food"]
+        let vm = makeSUT()
+        await vm.loadSmartFeatures()
+
+        vm.toggleCategory("outdoor")
+
+        #expect(!vm.selectedCategoryKeys.contains("outdoor"))
+        #expect(vm.selectedCategoryKeys.contains("food"))
+    }
+
+    @Test func test_toggleCategory_on_addsToSelected() async {
+        mockCategoryEngine.categoriesToReturn = ["outdoor", "food"]
+        let vm = makeSUT()
+        await vm.loadSmartFeatures()
+
+        // Toggle off then on
+        vm.toggleCategory("outdoor")
+        vm.toggleCategory("outdoor")
+
+        #expect(vm.selectedCategoryKeys.contains("outdoor"))
+    }
+
+    @Test func test_save_selectedCategories_savedInMoment() async {
+        mockCategoryEngine.categoriesToReturn = ["outdoor", "food"]
+        let vm = makeSUT()
+        vm.addMedia(MockMomentFactory.makePhotoMediaItem())
+        await vm.loadSmartFeatures()
+
+        // Deselect "food"
+        vm.toggleCategory("food")
+
+        await vm.save()
+
+        let savedMoment = mockUseCase.lastExecutedMoment
+        let categoryKeys = savedMoment?.categories.map(\.key) ?? []
+        #expect(categoryKeys.contains("outdoor"))
+        #expect(!categoryKeys.contains("food"))
+    }
+
+    // MARK: - Smart Features: Disable Location
+
+    @Test func test_disableLocation_clearsLocationAndWeather() async {
+        mockLocationService.locationToReturn = MockMomentFactory.makeLocation()
+        mockWeatherService.weatherToReturn = MockMomentFactory.makeWeather()
+        let vm = makeSUT()
+        await vm.loadSmartFeatures()
+
+        vm.disableLocation()
+
+        #expect(vm.currentLocation == nil)
+        #expect(vm.currentWeather == nil)
+        #expect(vm.isLocationEnabled == false)
+    }
+
+    @Test func test_save_locationDisabled_savedWithoutLocation() async {
+        mockLocationService.locationToReturn = MockMomentFactory.makeLocation()
+        mockWeatherService.weatherToReturn = MockMomentFactory.makeWeather()
+        mockCategoryEngine.categoriesToReturn = ["daily"]
+        let vm = makeSUT()
+        vm.addMedia(MockMomentFactory.makePhotoMediaItem())
+        await vm.loadSmartFeatures()
+        vm.disableLocation()
+
+        await vm.save()
+
+        let savedMoment = mockUseCase.lastExecutedMoment
+        #expect(savedMoment?.location == nil)
+    }
+
+    // MARK: - Smart Features: Reset
+
+    @Test func test_resetState_clearsSmartFeatures() async {
+        mockLocationService.locationToReturn = MockMomentFactory.makeLocation()
+        mockWeatherService.weatherToReturn = MockMomentFactory.makeWeather()
+        mockCategoryEngine.categoriesToReturn = ["outdoor"]
+        let vm = makeSUT()
+        await vm.loadSmartFeatures()
+
+        vm.resetState()
+
+        #expect(vm.currentLocation == nil)
+        #expect(vm.currentWeather == nil)
+        #expect(vm.suggestedCategoryKeys.isEmpty)
+        #expect(vm.selectedCategoryKeys.isEmpty)
+        #expect(vm.isLocationEnabled == true)
+    }
+
+    // MARK: - Smart Features: Initial State
+
+    @Test func test_initial_smartFeaturesEmpty() {
+        let vm = makeSUT()
+
+        #expect(vm.currentLocation == nil)
+        #expect(vm.currentWeather == nil)
+        #expect(vm.suggestedCategoryKeys.isEmpty)
+        #expect(vm.selectedCategoryKeys.isEmpty)
+        #expect(vm.isLocationEnabled == true)
+        #expect(vm.isLoadingSmartFeatures == false)
+    }
+
+    @Test func test_save_passesLocationWeatherCategories() async {
+        let location = MockMomentFactory.makeLocation()
+        let weather = MockMomentFactory.makeWeather()
+        mockLocationService.locationToReturn = location
+        mockWeatherService.weatherToReturn = weather
+        mockCategoryEngine.categoriesToReturn = ["outdoor"]
+        let vm = makeSUT()
+        vm.addMedia(MockMomentFactory.makePhotoMediaItem())
+        await vm.loadSmartFeatures()
+
+        await vm.save()
+
+        let savedMoment = mockUseCase.lastExecutedMoment
+        #expect(savedMoment?.location == location)
+        #expect(savedMoment?.weather == weather)
+        #expect(savedMoment?.categories.map(\.key) == ["outdoor"])
     }
 }
 

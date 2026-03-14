@@ -22,6 +22,9 @@ struct ReviewMomentView: View {
                     // Text Field
                     textSection
 
+                    // Smart Features
+                    smartFeaturesSection
+
                     // Tags
                     tagsSection
 
@@ -29,6 +32,9 @@ struct ReviewMomentView: View {
                     addMoreMediaButton
                 }
                 .padding()
+            }
+            .task {
+                await viewModel.loadSmartFeatures()
             }
             .navigationTitle("Review Moment")
             .navigationBarTitleDisplayMode(.inline)
@@ -158,6 +164,56 @@ struct ReviewMomentView: View {
             }
             .padding(12)
             .background(RoundedRectangle(cornerRadius: 12).fill(.gray.opacity(0.1)))
+        }
+    }
+
+    // MARK: - Smart Features
+
+    private var smartFeaturesSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Location
+            if let location = viewModel.currentLocation, viewModel.isLocationEnabled {
+                LocationBadgeView(location: location) {
+                    viewModel.disableLocation()
+                }
+            }
+
+            // Weather
+            if let weather = viewModel.currentWeather {
+                WeatherBadgeView(weather: weather)
+            }
+
+            // Suggested Categories
+            if !viewModel.suggestedCategoryKeys.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Categories")
+                        .font(.system(.subheadline, design: .rounded, weight: .medium))
+                        .foregroundStyle(.secondary)
+
+                    FlowLayout(spacing: 8) {
+                        ForEach(viewModel.suggestedCategoryKeys, id: \.self) { key in
+                            if let category = MomentCategory.find(byKey: key) {
+                                CategoryBadgeView(
+                                    category: category,
+                                    isSelected: viewModel.selectedCategoryKeys.contains(key)
+                                ) {
+                                    viewModel.toggleCategory(key)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if viewModel.isLoadingSmartFeatures {
+                HStack {
+                    ProgressView()
+                        .controlSize(.small)
+                    Text("Analyzing...")
+                        .font(.system(.caption, design: .rounded))
+                        .foregroundStyle(.secondary)
+                }
+            }
         }
     }
 

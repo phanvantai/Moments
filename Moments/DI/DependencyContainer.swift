@@ -12,6 +12,9 @@ final class DependencyContainer {
     // Services
     let mediaFileService: MediaFileServiceProtocol
     let permissionService: PermissionServiceProtocol
+    let locationService: LocationServiceProtocol
+    let weatherService: WeatherServiceProtocol
+    let categoryEngine: CategoryEngineProtocol
 
     // Use Cases
     let createMomentUseCase: CreateMomentUseCaseProtocol
@@ -25,6 +28,9 @@ final class DependencyContainer {
         let mediaFileService = MediaFileService()
         self.mediaFileService = mediaFileService
         self.permissionService = PermissionService()
+        self.locationService = LocationService()
+        self.weatherService = WeatherService()
+        self.categoryEngine = CategoryEngine()
 
         // Repositories
         let momentRepository = MomentRepository(modelContainer: modelContainer)
@@ -55,7 +61,10 @@ final class DependencyContainer {
         CreateMomentViewModel(
             createMomentUseCase: createMomentUseCase,
             permissionService: permissionService,
-            mediaRepository: mediaRepository
+            mediaRepository: mediaRepository,
+            locationService: locationService,
+            weatherService: weatherService,
+            categoryEngine: categoryEngine
         )
     }
 

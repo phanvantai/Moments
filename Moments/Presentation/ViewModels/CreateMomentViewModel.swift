@@ -13,6 +13,14 @@ final class CreateMomentViewModel {
     var isSaved: Bool = false
     var isSaving: Bool = false
 
+    // Smart features state
+    private(set) var currentLocation: Location?
+    private(set) var currentWeather: Weather?
+    private(set) var suggestedCategoryKeys: [String] = []
+    var selectedCategoryKeys: Set<String> = []
+    var isLocationEnabled: Bool = true
+    private(set) var isLoadingSmartFeatures: Bool = false
+
     // Permission availability
     private(set) var isCameraAvailable: Bool = true
     private(set) var isVoiceAvailable: Bool = true
@@ -27,15 +35,24 @@ final class CreateMomentViewModel {
     private let createMomentUseCase: CreateMomentUseCaseProtocol
     private let permissionService: PermissionServiceProtocol
     let mediaRepository: MediaRepositoryProtocol
+    private let locationService: LocationServiceProtocol
+    private let weatherService: WeatherServiceProtocol
+    private let categoryEngine: CategoryEngineProtocol
 
     init(
         createMomentUseCase: CreateMomentUseCaseProtocol,
         permissionService: PermissionServiceProtocol,
-        mediaRepository: MediaRepositoryProtocol
+        mediaRepository: MediaRepositoryProtocol,
+        locationService: LocationServiceProtocol,
+        weatherService: WeatherServiceProtocol,
+        categoryEngine: CategoryEngineProtocol
     ) {
         self.createMomentUseCase = createMomentUseCase
         self.permissionService = permissionService
         self.mediaRepository = mediaRepository
+        self.locationService = locationService
+        self.weatherService = weatherService
+        self.categoryEngine = categoryEngine
     }
 
     // MARK: - Media Management
@@ -158,6 +175,53 @@ final class CreateMomentViewModel {
         }
     }
 
+    // MARK: - Smart Features
+
+    func loadSmartFeatures() async {
+        isLoadingSmartFeatures = true
+
+        // Fetch location
+        currentLocation = await locationService.getCurrentLocation()
+
+        // Fetch weather if location available
+        if let location = currentLocation {
+            currentWeather = await weatherService.fetchWeather(
+                latitude: location.latitude,
+                longitude: location.longitude
+            )
+        }
+
+        // Suggest categories
+        await refreshCategories()
+
+        isLoadingSmartFeatures = false
+    }
+
+    func refreshCategories() async {
+        let categoryKeys = await categoryEngine.suggest(
+            text: text.isEmpty ? nil : text,
+            voiceTranscript: voiceNote?.transcript,
+            imageData: nil,
+            location: currentLocation
+        )
+        suggestedCategoryKeys = categoryKeys
+        selectedCategoryKeys = Set(categoryKeys)
+    }
+
+    func toggleCategory(_ key: String) {
+        if selectedCategoryKeys.contains(key) {
+            selectedCategoryKeys.remove(key)
+        } else {
+            selectedCategoryKeys.insert(key)
+        }
+    }
+
+    func disableLocation() {
+        isLocationEnabled = false
+        currentLocation = nil
+        currentWeather = nil
+    }
+
     // MARK: - Save
 
     func save() async {
@@ -165,12 +229,17 @@ final class CreateMomentViewModel {
         isSaving = true
         errorMessage = nil
 
+        let categories = selectedCategoryKeys.compactMap { MomentCategory.find(byKey: $0) }
+
         let moment = Moment(
             userId: User.default.id,
             text: text.isEmpty ? nil : text,
             mediaItems: capturedMediaItems,
             voiceNote: voiceNote,
-            tags: tags
+            location: isLocationEnabled ? currentLocation : nil,
+            categories: categories,
+            tags: tags,
+            weather: currentWeather
         )
 
         do {
@@ -192,5 +261,10 @@ final class CreateMomentViewModel {
         tags = []
         errorMessage = nil
         isSaved = false
+        currentLocation = nil
+        currentWeather = nil
+        suggestedCategoryKeys = []
+        selectedCategoryKeys = []
+        isLocationEnabled = true
     }
 }
