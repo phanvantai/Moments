@@ -11,6 +11,7 @@ final class DependencyContainer {
 
     // Services
     let mediaFileService: MediaFileServiceProtocol
+    let permissionService: PermissionServiceProtocol
 
     // Use Cases
     let createMomentUseCase: CreateMomentUseCaseProtocol
@@ -23,6 +24,7 @@ final class DependencyContainer {
         // Services
         let mediaFileService = MediaFileService()
         self.mediaFileService = mediaFileService
+        self.permissionService = PermissionService()
 
         // Repositories
         let momentRepository = MomentRepository(modelContainer: modelContainer)
@@ -36,6 +38,23 @@ final class DependencyContainer {
         self.fetchMomentsUseCase = FetchMomentsUseCase(momentRepository: momentRepository)
         self.deleteMomentUseCase = DeleteMomentUseCase(
             momentRepository: momentRepository,
+            mediaRepository: mediaRepository
+        )
+    }
+
+    // MARK: - View Model Factories
+
+    func makeTimelineViewModel() -> TimelineViewModel {
+        TimelineViewModel(
+            fetchMomentsUseCase: fetchMomentsUseCase,
+            deleteMomentUseCase: deleteMomentUseCase
+        )
+    }
+
+    func makeCreateMomentViewModel() -> CreateMomentViewModel {
+        CreateMomentViewModel(
+            createMomentUseCase: createMomentUseCase,
+            permissionService: permissionService,
             mediaRepository: mediaRepository
         )
     }

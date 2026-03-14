@@ -35,6 +35,24 @@ struct CreateMomentUseCaseTests {
         #expect(mockRepo.createCallCount == 0)
     }
 
+    @Test func test_execute_withTextOnly_throwsNoMediaError() async {
+        let moment = MockMomentFactory.makeMoment(text: "Just text, no media")
+
+        await #expect(throws: CreateMomentError.noMedia) {
+            try await sut.execute(moment)
+        }
+        #expect(mockRepo.createCallCount == 0)
+    }
+
+    @Test func test_execute_withMultipleMedia_createsMoment() async throws {
+        let moment = MockMomentFactory.makeFullMoment()
+
+        try await sut.execute(moment)
+
+        #expect(mockRepo.createCallCount == 1)
+        #expect(mockRepo.lastCreatedMoment == moment)
+    }
+
     @Test func test_execute_repoThrows_propagatesError() async {
         let moment = MockMomentFactory.makePhotoMoment()
         mockRepo.errorToThrow = TestError.generic

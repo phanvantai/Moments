@@ -3,6 +3,10 @@ import SwiftUI
 struct ContentView: View {
     let container: DependencyContainer
 
+    @State private var showCreateMoment = false
+    @State private var timelineViewModel: TimelineViewModel?
+    @State private var createMomentViewModel: CreateMomentViewModel?
+
     var body: some View {
         ZStack {
             VStack(spacing: 16) {
@@ -19,12 +23,14 @@ struct ContentView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
+            // FAB Button
             VStack {
                 Spacer()
                 HStack {
                     Spacer()
                     Button {
-                        // FAB placeholder action
+                        createMomentViewModel = container.makeCreateMomentViewModel()
+                        showCreateMoment = true
                     } label: {
                         Image(systemName: "plus")
                             .font(.title2.weight(.semibold))
@@ -37,6 +43,24 @@ struct ContentView: View {
                     .padding(.bottom, 24)
                 }
             }
+        }
+        .fullScreenCover(isPresented: $showCreateMoment) {
+            if let vm = createMomentViewModel {
+                CreateMomentView(
+                    viewModel: vm,
+                    onDismiss: {
+                        showCreateMoment = false
+                        createMomentViewModel = nil
+                    },
+                    onSaved: {
+                        showCreateMoment = false
+                        createMomentViewModel = nil
+                    }
+                )
+            }
+        }
+        .task {
+            timelineViewModel = container.makeTimelineViewModel()
         }
     }
 }
