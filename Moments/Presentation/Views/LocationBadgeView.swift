@@ -8,7 +8,7 @@ struct LocationBadgeView: View {
         HStack(spacing: 6) {
             Image(systemName: "mappin.circle.fill")
                 .font(.system(size: 16))
-                .foregroundStyle(.red)
+                .foregroundStyle(BrandColors.categoryRed)
             Text(location.name ?? locationCoordinateText)
                 .font(.system(.caption, design: .rounded, weight: .medium))
                 .lineLimit(1)
@@ -16,6 +16,7 @@ struct LocationBadgeView: View {
             Button(action: onRemove) {
                 Image(systemName: "xmark.circle.fill")
                     .font(.system(size: 14))
+                    .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(.secondary)
             }
             .buttonStyle(.plain)
@@ -25,7 +26,7 @@ struct LocationBadgeView: View {
         .padding(.vertical, 6)
         .background(
             Capsule()
-                .fill(Color.red.opacity(0.1))
+                .fill(BrandColors.categoryRed.opacity(0.10))
         )
         .accessibilityLabel("Location: \(location.name ?? locationCoordinateText)")
     }

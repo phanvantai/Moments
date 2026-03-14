@@ -133,8 +133,8 @@ struct EdgeCaseTests {
     @Test func test_displayHelper_unknownCategoryKey_returnsDefaultColor() {
         let color = MomentDisplayHelper.color(forCategoryKey: "unknown-key")
 
-        // Should return blue (default)
-        #expect(color == .blue)
+        // Should return brand blue (default)
+        #expect(color == BrandColors.categoryBlue)
     }
 
     // MARK: - Negative temperature

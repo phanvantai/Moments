@@ -44,25 +44,25 @@ struct MomentDisplayHelperTests {
         let moment = MockMomentFactory.makeMoment(categories: [])
         let color = MomentDisplayHelper.categoryColor(for: moment)
 
-        #expect(color == .blue)
+        #expect(color == BrandColors.categoryBlue)
     }
 
     @Test func test_categoryColor_firstTime_returnsYellow() {
         let color = MomentDisplayHelper.color(forCategoryKey: "first-time")
 
-        #expect(color == .yellow)
+        #expect(color == BrandColors.categoryYellow)
     }
 
     @Test func test_categoryColor_travel_returnsCyan() {
         let color = MomentDisplayHelper.color(forCategoryKey: "travel")
 
-        #expect(color == .cyan)
+        #expect(color == BrandColors.categoryCyan)
     }
 
     @Test func test_categoryColor_unknownKey_returnsBlue() {
         let color = MomentDisplayHelper.color(forCategoryKey: "unknown")
 
-        #expect(color == .blue)
+        #expect(color == BrandColors.categoryBlue)
     }
 
     // MARK: - Badge Helpers

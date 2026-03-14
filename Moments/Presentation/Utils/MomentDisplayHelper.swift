@@ -16,24 +16,24 @@ enum MomentDisplayHelper {
 
     static func categoryColor(for moment: Moment) -> Color {
         guard let category = moment.categories.first else {
-            return .blue
+            return BrandColors.categoryBlue
         }
         return color(forCategoryKey: category.key)
     }
 
     static func color(forCategoryKey key: String) -> Color {
         switch key {
-        case "first-time": return .yellow
-        case "milestone": return .orange
-        case "daily": return .blue
-        case "outdoor": return .green
-        case "family": return .purple
-        case "health": return .red
-        case "travel": return .cyan
-        case "food": return .pink
-        case "play": return .indigo
-        case "learn": return .teal
-        default: return .blue
+        case "first-time": return BrandColors.categoryYellow
+        case "milestone": return BrandColors.categoryOrange
+        case "daily": return BrandColors.categoryBlue
+        case "outdoor": return BrandColors.categoryGreen
+        case "family": return BrandColors.categoryPurple
+        case "health": return BrandColors.categoryRed
+        case "travel": return BrandColors.categoryCyan
+        case "food": return BrandColors.categoryPink
+        case "play": return BrandColors.categoryIndigo
+        case "learn": return BrandColors.categoryTeal
+        default: return BrandColors.categoryBlue
         }
     }
 

@@ -70,16 +70,16 @@ struct GridView: View {
 
     private var gridContent: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 16) {
+            LazyVStack(alignment: .leading, spacing: 20) {
                 ForEach(Array(groupedMoments.enumerated()), id: \.offset) { _, section in
                     let (label, sectionMoments) = section
 
                     Section {
-                        LazyVGrid(columns: columns, spacing: 12) {
+                        LazyVGrid(columns: columns, spacing: 14) {
                             ForEach(sectionMoments) { moment in
                                 GridCardView(viewModel: GridCardViewModel(moment: moment))
                                     .onTapGesture { onMomentTap(moment) }
-                                    .scaleEffect(appearedCards.contains(moment.id) ? 1.0 : 0.85)
+                                    .scaleEffect(appearedCards.contains(moment.id) ? 1.0 : 0.9)
                                     .opacity(appearedCards.contains(moment.id) ? 1.0 : 0)
                                     .onAppear {
                                         let animation = Animation.spring(response: 0.4, dampingFraction: 0.75)
@@ -96,15 +96,17 @@ struct GridView: View {
                                         }
                                     }
                                     .transition(.asymmetric(
-                                        insertion: .opacity.combined(with: .scale(scale: 0.85)),
-                                        removal: .opacity.combined(with: .scale(scale: 0.8))
+                                        insertion: .opacity.combined(with: .scale(scale: 0.9)),
+                                        removal: .opacity.combined(with: .scale(scale: 0.85))
                                     ))
                             }
                         }
                     } header: {
                         Text(label)
-                            .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                            .foregroundStyle(.secondary)
+                            .font(.system(.footnote, design: .rounded, weight: .semibold))
+                            .foregroundStyle(BrandColors.sectionHeader)
+                            .textCase(.uppercase)
+                            .tracking(0.5)
                     }
                 }
             }

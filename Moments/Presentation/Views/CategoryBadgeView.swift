@@ -5,31 +5,36 @@ struct CategoryBadgeView: View {
     let isSelected: Bool
     let onToggle: () -> Void
 
+    private var categoryColor: Color {
+        MomentDisplayHelper.color(forCategoryKey: category.key)
+    }
+
     var body: some View {
         Button(action: {
             HapticManager.categoryToggle()
             onToggle()
         }) {
-            HStack(spacing: 4) {
+            HStack(spacing: 5) {
                 Text(category.emoji)
                     .font(.system(size: 14))
                 Text(category.label)
-                    .font(.system(.caption, design: .rounded))
+                    .font(.system(.caption, design: .rounded, weight: .medium))
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 7)
             .background(
                 Capsule()
-                    .fill(isSelected ? Color.blue.opacity(0.15) : Color.gray.opacity(0.1))
+                    .fill(isSelected ? categoryColor.opacity(0.15) : Color(.tertiarySystemFill))
             )
             .overlay(
                 Capsule()
-                    .stroke(isSelected ? Color.blue.opacity(0.4) : Color.clear, lineWidth: 1)
+                    .stroke(isSelected ? categoryColor.opacity(0.4) : Color.clear, lineWidth: 1.5)
             )
-            .foregroundStyle(isSelected ? .primary : .secondary)
+            .foregroundStyle(isSelected ? categoryColor : .secondary)
         }
         .buttonStyle(.plain)
         .accessibilityLabel("\(category.emoji) \(category.label)")
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .animation(.easeOut(duration: 0.15), value: isSelected)
     }
 }

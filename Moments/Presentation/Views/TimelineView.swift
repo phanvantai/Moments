@@ -64,13 +64,7 @@ struct TimelineView: View {
     private var timelineLine: some View {
         GeometryReader { geometry in
             Rectangle()
-                .fill(
-                    LinearGradient(
-                        colors: [.blue.opacity(0.1), .blue.opacity(0.3), .blue.opacity(0.1)],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
+                .fill(BrandColors.timelineGradient)
                 .frame(height: 2)
                 .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
         }

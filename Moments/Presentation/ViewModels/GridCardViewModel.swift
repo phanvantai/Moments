@@ -39,4 +39,12 @@ struct GridCardViewModel {
     var isVoiceOnly: Bool {
         moment.mediaItems.isEmpty && moment.voiceNote != nil
     }
+
+    var hasVideoBadge: Bool {
+        MomentDisplayHelper.hasVideoBadge(moment)
+    }
+
+    var hasVoiceBadge: Bool {
+        MomentDisplayHelper.hasVoiceBadge(moment)
+    }
 }

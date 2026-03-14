@@ -48,14 +48,25 @@ struct ReviewMomentView: View {
                     }
                     .disabled(!viewModel.canSave)
                     .font(.system(.body, design: .rounded, weight: .semibold))
+                    .foregroundStyle(viewModel.canSave ? BrandColors.accent : .gray)
                 }
             }
             .overlay {
                 if viewModel.isSaving {
-                    ProgressView("Saving...")
-                        .padding()
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
-                        .transition(.scale.combined(with: .opacity))
+                    ZStack {
+                        Color.black.opacity(0.1)
+                            .ignoresSafeArea()
+                        VStack(spacing: 12) {
+                            ProgressView()
+                                .controlSize(.regular)
+                            Text("Saving...")
+                                .font(.system(.subheadline, design: .rounded, weight: .medium))
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(24)
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                    }
+                    .transition(.opacity)
                 }
             }
             .alert("Save Failed", isPresented: showSaveError) {
@@ -82,7 +93,7 @@ struct ReviewMomentView: View {
     private var mediaPreviewSection: some View {
         if !viewModel.capturedMediaItems.isEmpty {
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
+                HStack(spacing: 10) {
                     ForEach(viewModel.capturedMediaItems) { item in
                         MediaThumbnailView(item: item) {
                             viewModel.removeMedia(item.id)
@@ -100,18 +111,19 @@ struct ReviewMomentView: View {
         HStack(spacing: 12) {
             Image(systemName: "waveform")
                 .font(.title3)
-                .foregroundStyle(.red)
+                .foregroundStyle(BrandColors.categoryRed)
+                .frame(width: 28)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text("Voice Note")
                     .font(.system(.subheadline, design: .rounded, weight: .medium))
                 Text(DurationFormatter.shortFormat(voiceNote.duration))
                     .font(.system(.caption, design: .rounded))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(BrandColors.textSecondary)
                 if let transcript = voiceNote.transcript, !transcript.isEmpty {
                     Text(transcript)
                         .font(.system(.caption, design: .rounded))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(BrandColors.textSecondary)
                         .lineLimit(2)
                 }
             }
@@ -122,11 +134,16 @@ struct ReviewMomentView: View {
                 viewModel.removeVoiceNote()
             } label: {
                 Image(systemName: "xmark.circle.fill")
+                    .font(.system(size: 20))
+                    .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(12)
-        .background(RoundedRectangle(cornerRadius: 12).fill(.red.opacity(0.1)))
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(BrandColors.categoryRed.opacity(0.08))
+        )
     }
 
     // MARK: - Text Section
@@ -135,13 +152,16 @@ struct ReviewMomentView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Description")
                 .font(.system(.subheadline, design: .rounded, weight: .medium))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(BrandColors.sectionHeader)
 
             TextField("What happened in this moment?", text: $viewModel.text, axis: .vertical)
                 .lineLimit(3...6)
                 .font(.system(.body, design: .rounded))
-                .padding(12)
-                .background(RoundedRectangle(cornerRadius: 12).fill(.gray.opacity(0.1)))
+                .padding(14)
+                .background(
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(Color(.secondarySystemGroupedBackground))
+                )
         }
     }
 
@@ -151,13 +171,15 @@ struct ReviewMomentView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Tags")
                 .font(.system(.subheadline, design: .rounded, weight: .medium))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(BrandColors.sectionHeader)
 
             // Existing tags
-            FlowLayout(spacing: 8) {
-                ForEach(viewModel.tags, id: \.self) { tag in
-                    TagChip(tag: tag) {
-                        viewModel.removeTag(tag)
+            if !viewModel.tags.isEmpty {
+                FlowLayout(spacing: 8) {
+                    ForEach(viewModel.tags, id: \.self) { tag in
+                        TagChip(tag: tag) {
+                            viewModel.removeTag(tag)
+                        }
                     }
                 }
             }
@@ -174,12 +196,17 @@ struct ReviewMomentView: View {
                     addCurrentTag()
                 } label: {
                     Image(systemName: "plus.circle.fill")
+                        .font(.system(size: 22))
+                        .symbolRenderingMode(.hierarchical)
                         .foregroundStyle(BrandColors.accent)
                 }
                 .disabled(newTag.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
-            .padding(12)
-            .background(RoundedRectangle(cornerRadius: 12).fill(.gray.opacity(0.1)))
+            .padding(14)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(Color(.secondarySystemGroupedBackground))
+            )
         }
     }
 
@@ -204,7 +231,7 @@ struct ReviewMomentView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Categories")
                         .font(.system(.subheadline, design: .rounded, weight: .medium))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(BrandColors.sectionHeader)
 
                     FlowLayout(spacing: 8) {
                         ForEach(viewModel.suggestedCategoryKeys, id: \.self) { key in
@@ -222,12 +249,12 @@ struct ReviewMomentView: View {
             }
 
             if viewModel.isLoadingSmartFeatures {
-                HStack {
+                HStack(spacing: 8) {
                     ProgressView()
                         .controlSize(.small)
                     Text("Analyzing...")
                         .font(.system(.caption, design: .rounded))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(BrandColors.textSecondary)
                 }
             }
         }
@@ -237,15 +264,20 @@ struct ReviewMomentView: View {
 
     private var addMoreMediaButton: some View {
         Button(action: onAddMoreMedia) {
-            HStack {
+            HStack(spacing: 6) {
                 Image(systemName: "plus.circle")
+                    .font(.system(size: 16, weight: .medium))
                 Text("Add more media")
+                    .font(.system(.body, design: .rounded, weight: .medium))
             }
-            .font(.system(.body, design: .rounded))
             .foregroundStyle(BrandColors.accent)
             .frame(maxWidth: .infinity)
-            .padding(12)
-            .background(RoundedRectangle(cornerRadius: 12).stroke(BrandColors.accent.opacity(0.3), lineWidth: 1))
+            .padding(14)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(BrandColors.accent.opacity(0.25), lineWidth: 1.5)
+                    .fill(BrandColors.accent.opacity(0.03))
+            )
         }
     }
 
@@ -272,7 +304,7 @@ private struct MediaThumbnailView: View {
     var body: some View {
         ZStack(alignment: .topTrailing) {
             RoundedRectangle(cornerRadius: 12)
-                .fill(.gray.opacity(0.2))
+                .fill(Color(.secondarySystemGroupedBackground))
                 .frame(width: 120, height: 120)
                 .overlay {
                     if let image = thumbnailImage {
@@ -281,10 +313,11 @@ private struct MediaThumbnailView: View {
                             .scaledToFill()
                             .frame(width: 120, height: 120)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .transition(.opacity.animation(.easeOut(duration: 0.2)))
                     } else {
                         Image(systemName: item.type == .video ? "video.fill" : "photo.fill")
                             .font(.title2)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.tertiary)
                     }
                 }
 
@@ -294,16 +327,16 @@ private struct MediaThumbnailView: View {
                     .font(.caption2)
                     .foregroundStyle(.white)
                     .padding(4)
-                    .background(Circle().fill(.black.opacity(0.5)))
+                    .background(Circle().fill(.black.opacity(0.45)))
                     .offset(x: -8, y: 8)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             }
 
             Button(action: onRemove) {
                 Image(systemName: "xmark.circle.fill")
-                    .font(.title3)
-                    .foregroundStyle(.white)
-                    .background(Circle().fill(.black.opacity(0.5)))
+                    .font(.system(size: 22))
+                    .symbolRenderingMode(.palette)
+                    .foregroundStyle(.white, .black.opacity(0.55))
             }
             .offset(x: 6, y: -6)
         }
@@ -322,16 +355,16 @@ private struct TagChip: View {
     var body: some View {
         HStack(spacing: 4) {
             Text("#\(tag)")
-                .font(.system(.caption, design: .rounded))
+                .font(.system(.caption, design: .rounded, weight: .medium))
             Button(action: onRemove) {
                 Image(systemName: "xmark")
-                    .font(.caption2)
+                    .font(.system(size: 9, weight: .bold))
             }
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
-        .background(Capsule().fill(.blue.opacity(0.1)))
-        .foregroundStyle(.blue)
+        .background(Capsule().fill(BrandColors.categoryBlue.opacity(0.10)))
+        .foregroundStyle(BrandColors.categoryBlue)
     }
 }
 

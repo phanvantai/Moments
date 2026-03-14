@@ -49,6 +49,7 @@ struct ContentView: View {
                                   ? "square.grid.2x2"
                                   : "timeline.selection")
                                 .font(.body)
+                                .foregroundStyle(BrandColors.accent)
                                 .contentTransition(.symbolEffect(.replace))
                         }
                     }
@@ -78,6 +79,7 @@ struct ContentView: View {
                 Text("This will permanently delete the moment and all its media.")
             }
         }
+        .tint(BrandColors.accent)
         .fullScreenCover(isPresented: $showCreateMoment) {
             if let vm = createMomentViewModel {
                 CreateMomentView(
@@ -115,7 +117,7 @@ struct ContentView: View {
         Button {
             HapticManager.fabTap()
             withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                fabScale = 0.8
+                fabScale = 0.85
                 fabRotation = 90
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
@@ -130,9 +132,12 @@ struct ContentView: View {
             Image(systemName: "plus")
                 .font(.title2.weight(.semibold))
                 .foregroundStyle(.white)
-                .frame(width: 56, height: 56)
-                .background(Circle().fill(BrandColors.fabGradient))
-                .shadow(color: BrandColors.accent.opacity(0.3), radius: 8, y: 4)
+                .frame(width: 58, height: 58)
+                .background(
+                    Circle()
+                        .fill(BrandColors.fabGradient)
+                        .shadow(color: BrandColors.accent.opacity(0.35), radius: 12, y: 5)
+                )
                 .scaleEffect(fabScale)
                 .rotationEffect(.degrees(fabRotation))
         }
@@ -190,26 +195,34 @@ struct ContentView: View {
 
     private func errorState(message: String, vm: TimelineViewModel) -> some View {
         VStack(spacing: 16) {
-            Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 48))
-                .foregroundStyle(.orange)
+            ZStack {
+                Circle()
+                    .fill(Color.orange.opacity(0.1))
+                    .frame(width: 80, height: 80)
+                Image(systemName: "exclamationmark.triangle")
+                    .font(.system(size: 32, weight: .light))
+                    .foregroundStyle(.orange)
+            }
+
             Text("Something went wrong")
                 .font(.system(.title3, design: .rounded, weight: .semibold))
                 .foregroundStyle(.primary)
             Text(message)
-                .font(.system(.body, design: .rounded))
-                .foregroundStyle(.secondary)
+                .font(.system(.subheadline, design: .rounded))
+                .foregroundStyle(BrandColors.textSecondary)
                 .multilineTextAlignment(.center)
+
             Button {
                 Task { await vm.loadMoments() }
             } label: {
                 Text("Try Again")
-                    .font(.system(.body, design: .rounded, weight: .medium))
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 10)
-                    .background(Capsule().fill(.blue))
+                    .font(.system(.body, design: .rounded, weight: .semibold))
+                    .padding(.horizontal, 28)
+                    .padding(.vertical, 12)
+                    .background(Capsule().fill(BrandColors.accent))
                     .foregroundStyle(.white)
             }
+            .padding(.top, 4)
         }
         .padding(32)
         .frame(maxWidth: .infinity, maxHeight: .infinity)

@@ -10,7 +10,7 @@ struct MomentDetailView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 0) {
                     if viewModel.hasMedia {
                         GeometryReader { geometry in
                             MediaViewer(viewModel: MediaViewerViewModel(mediaItems: viewModel.mediaItems))
@@ -21,34 +21,52 @@ struct MomentDetailView: View {
                         .offset(y: appeared ? 0 : 10)
                     }
 
-                    VStack(alignment: .leading, spacing: 12) {
-                        if let title = viewModel.title {
-                            Text(title)
-                                .font(.system(.title2, design: .rounded, weight: .bold))
+                    VStack(alignment: .leading, spacing: 16) {
+                        // Title & Text
+                        if viewModel.title != nil || viewModel.text != nil {
+                            VStack(alignment: .leading, spacing: 8) {
+                                if let title = viewModel.title {
+                                    Text(title)
+                                        .font(.system(.title2, design: .rounded, weight: .bold))
+                                }
+
+                                if let text = viewModel.text {
+                                    Text(text)
+                                        .font(.system(.body, design: .rounded))
+                                        .foregroundStyle(.primary)
+                                        .lineSpacing(2)
+                                }
+                            }
                         }
 
-                        if let text = viewModel.text {
-                            Text(text)
-                                .font(.system(.body, design: .rounded))
-                                .foregroundStyle(.primary)
-                        }
-
+                        // Voice Player
                         if let voiceNote = viewModel.voiceNote {
                             VoicePlayerView(viewModel: VoicePlayerViewModel(voiceNote: voiceNote))
                         }
 
-                        if viewModel.hasCategories {
-                            categorySection
+                        // Metadata section
+                        if viewModel.hasCategories || viewModel.hasTags || viewModel.weather != nil {
+                            VStack(alignment: .leading, spacing: 14) {
+                                if viewModel.hasCategories {
+                                    categorySection
+                                }
+
+                                if viewModel.hasTags {
+                                    tagsSection
+                                }
+
+                                if let weather = viewModel.weather {
+                                    weatherBadge(weather)
+                                }
+                            }
+                            .padding(14)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .fill(Color(.secondarySystemGroupedBackground))
+                            )
                         }
 
-                        if viewModel.hasTags {
-                            tagsSection
-                        }
-
-                        if let weather = viewModel.weather {
-                            weatherBadge(weather)
-                        }
-
+                        // Location
                         if let location = viewModel.location {
                             miniMap(location)
                         }
@@ -56,6 +74,8 @@ struct MomentDetailView: View {
                         timestampSection
                     }
                     .padding(.horizontal, 16)
+                    .padding(.top, 16)
+                    .padding(.bottom, 24)
                     .opacity(appeared ? 1 : 0)
                     .offset(y: appeared ? 0 : 15)
                 }
@@ -68,6 +88,8 @@ struct MomentDetailView: View {
                         onDismiss()
                     } label: {
                         Image(systemName: "xmark.circle.fill")
+                            .font(.title3)
+                            .symbolRenderingMode(.hierarchical)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -83,77 +105,75 @@ struct MomentDetailView: View {
     // MARK: - Sections
 
     private var categorySection: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text("Categories")
+        VStack(alignment: .leading, spacing: 8) {
+            Label("Categories", systemImage: "tag")
                 .font(.system(.caption, design: .rounded, weight: .semibold))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(BrandColors.sectionHeader)
             FlowLayout(spacing: 6) {
                 ForEach(viewModel.categories) { category in
                     HStack(spacing: 4) {
                         Text(category.emoji)
                             .font(.system(size: 14))
                         Text(category.label)
-                            .font(.system(.caption, design: .rounded))
+                            .font(.system(.caption, design: .rounded, weight: .medium))
                     }
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
                     .background(
                         Capsule()
-                            .fill(Color.primary.opacity(0.05))
+                            .fill(MomentDisplayHelper.color(forCategoryKey: category.key).opacity(0.12))
                     )
+                    .foregroundStyle(MomentDisplayHelper.color(forCategoryKey: category.key))
                 }
             }
         }
     }
 
     private var tagsSection: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text("Tags")
+        VStack(alignment: .leading, spacing: 8) {
+            Label("Tags", systemImage: "number")
                 .font(.system(.caption, design: .rounded, weight: .semibold))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(BrandColors.sectionHeader)
             FlowLayout(spacing: 6) {
                 ForEach(viewModel.tags, id: \.self) { tag in
                     Text("#\(tag)")
-                        .font(.system(.caption, design: .rounded))
+                        .font(.system(.caption, design: .rounded, weight: .medium))
                         .padding(.horizontal, 10)
                         .padding(.vertical, 6)
                         .background(
                             Capsule()
-                                .fill(Color.blue.opacity(0.1))
+                                .fill(BrandColors.categoryBlue.opacity(0.10))
                         )
+                        .foregroundStyle(BrandColors.categoryBlue)
                 }
             }
         }
     }
 
     private func weatherBadge(_ weather: Weather) -> some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 10) {
             Image(systemName: weather.icon)
                 .font(.title3)
-                .foregroundStyle(.orange)
+                .foregroundStyle(BrandColors.categoryOrange)
+                .frame(width: 28)
             VStack(alignment: .leading, spacing: 2) {
                 Text(weather.condition)
                     .font(.system(.subheadline, design: .rounded, weight: .medium))
                 Text("\(Int(weather.temperature))°C")
                     .font(.system(.caption, design: .rounded))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(BrandColors.textSecondary)
             }
         }
-        .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(.ultraThinMaterial)
-        )
     }
 
     private func miniMap(_ location: Location) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 8) {
             if let name = location.name, !name.isEmpty {
-                HStack(spacing: 4) {
+                HStack(spacing: 6) {
                     Image(systemName: "mappin.circle.fill")
-                        .foregroundStyle(.red)
+                        .foregroundStyle(BrandColors.categoryRed)
                     Text(name)
-                        .font(.system(.subheadline, design: .rounded))
+                        .font(.system(.subheadline, design: .rounded, weight: .medium))
                 }
             }
 
@@ -175,14 +195,14 @@ struct MomentDetailView: View {
                 )
             }
             .frame(height: 150)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(RoundedRectangle(cornerRadius: 14))
             .allowsHitTesting(false)
             .overlay(alignment: .bottomTrailing) {
                 Label("Open in Maps", systemImage: "arrow.up.right.square")
                     .font(.system(.caption2, design: .rounded, weight: .medium))
                     .foregroundStyle(.white)
                     .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
+                    .padding(.vertical, 5)
                     .background(Capsule().fill(.black.opacity(0.5)))
                     .padding(8)
             }
@@ -200,16 +220,14 @@ struct MomentDetailView: View {
     }
 
     private var timestampSection: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 6) {
             Image(systemName: "clock")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(BrandColors.textSecondary)
             Text(viewModel.createdAt, format: .dateTime.day().month().year().hour().minute())
                 .font(.system(.caption, design: .rounded))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(BrandColors.textSecondary)
         }
-        .padding(.top, 8)
+        .padding(.top, 4)
     }
 }
-
-
