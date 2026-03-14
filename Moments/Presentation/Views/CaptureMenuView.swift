@@ -10,6 +10,8 @@ struct CaptureMenuView: View {
     var onGalleryTap: () -> Void
     var onDismiss: () -> Void
 
+    @State private var appeared = false
+
     var body: some View {
         VStack(spacing: 16) {
             if isCameraAvailable {
@@ -20,6 +22,8 @@ struct CaptureMenuView: View {
                     color: .blue,
                     action: onCameraTap
                 )
+                .offset(y: appeared ? 0 : 30)
+                .opacity(appeared ? 1 : 0)
             }
 
             if isVoiceAvailable {
@@ -30,6 +34,8 @@ struct CaptureMenuView: View {
                     color: .red,
                     action: onVoiceTap
                 )
+                .offset(y: appeared ? 0 : 30)
+                .opacity(appeared ? 1 : 0)
             }
 
             if isGalleryAvailable {
@@ -40,12 +46,15 @@ struct CaptureMenuView: View {
                     color: .green,
                     action: onGalleryTap
                 )
+                .offset(y: appeared ? 0 : 30)
+                .opacity(appeared ? 1 : 0)
             }
 
             Button("Cancel", action: onDismiss)
                 .font(.system(.body, design: .rounded))
                 .foregroundStyle(.secondary)
                 .padding(.top, 8)
+                .opacity(appeared ? 1 : 0)
         }
         .padding(24)
         .background(
@@ -53,6 +62,12 @@ struct CaptureMenuView: View {
                 .fill(.regularMaterial)
         )
         .padding(.horizontal, 24)
+        .scaleEffect(appeared ? 1 : 0.8)
+        .onAppear {
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.7)) {
+                appeared = true
+            }
+        }
     }
 }
 

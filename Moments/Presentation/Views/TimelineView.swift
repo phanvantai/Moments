@@ -10,6 +10,7 @@ struct TimelineView: View {
     var body: some View {
         if moments.isEmpty {
             emptyState
+                .transition(.opacity.combined(with: .scale(scale: 0.9)))
         } else {
             timelineContent
         }
@@ -18,16 +19,15 @@ struct TimelineView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "clock.arrow.circlepath")
-                .font(.system(size: 48))
-                .foregroundStyle(.secondary)
+        VStack(spacing: 20) {
+            Text("📸")
+                .font(.system(size: 64))
             Text("No moments yet")
                 .font(.system(.title3, design: .rounded, weight: .semibold))
-                .foregroundStyle(.secondary)
-            Text("Tap + to capture your first moment")
+                .foregroundStyle(.primary)
+            Text("Tap  +  to capture your first moment")
                 .font(.system(.body, design: .rounded))
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -51,7 +51,9 @@ struct TimelineView: View {
                         .offset(y: appearedNodes.contains(moment.id) ? 0 : 20)
                         .contextMenu {
                             Button(role: .destructive) {
-                                onDelete(moment.id)
+                                withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+                                    onDelete(moment.id)
+                                }
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
@@ -63,6 +65,10 @@ struct TimelineView: View {
                                 appearedNodes.insert(moment.id)
                             }
                         }
+                        .transition(.asymmetric(
+                            insertion: .opacity.combined(with: .scale(scale: 0.8)),
+                            removal: .opacity.combined(with: .offset(y: 40))
+                        ))
                     }
                 }
                 .padding(.horizontal, 24)

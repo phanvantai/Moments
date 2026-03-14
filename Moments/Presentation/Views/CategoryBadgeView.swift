@@ -6,7 +6,10 @@ struct CategoryBadgeView: View {
     let onToggle: () -> Void
 
     var body: some View {
-        Button(action: onToggle) {
+        Button(action: {
+            HapticManager.categoryToggle()
+            onToggle()
+        }) {
             HStack(spacing: 4) {
                 Text(category.emoji)
                     .font(.system(size: 14))

@@ -7,6 +7,8 @@ struct ContentView: View {
     @State private var selectedMoment: Moment?
     @State private var timelineViewModel: TimelineViewModel?
     @State private var createMomentViewModel: CreateMomentViewModel?
+    @State private var fabScale: CGFloat = 1.0
+    @State private var fabRotation: Double = 0
     @Namespace private var animationNamespace
 
     var body: some View {
@@ -14,6 +16,7 @@ struct ContentView: View {
             ZStack {
                 if let vm = timelineViewModel {
                     mainContent(vm: vm)
+                        .transition(.opacity)
                 } else {
                     ProgressView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -24,19 +27,9 @@ struct ContentView: View {
                     Spacer()
                     HStack {
                         Spacer()
-                        Button {
-                            createMomentViewModel = container.makeCreateMomentViewModel()
-                            showCreateMoment = true
-                        } label: {
-                            Image(systemName: "plus")
-                                .font(.title2.weight(.semibold))
-                                .foregroundStyle(.white)
-                                .frame(width: 56, height: 56)
-                                .background(Circle().fill(.blue))
-                                .shadow(color: .blue.opacity(0.3), radius: 8, y: 4)
-                        }
-                        .padding(.trailing, 24)
-                        .padding(.bottom, 24)
+                        fabButton
+                            .padding(.trailing, 24)
+                            .padding(.bottom, 24)
                     }
                 }
             }
@@ -46,6 +39,7 @@ struct ContentView: View {
                 if let vm = timelineViewModel {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
+                            HapticManager.viewModeToggle()
                             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                                 vm.toggleViewMode()
                             }
@@ -54,6 +48,7 @@ struct ContentView: View {
                                   ? "square.grid.2x2"
                                   : "timeline.selection")
                                 .font(.body)
+                                .contentTransition(.symbolEffect(.replace))
                         }
                     }
                 }
@@ -90,6 +85,35 @@ struct ContentView: View {
         }
     }
 
+    // MARK: - FAB Button
+
+    private var fabButton: some View {
+        Button {
+            HapticManager.fabTap()
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                fabScale = 0.8
+                fabRotation = 90
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                    fabScale = 1.0
+                    fabRotation = 0
+                }
+                createMomentViewModel = container.makeCreateMomentViewModel()
+                showCreateMoment = true
+            }
+        } label: {
+            Image(systemName: "plus")
+                .font(.title2.weight(.semibold))
+                .foregroundStyle(.white)
+                .frame(width: 56, height: 56)
+                .background(Circle().fill(.blue))
+                .shadow(color: .blue.opacity(0.3), radius: 8, y: 4)
+                .scaleEffect(fabScale)
+                .rotationEffect(.degrees(fabRotation))
+        }
+    }
+
     // MARK: - Main Content
 
     @ViewBuilder
@@ -97,29 +121,68 @@ struct ContentView: View {
         if vm.isLoading {
             ProgressView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if let error = vm.errorMessage {
+            errorState(message: error, vm: vm)
         } else {
             switch vm.viewMode {
             case .timeline:
                 TimelineView(
                     moments: vm.moments,
                     onMomentTap: { moment in
-                        selectedMoment = moment
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                            selectedMoment = moment
+                        }
                     },
                     onDelete: { id in
+                        HapticManager.deleteWarning()
                         Task { await vm.deleteMoment(id: id) }
                     }
                 )
+                .transition(.move(edge: .leading).combined(with: .opacity))
             case .grid:
                 GridView(
                     moments: vm.moments,
                     onMomentTap: { moment in
-                        selectedMoment = moment
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                            selectedMoment = moment
+                        }
                     },
                     onDelete: { id in
+                        HapticManager.deleteWarning()
                         Task { await vm.deleteMoment(id: id) }
                     }
                 )
+                .transition(.move(edge: .trailing).combined(with: .opacity))
             }
         }
+    }
+
+    // MARK: - Error State
+
+    private func errorState(message: String, vm: TimelineViewModel) -> some View {
+        VStack(spacing: 16) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 48))
+                .foregroundStyle(.orange)
+            Text("Something went wrong")
+                .font(.system(.title3, design: .rounded, weight: .semibold))
+                .foregroundStyle(.primary)
+            Text(message)
+                .font(.system(.body, design: .rounded))
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+            Button {
+                Task { await vm.loadMoments() }
+            } label: {
+                Text("Try Again")
+                    .font(.system(.body, design: .rounded, weight: .medium))
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 10)
+                    .background(Capsule().fill(.blue))
+                    .foregroundStyle(.white)
+            }
+        }
+        .padding(32)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }

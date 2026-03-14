@@ -55,9 +55,25 @@ struct ReviewMomentView: View {
                     ProgressView("Saving...")
                         .padding()
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                        .transition(.scale.combined(with: .opacity))
                 }
             }
+            .alert("Save Failed", isPresented: showSaveError) {
+                Button("Retry") {
+                    Task { await viewModel.save() }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text(viewModel.errorMessage ?? "Unable to save moment. Please try again.")
+            }
         }
+    }
+
+    private var showSaveError: Binding<Bool> {
+        Binding(
+            get: { viewModel.errorMessage != nil && !viewModel.isSaving },
+            set: { if !$0 { viewModel.errorMessage = nil } }
+        )
     }
 
     // MARK: - Media Preview

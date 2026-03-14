@@ -1,5 +1,6 @@
 import SwiftUI
 import PhotosUI
+import UIKit
 
 struct CreateMomentView: View {
     @Bindable var viewModel: CreateMomentViewModel
@@ -15,6 +16,7 @@ struct CreateMomentView: View {
             switch currentStep {
             case .captureMenu:
                 captureMenuContent
+                    .transition(.opacity)
 
             case .camera:
                 CameraView(
@@ -24,30 +26,48 @@ struct CreateMomentView: View {
                     onVideoCaptured: { url in
                         handleVideoCaptured(url)
                     },
-                    onDismiss: { currentStep = .captureMenu }
+                    onDismiss: {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                            currentStep = .captureMenu
+                        }
+                    }
                 )
+                .transition(.move(edge: .trailing).combined(with: .opacity))
 
             case .voice:
                 VoiceRecorderView(
                     onRecordingComplete: { url, duration, transcript in
                         handleVoiceRecorded(url: url, duration: duration, transcript: transcript)
                     },
-                    onDismiss: { currentStep = .captureMenu }
+                    onDismiss: {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                            currentStep = .captureMenu
+                        }
+                    }
                 )
+                .transition(.move(edge: .trailing).combined(with: .opacity))
 
             case .gallery:
                 galleryContent
+                    .transition(.move(edge: .trailing).combined(with: .opacity))
 
             case .review:
                 ReviewMomentView(
                     viewModel: viewModel,
-                    onAddMoreMedia: { currentStep = .captureMenu },
+                    onAddMoreMedia: {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                            currentStep = .captureMenu
+                        }
+                    },
                     onDismiss: onDismiss
                 )
+                .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: currentStep)
         .onChange(of: viewModel.isSaved) { _, saved in
             if saved {
+                HapticManager.saveSuccess()
                 onSaved()
             }
         }
@@ -55,6 +75,8 @@ struct CreateMomentView: View {
             await viewModel.refreshPermissions()
         }
     }
+
+    @State private var permissionDeniedType: String?
 
     // MARK: - Capture Menu
 
@@ -66,6 +88,14 @@ struct CreateMomentView: View {
 
             VStack {
                 Spacer()
+
+                if let denied = permissionDeniedType {
+                    permissionDeniedBanner(for: denied)
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 8)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+
                 CaptureMenuView(
                     isCameraAvailable: viewModel.isCameraAvailable,
                     isVoiceAvailable: viewModel.isVoiceAvailable,
@@ -74,7 +104,11 @@ struct CreateMomentView: View {
                         Task {
                             let status = await viewModel.requestPermission(.camera)
                             if status == .authorized {
-                                currentStep = .camera
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                    currentStep = .camera
+                                }
+                            } else if status == .denied {
+                                withAnimation { permissionDeniedType = "Camera" }
                             }
                             await viewModel.refreshPermissions()
                         }
@@ -83,9 +117,12 @@ struct CreateMomentView: View {
                         Task {
                             let status = await viewModel.requestPermission(.microphone)
                             if status == .authorized {
-                                // Also request speech recognition
                                 _ = await viewModel.requestPermission(.speechRecognition)
-                                currentStep = .voice
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                    currentStep = .voice
+                                }
+                            } else if status == .denied {
+                                withAnimation { permissionDeniedType = "Microphone" }
                             }
                             await viewModel.refreshPermissions()
                         }
@@ -94,7 +131,11 @@ struct CreateMomentView: View {
                         Task {
                             let status = await viewModel.requestPermission(.photoLibrary)
                             if status == .authorized {
-                                currentStep = .gallery
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                    currentStep = .gallery
+                                }
+                            } else if status == .denied {
+                                withAnimation { permissionDeniedType = "Photo Library" }
                             }
                             await viewModel.refreshPermissions()
                         }
@@ -104,6 +145,33 @@ struct CreateMomentView: View {
                 .padding(.bottom, 40)
             }
         }
+    }
+
+    private func permissionDeniedBanner(for type: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "exclamationmark.circle.fill")
+                .foregroundStyle(.orange)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("\(type) access denied")
+                    .font(.system(.subheadline, design: .rounded, weight: .medium))
+                Text("Enable in Settings to continue")
+                    .font(.system(.caption, design: .rounded))
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+            Button("Settings") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            .font(.system(.caption, design: .rounded, weight: .semibold))
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(Capsule().fill(.blue))
+            .foregroundStyle(.white)
+        }
+        .padding(12)
+        .background(RoundedRectangle(cornerRadius: 12).fill(.ultraThinMaterial))
     }
 
     // MARK: - Gallery
@@ -159,7 +227,9 @@ struct CreateMomentView: View {
     private func handlePhotoCaptured(_ data: Data) {
         Task {
             await viewModel.savePhoto(data: data)
-            currentStep = .review
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+                currentStep = .review
+            }
         }
     }
 
@@ -168,7 +238,9 @@ struct CreateMomentView: View {
             if let data = try? Data(contentsOf: url) {
                 await viewModel.saveVideo(data: data)
             }
-            currentStep = .review
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+                currentStep = .review
+            }
         }
     }
 
@@ -177,7 +249,9 @@ struct CreateMomentView: View {
             if let data = try? Data(contentsOf: url) {
                 await viewModel.saveVoiceRecording(data: data, duration: duration, transcript: transcript)
             }
-            currentStep = .review
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+                currentStep = .review
+            }
         }
     }
 

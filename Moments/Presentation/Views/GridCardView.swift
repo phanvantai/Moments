@@ -46,10 +46,15 @@ struct GridCardView: View {
                     image
                         .resizable()
                         .scaledToFill()
+                        .transition(.opacity)
                 case .failure:
                     placeholderView
                 default:
                     placeholderView
+                        .overlay {
+                            ProgressView()
+                                .controlSize(.small)
+                        }
                 }
             }
         } else {

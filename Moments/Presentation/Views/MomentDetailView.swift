@@ -5,6 +5,8 @@ struct MomentDetailView: View {
     let viewModel: MomentDetailViewModel
     let onDismiss: () -> Void
 
+    @State private var appeared = false
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -12,6 +14,8 @@ struct MomentDetailView: View {
                     if viewModel.hasMedia {
                         MediaViewer(viewModel: MediaViewerViewModel(mediaItems: viewModel.mediaItems))
                             .frame(height: 300)
+                            .opacity(appeared ? 1 : 0)
+                            .offset(y: appeared ? 0 : 10)
                     }
 
                     VStack(alignment: .leading, spacing: 12) {
@@ -49,6 +53,8 @@ struct MomentDetailView: View {
                         timestampSection
                     }
                     .padding(.horizontal, 16)
+                    .opacity(appeared ? 1 : 0)
+                    .offset(y: appeared ? 0 : 15)
                 }
             }
             .navigationTitle("")
@@ -61,6 +67,11 @@ struct MomentDetailView: View {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundStyle(.secondary)
                     }
+                }
+            }
+            .onAppear {
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.1)) {
+                    appeared = true
                 }
             }
         }
