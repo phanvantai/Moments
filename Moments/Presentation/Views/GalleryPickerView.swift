@@ -15,7 +15,7 @@ struct GalleryPickerView: View {
             matching: .any(of: [.images, .videos]),
             photoLibrary: .shared()
         ) {
-            Label("Select Photos & Videos", systemImage: "photo.on.rectangle.angled")
+            Label(String(localized: "gallery.picker.label"), systemImage: "photo.on.rectangle.angled")
         }
         .photosPickerStyle(.inline)
         .photosPickerDisabledCapabilities(.selectionActions)
@@ -37,7 +37,7 @@ struct GalleryPickerView: View {
         }
         .overlay {
             if isLoading {
-                ProgressView("Loading media...")
+                ProgressView(String(localized: "loading.media"))
                     .padding()
                     .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
             }

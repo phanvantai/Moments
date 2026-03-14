@@ -106,7 +106,7 @@ struct MomentDetailView: View {
 
     private var categorySection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("Categories", systemImage: "tag")
+            Label(String(localized: "categories"), systemImage: "tag")
                 .font(.system(.caption, design: .rounded, weight: .semibold))
                 .foregroundStyle(BrandColors.sectionHeader)
             FlowLayout(spacing: 6) {
@@ -131,7 +131,7 @@ struct MomentDetailView: View {
 
     private var tagsSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("Tags", systemImage: "number")
+            Label(String(localized: "tags"), systemImage: "number")
                 .font(.system(.caption, design: .rounded, weight: .semibold))
                 .foregroundStyle(BrandColors.sectionHeader)
             FlowLayout(spacing: 6) {
@@ -187,7 +187,7 @@ struct MomentDetailView: View {
                 )
             )) {
                 Marker(
-                    location.name ?? "Location",
+                    location.name ?? String(localized: "location.fallback"),
                     coordinate: CLLocationCoordinate2D(
                         latitude: location.latitude,
                         longitude: location.longitude
@@ -198,7 +198,7 @@ struct MomentDetailView: View {
             .clipShape(RoundedRectangle(cornerRadius: 14))
             .allowsHitTesting(false)
             .overlay(alignment: .bottomTrailing) {
-                Label("Open in Maps", systemImage: "arrow.up.right.square")
+                Label(String(localized: "open.in.maps"), systemImage: "arrow.up.right.square")
                     .font(.system(.caption2, design: .rounded, weight: .medium))
                     .foregroundStyle(.white)
                     .padding(.horizontal, 8)
@@ -213,7 +213,7 @@ struct MomentDetailView: View {
                 )
                 let placemark = MKPlacemark(coordinate: coordinate)
                 let mapItem = MKMapItem(placemark: placemark)
-                mapItem.name = location.name ?? "Location"
+                mapItem.name = location.name ?? String(localized: "location.fallback")
                 mapItem.openInMaps()
             }
         }

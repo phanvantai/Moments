@@ -4,6 +4,7 @@ import SwiftData
 @main
 struct MomentsApp: App {
     let container: DependencyContainer
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
 
     init() {
         let schema = Schema([
@@ -27,10 +28,17 @@ struct MomentsApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView(container: container)
-                .task {
-                    await container.ensureDefaultUser()
-                }
+            if hasCompletedOnboarding {
+                ContentView(container: container)
+                    .task {
+                        await container.ensureDefaultUser()
+                    }
+            } else {
+                OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding)
+                    .task {
+                        await container.ensureDefaultUser()
+                    }
+            }
         }
         .modelContainer(container.modelContainer)
     }

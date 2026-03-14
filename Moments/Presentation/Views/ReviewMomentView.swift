@@ -36,14 +36,14 @@ struct ReviewMomentView: View {
             .task {
                 await viewModel.loadSmartFeatures()
             }
-            .navigationTitle("Review Moment")
+            .navigationTitle(String(localized: "review.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { onDismiss() }
+                    Button(String(localized: "cancel")) { onDismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
+                    Button(String(localized: "save")) {
                         Task { await viewModel.save() }
                     }
                     .disabled(!viewModel.canSave)
@@ -59,7 +59,7 @@ struct ReviewMomentView: View {
                         VStack(spacing: 12) {
                             ProgressView()
                                 .controlSize(.regular)
-                            Text("Saving...")
+                            Text(String(localized: "saving"))
                                 .font(.system(.subheadline, design: .rounded, weight: .medium))
                                 .foregroundStyle(.secondary)
                         }
@@ -69,13 +69,13 @@ struct ReviewMomentView: View {
                     .transition(.opacity)
                 }
             }
-            .alert("Save Failed", isPresented: showSaveError) {
-                Button("Retry") {
+            .alert(String(localized: "save.failed"), isPresented: showSaveError) {
+                Button(String(localized: "retry")) {
                     Task { await viewModel.save() }
                 }
-                Button("Cancel", role: .cancel) {}
+                Button(String(localized: "cancel"), role: .cancel) {}
             } message: {
-                Text(viewModel.errorMessage ?? "Unable to save moment. Please try again.")
+                Text(viewModel.errorMessage ?? String(localized: "save.error.message"))
             }
         }
     }
@@ -115,7 +115,7 @@ struct ReviewMomentView: View {
                 .frame(width: 28)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("Voice Note")
+                Text(String(localized: "voice.note"))
                     .font(.system(.subheadline, design: .rounded, weight: .medium))
                 Text(DurationFormatter.shortFormat(voiceNote.duration))
                     .font(.system(.caption, design: .rounded))
@@ -150,11 +150,11 @@ struct ReviewMomentView: View {
 
     private var textSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Description")
+            Text(String(localized: "description"))
                 .font(.system(.subheadline, design: .rounded, weight: .medium))
                 .foregroundStyle(BrandColors.sectionHeader)
 
-            TextField("What happened in this moment?", text: $viewModel.text, axis: .vertical)
+            TextField(String(localized: "description.placeholder"), text: $viewModel.text, axis: .vertical)
                 .lineLimit(3...6)
                 .font(.system(.body, design: .rounded))
                 .padding(14)
@@ -169,7 +169,7 @@ struct ReviewMomentView: View {
 
     private var tagsSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Tags")
+            Text(String(localized: "tags"))
                 .font(.system(.subheadline, design: .rounded, weight: .medium))
                 .foregroundStyle(BrandColors.sectionHeader)
 
@@ -186,7 +186,7 @@ struct ReviewMomentView: View {
 
             // Add new tag
             HStack {
-                TextField("Add tag...", text: $newTag)
+                TextField(String(localized: "tags.placeholder"), text: $newTag)
                     .font(.system(.body, design: .rounded))
                     .onSubmit {
                         addCurrentTag()
@@ -229,7 +229,7 @@ struct ReviewMomentView: View {
             // Suggested Categories
             if !viewModel.suggestedCategoryKeys.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Categories")
+                    Text(String(localized: "categories"))
                         .font(.system(.subheadline, design: .rounded, weight: .medium))
                         .foregroundStyle(BrandColors.sectionHeader)
 
@@ -252,7 +252,7 @@ struct ReviewMomentView: View {
                 HStack(spacing: 8) {
                     ProgressView()
                         .controlSize(.small)
-                    Text("Analyzing...")
+                    Text(String(localized: "analyzing"))
                         .font(.system(.caption, design: .rounded))
                         .foregroundStyle(BrandColors.textSecondary)
                 }
@@ -267,7 +267,7 @@ struct ReviewMomentView: View {
             HStack(spacing: 6) {
                 Image(systemName: "plus.circle")
                     .font(.system(size: 16, weight: .medium))
-                Text("Add more media")
+                Text(String(localized: "add.more.media"))
                     .font(.system(.body, design: .rounded, weight: .medium))
             }
             .foregroundStyle(BrandColors.accent)

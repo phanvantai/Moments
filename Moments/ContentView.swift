@@ -34,7 +34,7 @@ struct ContentView: View {
                     }
                 }
             }
-            .navigationTitle("Moments")
+            .navigationTitle(String(localized: "moments.title"))
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 if let vm = timelineViewModel {
@@ -56,14 +56,14 @@ struct ContentView: View {
                 }
             }
             .confirmationDialog(
-                "Delete this moment?",
+                String(localized: "delete.confirm.title"),
                 isPresented: Binding(
                     get: { momentToDelete != nil },
                     set: { if !$0 { momentToDelete = nil } }
                 ),
                 titleVisibility: .visible
             ) {
-                Button("Delete", role: .destructive) {
+                Button(String(localized: "delete"), role: .destructive) {
                     if let id = momentToDelete {
                         HapticManager.deleteWarning()
                         Task {
@@ -72,11 +72,11 @@ struct ContentView: View {
                     }
                     momentToDelete = nil
                 }
-                Button("Cancel", role: .cancel) {
+                Button(String(localized: "cancel"), role: .cancel) {
                     momentToDelete = nil
                 }
             } message: {
-                Text("This will permanently delete the moment and all its media.")
+                Text(String(localized: "delete.confirm.message"))
             }
         }
         .tint(BrandColors.accent)
@@ -141,7 +141,7 @@ struct ContentView: View {
                 .scaleEffect(fabScale)
                 .rotationEffect(.degrees(fabRotation))
         }
-        .accessibilityLabel("Create new moment")
+        .accessibilityLabel(String(localized: "fab.accessibility"))
     }
 
     // MARK: - Main Content
@@ -204,7 +204,7 @@ struct ContentView: View {
                     .foregroundStyle(.orange)
             }
 
-            Text("Something went wrong")
+            Text(String(localized: "error.title"))
                 .font(.system(.title3, design: .rounded, weight: .semibold))
                 .foregroundStyle(.primary)
             Text(message)
@@ -215,7 +215,7 @@ struct ContentView: View {
             Button {
                 Task { await vm.loadMoments() }
             } label: {
-                Text("Try Again")
+                Text(String(localized: "try.again"))
                     .font(.system(.body, design: .rounded, weight: .semibold))
                     .padding(.horizontal, 28)
                     .padding(.vertical, 12)

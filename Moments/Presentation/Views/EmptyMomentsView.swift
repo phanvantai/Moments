@@ -23,11 +23,11 @@ struct EmptyMomentsView: View {
             .opacity(appeared ? 1.0 : 0)
 
             VStack(spacing: 8) {
-                Text("Capture your first moment")
+                Text(String(localized: "empty.title"))
                     .font(.system(.title3, design: .rounded, weight: .semibold))
                     .foregroundStyle(.primary)
 
-                Text("Tap the  +  button to take a photo,\nrecord a voice note, or pick from your gallery.")
+                Text(String(localized: "empty.subtitle"))
                     .font(.system(.subheadline, design: .rounded))
                     .foregroundStyle(BrandColors.textSecondary)
                     .multilineTextAlignment(.center)

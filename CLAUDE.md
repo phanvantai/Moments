@@ -4,23 +4,37 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Build & Test Commands
 
+**Important:** Do not hardcode a simulator device name. First check available destinations, then pick one:
+
 ```bash
-# Build
-xcodebuild -scheme Moments -destination 'platform=iOS Simulator,name=iPhone 16' build
+# List available simulators
+xcodebuild -scheme Moments -showdestinations 2>&1 | grep 'iOS Simulator'
+
+# Build (use an available simulator from the list above)
+xcodebuild -scheme Moments -destination 'platform=iOS Simulator,name=<DEVICE>' build
 
 # Run all unit tests
-xcodebuild -scheme Moments -destination 'platform=iOS Simulator,name=iPhone 16' test
+xcodebuild -scheme Moments -destination 'platform=iOS Simulator,name=<DEVICE>' test
 
 # Run a single test class
-xcodebuild -scheme Moments -destination 'platform=iOS Simulator,name=iPhone 16' \
+xcodebuild -scheme Moments -destination 'platform=iOS Simulator,name=<DEVICE>' \
   -only-testing:MomentsTests/CreateMomentUseCaseTests test
 
 # Run a single test method
-xcodebuild -scheme Moments -destination 'platform=iOS Simulator,name=iPhone 16' \
+xcodebuild -scheme Moments -destination 'platform=iOS Simulator,name=<DEVICE>' \
   -only-testing:MomentsTests/CreateMomentUseCaseTests/test_execute_withMedia_createsMoment test
 ```
 
 No linter or formatter is configured. No package manager (SPM/CocoaPods) — all dependencies are Apple frameworks.
+
+## Test Strategy
+
+After making changes, follow this order to minimize wasted test runs:
+
+1. **Build first** — fix compile errors before running any tests.
+2. **Run only related tests** — use `-only-testing:` to target test classes that cover the changed files. For example, if you changed `MomentDisplayHelper.swift`, run `MomentDisplayHelperTests` and `EdgeCaseTests` first.
+3. **Always capture test output** — pipe through `grep -E "(passed|failed|error:)"` or `tail` so you can see which tests failed and why in a single run. Never run tests blindly then re-run just to read the output.
+4. **Run the full suite once** — only after the targeted tests pass, run the full test suite as a final check. Avoid re-running the full suite multiple times.
 
 ## Architecture
 

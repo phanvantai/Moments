@@ -23,8 +23,8 @@ struct CaptureMenuView: View {
             if isCameraAvailable {
                 CaptureOptionButton(
                     icon: "camera.fill",
-                    title: "Camera",
-                    subtitle: "Take a photo or video",
+                    title: String(localized: "capture.camera"),
+                    subtitle: String(localized: "capture.camera.subtitle"),
                     color: BrandColors.categoryBlue,
                     action: onCameraTap
                 )
@@ -36,8 +36,8 @@ struct CaptureMenuView: View {
             if isVoiceAvailable {
                 CaptureOptionButton(
                     icon: "mic.fill",
-                    title: "Voice",
-                    subtitle: "Record a voice note",
+                    title: String(localized: "capture.voice"),
+                    subtitle: String(localized: "capture.voice.subtitle"),
                     color: BrandColors.categoryRed,
                     action: onVoiceTap
                 )
@@ -49,8 +49,8 @@ struct CaptureMenuView: View {
             if isGalleryAvailable {
                 CaptureOptionButton(
                     icon: "photo.on.rectangle.angled",
-                    title: "Gallery",
-                    subtitle: "Choose from your library",
+                    title: String(localized: "capture.gallery"),
+                    subtitle: String(localized: "capture.gallery.subtitle"),
                     color: BrandColors.categoryGreen,
                     action: onGalleryTap
                 )
@@ -59,7 +59,7 @@ struct CaptureMenuView: View {
                 .animation(.spring(response: 0.45, dampingFraction: 0.75).delay(0.12), value: appeared)
             }
 
-            Button("Cancel", action: onDismiss)
+            Button(String(localized: "cancel"), action: onDismiss)
                 .font(.system(.body, design: .rounded, weight: .medium))
                 .foregroundStyle(.secondary)
                 .padding(.top, 4)

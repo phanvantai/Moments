@@ -152,14 +152,14 @@ struct CreateMomentView: View {
             Image(systemName: "exclamationmark.circle.fill")
                 .foregroundStyle(.orange)
             VStack(alignment: .leading, spacing: 2) {
-                Text("\(type) access denied")
+                Text(String(localized: "permission.denied \(type)"))
                     .font(.system(.subheadline, design: .rounded, weight: .medium))
-                Text("Enable in Settings to continue")
+                Text(String(localized: "permission.enable.settings"))
                     .font(.system(.caption, design: .rounded))
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            Button("Settings") {
+            Button(String(localized: "settings")) {
                 if let url = URL(string: UIApplication.openSettingsURLString) {
                     UIApplication.shared.open(url)
                 }
@@ -188,24 +188,24 @@ struct CreateMomentView: View {
                     Image(systemName: "photo.on.rectangle.angled")
                         .font(.system(size: 48))
                         .foregroundStyle(.secondary)
-                    Text("Tap to select photos & videos")
+                    Text(String(localized: "gallery.select.prompt"))
                         .font(.system(.body, design: .rounded))
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .photosPickerStyle(.inline)
-            .navigationTitle("Gallery")
+            .navigationTitle(String(localized: "gallery.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Back") {
+                    Button(String(localized: "back")) {
                         currentStep = viewModel.capturedMediaItems.isEmpty ? .captureMenu : .review
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     if !selectedPhotos.isEmpty {
-                        Button("Done") {
+                        Button(String(localized: "done")) {
                             Task { await loadSelectedPhotos() }
                         }
                         .disabled(isLoadingPhotos)
@@ -214,7 +214,7 @@ struct CreateMomentView: View {
             }
             .overlay {
                 if isLoadingPhotos {
-                    ProgressView("Loading media...")
+                    ProgressView(String(localized: "loading.media"))
                         .padding()
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
                 }

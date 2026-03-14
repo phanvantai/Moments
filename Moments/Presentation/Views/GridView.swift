@@ -53,12 +53,12 @@ struct GridView: View {
 
     private func sectionLabel(for date: Date, now: Date, calendar: Calendar) -> String {
         if calendar.isDateInToday(date) {
-            return "Today"
+            return String(localized: "today")
         } else if calendar.isDateInYesterday(date) {
-            return "Yesterday"
+            return String(localized: "yesterday")
         } else if let weekAgo = calendar.date(byAdding: .day, value: -7, to: now),
                   date >= weekAgo {
-            return "This Week"
+            return String(localized: "this.week")
         } else {
             let formatter = DateFormatter()
             formatter.dateFormat = "MMMM yyyy"
@@ -92,7 +92,7 @@ struct GridView: View {
                                         Button(role: .destructive) {
                                             onDeleteRequest(moment.id)
                                         } label: {
-                                            Label("Delete", systemImage: "trash")
+                                            Label(String(localized: "delete"), systemImage: "trash")
                                         }
                                     }
                                     .transition(.asymmetric(

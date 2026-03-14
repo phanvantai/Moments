@@ -20,7 +20,7 @@ struct LocationBadgeView: View {
                     .foregroundStyle(.secondary)
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("Remove location")
+            .accessibilityLabel(String(localized: "remove.location"))
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
@@ -28,7 +28,7 @@ struct LocationBadgeView: View {
             Capsule()
                 .fill(BrandColors.categoryRed.opacity(0.10))
         )
-        .accessibilityLabel("Location: \(location.name ?? locationCoordinateText)")
+        .accessibilityLabel(String(localized: "location.label \(location.name ?? locationCoordinateText)"))
     }
 
     private var locationCoordinateText: String {
