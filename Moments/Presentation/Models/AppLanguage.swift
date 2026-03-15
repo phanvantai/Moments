@@ -14,4 +14,12 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         case .vietnamese: "Tiếng Việt"
         }
     }
+
+    var flag: String {
+        switch self {
+        case .english: "🇺🇸"
+        case .japanese: "🇯🇵"
+        case .vietnamese: "🇻🇳"
+        }
+    }
 }

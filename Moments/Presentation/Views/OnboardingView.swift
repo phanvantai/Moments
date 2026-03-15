@@ -35,8 +35,11 @@ struct OnboardingView: View {
                             .tag(index)
                     }
                 }
-                .tabViewStyle(.page(indexDisplayMode: .always))
-                .tint(BrandColors.accent)
+                .tabViewStyle(.page(indexDisplayMode: .never))
+
+                // Page indicator
+                pageIndicator
+                    .padding(.bottom, 24)
 
                 // Bottom button area
                 bottomArea
@@ -104,6 +107,20 @@ struct OnboardingView: View {
         .padding(.horizontal, 40)
     }
 
+    // MARK: - Page Indicator
+
+    private var pageIndicator: some View {
+        HStack(spacing: 8) {
+            ForEach(0..<pages.count, id: \.self) { index in
+                Circle()
+                    .fill(index == currentPage ? BrandColors.accent : BrandColors.accent.opacity(0.3))
+                    .frame(width: 8, height: 8)
+                    .scaleEffect(index == currentPage ? 1.2 : 1.0)
+                    .animation(.spring(response: 0.3), value: currentPage)
+            }
+        }
+    }
+
     // MARK: - Bottom Area
 
     @ViewBuilder
@@ -119,8 +136,18 @@ struct OnboardingView: View {
             }
             .transition(.opacity.combined(with: .move(edge: .bottom)))
         } else {
-            Color.clear
-                .frame(height: 52)
+            Button {
+                withAnimation {
+                    currentPage += 1
+                }
+            } label: {
+                Text(String(localized: "onboarding.next", bundle: LanguageManager.shared.bundle))
+                    .font(.system(.body, design: .rounded, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Capsule().fill(BrandColors.fabGradient))
+            }
         }
     }
 

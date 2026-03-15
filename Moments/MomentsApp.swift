@@ -6,6 +6,7 @@ struct MomentsApp: App {
     let container: DependencyContainer
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var languageManager = LanguageManager.shared
+    @State private var themeManager = ThemeManager.shared
     @State private var languageId = UUID()
 
     init() {
@@ -45,7 +46,9 @@ struct MomentsApp: App {
             }
             .id(languageId)
             .environment(languageManager)
+            .environment(themeManager)
             .environment(\.locale, Locale(identifier: languageManager.currentLanguage.rawValue))
+            .preferredColorScheme(themeManager.colorScheme)
             .onChange(of: languageManager.currentLanguage) {
                 languageId = UUID()
             }
