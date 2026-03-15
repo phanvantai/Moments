@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D1B1DD6C2F6704ED00B897E4 /* Moments_TechSpec.md in Resources */ = {isa = PBXBuildFile; fileRef = D1B1DD6B2F6704ED00B897E4 /* Moments_TechSpec.md */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		E5F1057E2F6484A700AB9BBC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -25,6 +29,7 @@
 
 /* Begin PBXFileReference section */
 		D1B1D8A42F65C87300B897E4 /* Moments_PRD.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Moments_PRD.md; sourceTree = "<group>"; };
+		D1B1DD6B2F6704ED00B897E4 /* Moments_TechSpec.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Moments_TechSpec.md; sourceTree = "<group>"; };
 		E5F1056C2F6484A500AB9BBC /* Moments.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Moments.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E5F1057D2F6484A700AB9BBC /* MomentsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MomentsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E5F105872F6484A700AB9BBC /* MomentsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MomentsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -90,6 +95,7 @@
 			isa = PBXGroup;
 			children = (
 				D1B1D8A42F65C87300B897E4 /* Moments_PRD.md */,
+				D1B1DD6B2F6704ED00B897E4 /* Moments_TechSpec.md */,
 				E5F1056E2F6484A500AB9BBC /* Moments */,
 				E5F105802F6484A700AB9BBC /* MomentsTests */,
 				E5F1058A2F6484A700AB9BBC /* MomentsUITests */,
@@ -229,6 +235,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D1B1DD6C2F6704ED00B897E4 /* Moments_TechSpec.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -292,12 +299,18 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Moments/Moments.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = K6GZTHQ9Z5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Moments/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "To take photos and videos for your moments";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "To remember where your moments happened";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "To record voice notes for your moments";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "To choose existing photos and videos";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "To convert your voice notes to text automatically";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -309,8 +322,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.randomtech.Moments;
+				PRODUCT_BUNDLE_IDENTIFIER = com.randomtech.littlemark;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -333,6 +347,11 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Moments/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "To take photos and videos for your moments";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "To remember where your moments happened";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "To record voice notes for your moments";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "To choose existing photos and videos";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "To convert your voice notes to text automatically";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -344,7 +363,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.randomtech.Moments;
+				PRODUCT_BUNDLE_IDENTIFIER = com.randomtech.littlemark;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;

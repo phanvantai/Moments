@@ -1,4 +1,4 @@
-# MOMENTS
+# LITTLEMARK
 
 ## Personal Moment Keeper
 
@@ -22,7 +22,7 @@ Status: MVP feature-complete — QC in progress
 
 ### 1.1 Vision
 
-Moments là một ứng dụng iOS native giúp mọi người lưu giữ những khoảnh khắc đáng nhớ trong cuộc sống một cách đơn giản, nhanh chóng và thông minh. Không phức tạp, không rườm rà – chỉ tập trung vào việc ghi lại và lưu trữ những khoảnh khắc có ý nghĩa với bạn.
+Littlemark là một ứng dụng iOS native giúp mọi người lưu giữ những khoảnh khắc đáng nhớ trong cuộc sống một cách đơn giản, nhanh chóng và thông minh. Không phức tạp, không rườm rà – chỉ tập trung vào việc ghi lại và lưu trữ những khoảnh khắc có ý nghĩa với bạn.
 
 ### 1.2 Problem Statement
 

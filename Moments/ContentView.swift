@@ -3,7 +3,6 @@ import SwiftUI
 struct ContentView: View {
     let container: DependencyContainer
 
-    @State private var showCreateMoment = false
     @State private var showSettings = false
     @State private var selectedMoment: Moment?
     @State private var timelineViewModel: TimelineViewModel?
@@ -90,23 +89,19 @@ struct ContentView: View {
             }
         }
         .tint(BrandColors.accent)
-        .fullScreenCover(isPresented: $showCreateMoment) {
-            if let vm = createMomentViewModel {
-                CreateMomentView(
-                    viewModel: vm,
-                    onDismiss: {
-                        showCreateMoment = false
-                        createMomentViewModel = nil
-                    },
-                    onSaved: {
-                        showCreateMoment = false
-                        createMomentViewModel = nil
-                        Task {
-                            await timelineViewModel?.loadMoments()
-                        }
+        .fullScreenCover(item: $createMomentViewModel) { vm in
+            CreateMomentView(
+                viewModel: vm,
+                onDismiss: {
+                    createMomentViewModel = nil
+                },
+                onSaved: {
+                    createMomentViewModel = nil
+                    Task {
+                        await timelineViewModel?.loadMoments()
                     }
-                )
-            }
+                }
+            )
         }
         .sheet(item: $selectedMoment) { moment in
             MomentDetailView(
@@ -139,7 +134,6 @@ struct ContentView: View {
                     fabRotation = 0
                 }
                 createMomentViewModel = container.makeCreateMomentViewModel()
-                showCreateMoment = true
             }
         } label: {
             Image(systemName: "plus")

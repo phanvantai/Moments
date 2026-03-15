@@ -2,7 +2,8 @@ import Foundation
 
 @Observable
 @MainActor
-final class CreateMomentViewModel {
+final class CreateMomentViewModel: Identifiable {
+    let id = UUID()
     // MARK: - State
 
     var capturedMediaItems: [MediaItem] = []
@@ -157,10 +158,12 @@ final class CreateMomentViewModel {
     }
 
     func saveGalleryItem(data: Data, isVideo: Bool) async {
+        print("[VM] saveGalleryItem called, isVideo=\(isVideo), dataSize=\(data.count)")
         do {
             let ext = isVideo ? "mov" : "jpg"
             let fileName = "\(UUID().uuidString).\(ext)"
             let filePath = try await mediaRepository.saveMedia(data: data, fileName: fileName)
+            print("[VM] Media saved at: \(filePath)")
             let mediaItem = MediaItem(
                 momentId: UUID(),
                 type: isVideo ? .video : .photo,
@@ -170,7 +173,9 @@ final class CreateMomentViewModel {
                 sortOrder: capturedMediaItems.count
             )
             addMedia(mediaItem)
+            print("[VM] Media item added, total count: \(capturedMediaItems.count)")
         } catch {
+            print("[VM] saveGalleryItem error: \(error)")
             errorMessage = error.localizedDescription
         }
     }

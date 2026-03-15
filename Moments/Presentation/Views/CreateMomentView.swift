@@ -1,6 +1,7 @@
 import SwiftUI
 import PhotosUI
 import UIKit
+import UniformTypeIdentifiers
 
 struct CreateMomentView: View {
     @Bindable var viewModel: CreateMomentViewModel
@@ -176,25 +177,27 @@ struct CreateMomentView: View {
 
     // MARK: - Gallery
 
+    @State private var showPhotoPicker = false
+
     private var galleryContent: some View {
         NavigationStack {
-            PhotosPicker(
-                selection: $selectedPhotos,
-                maxSelectionCount: 20,
-                matching: .any(of: [.images, .videos]),
-                photoLibrary: .shared()
-            ) {
-                VStack(spacing: 16) {
+            VStack(spacing: 16) {
+                if isLoadingPhotos {
+                    Spacer()
+                    ProgressView(String(localized: "loading.media", bundle: LanguageManager.shared.bundle))
+                    Spacer()
+                } else {
+                    Spacer()
                     Image(systemName: "photo.on.rectangle.angled")
                         .font(.system(size: 48))
                         .foregroundStyle(.secondary)
                     Text(String(localized: "gallery.select.prompt", bundle: LanguageManager.shared.bundle))
                         .font(.system(.body, design: .rounded))
                         .foregroundStyle(.secondary)
+                    Spacer()
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .photosPickerStyle(.inline)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationTitle(String(localized: "gallery.title", bundle: LanguageManager.shared.bundle))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -203,21 +206,21 @@ struct CreateMomentView: View {
                         currentStep = viewModel.capturedMediaItems.isEmpty ? .captureMenu : .review
                     }
                 }
-                ToolbarItem(placement: .confirmationAction) {
-                    if !selectedPhotos.isEmpty {
-                        Button(String(localized: "done", bundle: LanguageManager.shared.bundle)) {
-                            Task { await loadSelectedPhotos() }
-                        }
-                        .disabled(isLoadingPhotos)
-                    }
-                }
             }
-            .overlay {
-                if isLoadingPhotos {
-                    ProgressView(String(localized: "loading.media", bundle: LanguageManager.shared.bundle))
-                        .padding()
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
-                }
+            .photosPicker(
+                isPresented: $showPhotoPicker,
+                selection: $selectedPhotos,
+                maxSelectionCount: 20,
+                matching: .any(of: [.images, .videos]),
+                photoLibrary: .shared()
+            )
+            .onChange(of: selectedPhotos) { _, newValue in
+                guard !newValue.isEmpty else { return }
+                print("[Gallery] selection confirmed: \(newValue.count) items")
+                Task { await loadSelectedPhotos() }
+            }
+            .onAppear {
+                showPhotoPicker = true
             }
         }
     }
@@ -256,15 +259,67 @@ struct CreateMomentView: View {
     }
 
     private func loadSelectedPhotos() async {
+        print("[Gallery] loadSelectedPhotos called, count: \(selectedPhotos.count)")
         isLoadingPhotos = true
-        for item in selectedPhotos {
-            if let data = try? await item.loadTransferable(type: Data.self) {
-                let isVideo = item.supportedContentTypes.contains(where: { $0.conforms(to: .movie) })
-                await viewModel.saveGalleryItem(data: data, isVideo: isVideo)
+        for (index, item) in selectedPhotos.enumerated() {
+            let types = item.supportedContentTypes
+            print("[Gallery] Item \(index): contentTypes = \(types.map(\.identifier))")
+            let isVideo = types.contains(where: { $0.conforms(to: .movie) })
+            print("[Gallery] Item \(index): isVideo = \(isVideo)")
+            if isVideo {
+                do {
+                    let movie = try await item.loadTransferable(type: TransferableMovie.self)
+                    if let movie {
+                        let data = try Data(contentsOf: movie.url)
+                        print("[Gallery] Item \(index): video loaded, bytes = \(data.count)")
+                        await viewModel.saveGalleryItem(data: data, isVideo: true)
+                    } else {
+                        print("[Gallery] Item \(index): loadTransferable(TransferableMovie) returned nil")
+                    }
+                } catch {
+                    print("[Gallery] Item \(index): video load error: \(error)")
+                }
+            } else {
+                do {
+                    let imageData = try await item.loadTransferable(type: TransferableImage.self)
+                    if let imageData {
+                        print("[Gallery] Item \(index): image loaded, bytes = \(imageData.data.count)")
+                        await viewModel.saveGalleryItem(data: imageData.data, isVideo: false)
+                    } else {
+                        print("[Gallery] Item \(index): loadTransferable(TransferableImage) returned nil")
+                    }
+                } catch {
+                    print("[Gallery] Item \(index): image load error: \(error)")
+                }
             }
         }
+        print("[Gallery] Done loading. capturedMediaItems count: \(viewModel.capturedMediaItems.count)")
         selectedPhotos = []
         isLoadingPhotos = false
         currentStep = .review
+    }
+}
+
+// MARK: - Transferable Types
+
+private struct TransferableImage: Transferable {
+    let data: Data
+
+    static var transferRepresentation: some TransferRepresentation {
+        DataRepresentation(importedContentType: .image) { data in
+            TransferableImage(data: data)
+        }
+    }
+}
+
+private struct TransferableMovie: Transferable {
+    let url: URL
+
+    static var transferRepresentation: some TransferRepresentation {
+        FileRepresentation(importedContentType: .movie) { receivedFile in
+            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".mov")
+            try FileManager.default.copyItem(at: receivedFile.file, to: tempURL)
+            return TransferableMovie(url: tempURL)
+        }
     }
 }

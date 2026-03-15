@@ -6,9 +6,11 @@ struct OnboardingView: View {
     @State private var appeared = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         ZStack {
-            BrandColors.warmBackground
+            (colorScheme == .dark ? Color(.systemBackground) : BrandColors.warmBackground)
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
@@ -18,7 +20,7 @@ struct OnboardingView: View {
                     if currentPage < pages.count - 1 {
                         Button(String(localized: "onboarding.skip", bundle: LanguageManager.shared.bundle)) { complete() }
                             .font(.system(.body, design: .rounded, weight: .medium))
-                            .foregroundStyle(BrandColors.textSecondary)
+                            .foregroundStyle(.secondary)
                             .padding(.trailing, 24)
                             .padding(.top, 16)
                     } else {
@@ -70,11 +72,11 @@ struct OnboardingView: View {
             // Decorative circles + icon
             ZStack {
                 Circle()
-                    .fill(page.iconColor.opacity(0.06))
+                    .fill(page.iconColor.opacity(colorScheme == .dark ? 0.12 : 0.06))
                     .frame(width: 180, height: 180)
 
                 Circle()
-                    .fill(page.iconColor.opacity(0.12))
+                    .fill(page.iconColor.opacity(colorScheme == .dark ? 0.22 : 0.12))
                     .frame(width: 120, height: 120)
 
                 Image(systemName: page.icon)
@@ -93,7 +95,7 @@ struct OnboardingView: View {
 
                 Text(page.subtitle)
                     .font(.system(.subheadline, design: .rounded))
-                    .foregroundStyle(BrandColors.textSecondary)
+                    .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .lineSpacing(3)
             }
@@ -141,12 +143,11 @@ struct OnboardingView: View {
                     currentPage += 1
                 }
             } label: {
-                Text(String(localized: "onboarding.next", bundle: LanguageManager.shared.bundle))
-                    .font(.system(.body, design: .rounded, weight: .semibold))
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 20, weight: .semibold))
                     .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Capsule().fill(BrandColors.fabGradient))
+                    .frame(width: 56, height: 56)
+                    .background(Circle().fill(BrandColors.fabGradient))
             }
         }
     }
