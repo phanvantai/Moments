@@ -6,6 +6,20 @@
       "layers" : [
         {
           "glass" : true,
+          "image-name" : "component_ribbon.png",
+          "name" : "component_ribbon",
+          "opacity" : 1,
+          "position" : {
+            "scale" : 1.5,
+            "translation-in-points" : [
+              210.9765625,
+              -160.375
+            ]
+          }
+        },
+        {
+          "glass" : true,
+          "hidden" : true,
           "image-name" : "component_image.png",
           "name" : "component_image",
           "position" : {
@@ -17,6 +31,7 @@
           }
         },
         {
+          "hidden" : true,
           "image-name" : "component_textlines.png",
           "name" : "component_textlines",
           "position" : {
@@ -28,6 +43,7 @@
           }
         },
         {
+          "hidden" : true,
           "image-name" : "component_voice.png",
           "name" : "component_voice",
           "position" : {
@@ -40,21 +56,10 @@
         },
         {
           "glass" : true,
-          "image-name" : "component_ribbon.png",
-          "name" : "component_ribbon",
-          "position" : {
-            "scale" : 1,
-            "translation-in-points" : [
-              260,
-              -256
-            ]
-          }
-        },
-        {
-          "glass" : true,
+          "hidden" : true,
           "image-name" : "component_background.png",
           "name" : "component_background",
-          "opacity" : 0.5,
+          "opacity" : 1,
           "position" : {
             "scale" : 1,
             "translation-in-points" : [
