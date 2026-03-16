@@ -44,7 +44,7 @@ actor MomentRepository: MomentRepositoryProtocol {
         }
 
         // Remove old media items
-        for mediaItem in sdMoment.mediaItems {
+        for mediaItem in sdMoment.mediaItems ?? [] {
             context.delete(mediaItem)
         }
 

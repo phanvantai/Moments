@@ -3,10 +3,10 @@ import SwiftData
 
 @Model
 final class SDUser {
-    @Attribute(.unique) var id: UUID
-    var displayName: String
+    var id: UUID = UUID()
+    var displayName: String = ""
     var avatarPath: String?
-    var createdAt: Date
+    var createdAt: Date = Date()
     var homeLocationLatitude: Double?
     var homeLocationLongitude: Double?
     var homeLocationName: String?

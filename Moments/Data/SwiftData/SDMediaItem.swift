@@ -3,15 +3,18 @@ import SwiftData
 
 @Model
 final class SDMediaItem {
-    @Attribute(.unique) var id: UUID
-    var momentId: UUID
-    var type: String
-    var filePath: String
+    var id: UUID = UUID()
+    var momentId: UUID = UUID()
+    var type: String = ""
+    var filePath: String = ""
     var thumbnailPath: String?
     var duration: Double?
-    var width: Int
-    var height: Int
-    var sortOrder: Int
+    var width: Int = 0
+    var height: Int = 0
+    var sortOrder: Int = 0
+
+    @Relationship(inverse: \SDMoment.mediaItems)
+    var moment: SDMoment?
 
     init(
         id: UUID = UUID(),
