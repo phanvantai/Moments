@@ -98,7 +98,7 @@ enum MomentMapper {
             updatedAt: sdMoment.updatedAt,
             title: sdMoment.title,
             text: sdMoment.text,
-            mediaItems: sdMoment.mediaItems.map { toDomain($0) },
+            mediaItems: (sdMoment.mediaItems ?? []).map { toDomain($0) },
             voiceNote: voiceNote,
             location: location,
             categories: categories,

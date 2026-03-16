@@ -3,13 +3,13 @@ import SwiftData
 
 @Model
 final class SDMoment {
-    @Attribute(.unique) var id: UUID
-    var userId: UUID
-    var createdAt: Date
-    var updatedAt: Date
+    var id: UUID = UUID()
+    var userId: UUID = UUID()
+    var createdAt: Date = Date()
+    var updatedAt: Date = Date()
     var title: String?
     var text: String?
-    @Relationship(deleteRule: .cascade) var mediaItems: [SDMediaItem]
+    @Relationship(deleteRule: .cascade) var mediaItems: [SDMediaItem]?
     var voiceNoteFilePath: String?
     var voiceNoteDuration: Double?
     var voiceNoteTranscript: String?
@@ -18,13 +18,13 @@ final class SDMoment {
     var locationName: String?
     var locationAddress: String?
     var locationPlaceType: String?
-    var categoryKeys: [String]
-    var tags: [String]
-    var isFavorite: Bool
+    var categoryKeys: [String] = []
+    var tags: [String] = []
+    var isFavorite: Bool = false
     var weatherCondition: String?
     var weatherTemperature: Double?
     var weatherIcon: String?
-    var visibility: String
+    var visibility: String = "private"
 
     init(
         id: UUID = UUID(),

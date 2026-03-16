@@ -18,7 +18,7 @@ struct MomentMapperTests {
         #expect(sdMoment.isFavorite == moment.isFavorite)
         #expect(sdMoment.tags == moment.tags)
         #expect(sdMoment.visibility == moment.visibility.rawValue)
-        #expect(sdMoment.mediaItems.count == moment.mediaItems.count)
+        #expect(sdMoment.mediaItems?.count == moment.mediaItems.count)
         #expect(sdMoment.categoryKeys.count == moment.categories.count)
     }
 
