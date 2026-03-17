@@ -14,7 +14,7 @@ struct FetchMomentsUseCase: FetchMomentsUseCaseProtocol {
 
     func execute() async throws -> [Moment] {
         let moments = try await momentRepository.fetchAll()
-        return moments.sorted { $0.createdAt > $1.createdAt }
+        return moments.sorted { $0.createdAt < $1.createdAt }
     }
 
     func execute(byId id: UUID) async throws -> Moment? {

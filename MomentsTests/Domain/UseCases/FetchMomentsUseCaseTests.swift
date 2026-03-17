@@ -9,19 +9,19 @@ struct FetchMomentsUseCaseTests {
         FetchMomentsUseCase(momentRepository: mockRepo)
     }
 
-    @Test func test_execute_returnsMomentsSortedByCreatedAtDescending() async throws {
+    @Test func test_execute_returnsMomentsSortedByCreatedAtAscending() async throws {
         let older = MockMomentFactory.makeMoment(
             createdAt: Date(timeIntervalSince1970: 1_000_000)
         )
         let newer = MockMomentFactory.makeMoment(
             createdAt: Date(timeIntervalSince1970: 2_000_000)
         )
-        mockRepo.momentsToReturn = [older, newer]
+        mockRepo.momentsToReturn = [newer, older]
 
         let result = try await sut.execute()
 
         #expect(result.count == 2)
-        #expect(result[0].createdAt > result[1].createdAt)
+        #expect(result[0].createdAt < result[1].createdAt)
         #expect(mockRepo.fetchAllCallCount == 1)
     }
 
