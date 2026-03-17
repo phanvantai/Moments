@@ -29,6 +29,9 @@ struct TimelineViewModelTests {
         #expect(vm.moments.count == 2)
         #expect(vm.isLoading == false)
         #expect(vm.errorMessage == nil)
+        #expect(mockFetchUseCase.executePaginatedCallCount == 1)
+        #expect(mockFetchUseCase.lastLimit == TimelineViewModel.pageSize)
+        #expect(mockFetchUseCase.lastOffset == 0)
     }
 
     @Test func test_loadMoments_emptyResult_setsEmptyArray() async {
@@ -39,6 +42,7 @@ struct TimelineViewModelTests {
 
         #expect(vm.moments.isEmpty)
         #expect(vm.isLoading == false)
+        #expect(vm.hasMoreOlderMoments == false)
     }
 
     @Test func test_loadMoments_failure_setsErrorMessage() async {
@@ -133,15 +137,30 @@ struct TimelineViewModelTests {
 
 final class MockFetchMomentsUseCase: FetchMomentsUseCaseProtocol, @unchecked Sendable {
     var executeCallCount = 0
+    var executePaginatedCallCount = 0
     var executeByIdCallCount = 0
     var momentsToReturn: [Moment] = []
     var momentToReturn: Moment?
     var errorToThrow: Error?
+    var lastLimit: Int?
+    var lastOffset: Int?
 
     func execute() async throws -> [Moment] {
         executeCallCount += 1
         if let error = errorToThrow { throw error }
         return momentsToReturn
+    }
+
+    func execute(limit: Int, offset: Int) async throws -> [Moment] {
+        executePaginatedCallCount += 1
+        lastLimit = limit
+        lastOffset = offset
+        if let error = errorToThrow { throw error }
+        // Simulate pagination from momentsToReturn
+        let newestFirst = momentsToReturn.sorted { $0.createdAt > $1.createdAt }
+        let start = min(offset, newestFirst.count)
+        let end = min(offset + limit, newestFirst.count)
+        return Array(newestFirst[start..<end]).sorted { $0.createdAt < $1.createdAt }
     }
 
     func execute(byId id: UUID) async throws -> Moment? {

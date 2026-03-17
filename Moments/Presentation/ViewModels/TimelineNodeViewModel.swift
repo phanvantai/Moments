@@ -24,6 +24,18 @@ struct TimelineNodeViewModel {
         moment.createdAt
     }
 
+    var formattedDate: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d"
+        return formatter.string(from: moment.createdAt)
+    }
+
+    var formattedTime: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mm a"
+        return formatter.string(from: moment.createdAt)
+    }
+
     var hasPhotoBadge: Bool {
         MomentDisplayHelper.hasPhotoBadge(moment)
     }

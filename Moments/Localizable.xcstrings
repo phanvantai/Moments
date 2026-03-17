@@ -604,15 +604,8 @@
         }
       }
     },
-    "Littlemark v%@ (%@)" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Littlemark v%1$@ (%2$@)"
-          }
-        }
-      }
+    "Littlemark %@" : {
+
     },
     "loading.media" : {
       "localizations" : {

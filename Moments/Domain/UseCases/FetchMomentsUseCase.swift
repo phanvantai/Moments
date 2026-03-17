@@ -2,6 +2,7 @@ import Foundation
 
 protocol FetchMomentsUseCaseProtocol: Sendable {
     func execute() async throws -> [Moment]
+    func execute(limit: Int, offset: Int) async throws -> [Moment]
     func execute(byId id: UUID) async throws -> Moment?
 }
 
@@ -14,6 +15,12 @@ struct FetchMomentsUseCase: FetchMomentsUseCaseProtocol {
 
     func execute() async throws -> [Moment] {
         let moments = try await momentRepository.fetchAll()
+        return moments.sorted { $0.createdAt < $1.createdAt }
+    }
+
+    func execute(limit: Int, offset: Int) async throws -> [Moment] {
+        let moments = try await momentRepository.fetchRecent(limit: limit, offset: offset)
+        // Repository returns newest-first; reverse to oldest-first (left to right on timeline)
         return moments.sorted { $0.createdAt < $1.createdAt }
     }
 

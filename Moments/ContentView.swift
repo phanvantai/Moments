@@ -165,6 +165,8 @@ struct ContentView: View {
             case .timeline:
                 TimelineView(
                     moments: vm.moments,
+                    isLoadingMore: vm.isLoadingMore,
+                    hasMoreOlderMoments: vm.hasMoreOlderMoments,
                     onMomentTap: { moment in
                         withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                             selectedMoment = moment
@@ -175,6 +177,9 @@ struct ContentView: View {
                     },
                     onRefresh: {
                         await vm.loadMoments()
+                    },
+                    onLoadMore: {
+                        await vm.loadMoreMoments()
                     }
                 )
                 .transition(.move(edge: .leading).combined(with: .opacity))
