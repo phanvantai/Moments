@@ -39,7 +39,7 @@ struct SettingsView: View {
                 }
 
                 Section {
-                    Text("Littlemark v\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0") (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"))")
+                    Text("Littlemark \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")")
                         .frame(maxWidth: .infinity)
                         .foregroundStyle(BrandColors.textSecondary)
                         .font(.footnote)

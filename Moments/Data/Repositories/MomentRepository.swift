@@ -24,6 +24,17 @@ actor MomentRepository: MomentRepositoryProtocol {
         return sdMoments.map { MomentMapper.toDomain($0) }
     }
 
+    func fetchRecent(limit: Int, offset: Int) async throws -> [Moment] {
+        let context = ModelContext(modelContainer)
+        var descriptor = FetchDescriptor<SDMoment>(
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
+        descriptor.fetchLimit = limit
+        descriptor.fetchOffset = offset
+        let sdMoments = try context.fetch(descriptor)
+        return sdMoments.map { MomentMapper.toDomain($0) }
+    }
+
     func fetch(byId id: UUID) async throws -> Moment? {
         let context = ModelContext(modelContainer)
         let descriptor = FetchDescriptor<SDMoment>(

@@ -164,10 +164,12 @@ final class CreateMomentViewModel: Identifiable {
             let fileName = "\(UUID().uuidString).\(ext)"
             let filePath = try await mediaRepository.saveMedia(data: data, fileName: fileName)
             print("[VM] Media saved at: \(filePath)")
+            let thumbnailPath = isVideo ? (try? await mediaRepository.generateVideoThumbnail(videoPath: filePath)) : nil
             let mediaItem = MediaItem(
                 momentId: UUID(),
                 type: isVideo ? .video : .photo,
                 filePath: filePath,
+                thumbnailPath: thumbnailPath,
                 width: 0,
                 height: 0,
                 sortOrder: capturedMediaItems.count

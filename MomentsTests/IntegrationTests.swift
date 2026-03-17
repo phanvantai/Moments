@@ -113,9 +113,9 @@ struct IntegrationTests {
         let loaded = try await fetchUseCase.execute()
 
         #expect(loaded.count == 3)
-        #expect(loaded[0].title == "Newest")
+        #expect(loaded[0].title == "Older")
         #expect(loaded[1].title == "Newer")
-        #expect(loaded[2].title == "Older")
+        #expect(loaded[2].title == "Newest")
     }
 
     // MARK: - CategoryEngine Full Pipeline

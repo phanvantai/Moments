@@ -32,6 +32,21 @@ final class MockMomentRepository: MomentRepositoryProtocol, @unchecked Sendable 
         return momentsToReturn
     }
 
+    var fetchRecentCallCount = 0
+    var lastFetchLimit: Int?
+    var lastFetchOffset: Int?
+
+    func fetchRecent(limit: Int, offset: Int) async throws -> [Moment] {
+        fetchRecentCallCount += 1
+        lastFetchLimit = limit
+        lastFetchOffset = offset
+        if let error = errorToThrow { throw error }
+        let sorted = momentsToReturn.sorted { $0.createdAt > $1.createdAt }
+        let start = min(offset, sorted.count)
+        let end = min(offset + limit, sorted.count)
+        return Array(sorted[start..<end])
+    }
+
     func fetch(byId id: UUID) async throws -> Moment? {
         fetchByIdCallCount += 1
         lastFetchedId = id

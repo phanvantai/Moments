@@ -7,9 +7,12 @@ struct TimelineViewTests {
     @Test func test_emptyMoments_showsEmptyState() {
         let view = TimelineView(
             moments: [],
+            isLoadingMore: false,
+            hasMoreOlderMoments: false,
             onMomentTap: { _ in },
             onDeleteRequest: { _ in },
-            onRefresh: {}
+            onRefresh: {},
+            onLoadMore: {}
         )
 
         #expect(view.moments.isEmpty)
@@ -22,9 +25,12 @@ struct TimelineViewTests {
         ]
         let view = TimelineView(
             moments: moments,
+            isLoadingMore: false,
+            hasMoreOlderMoments: true,
             onMomentTap: { _ in },
             onDeleteRequest: { _ in },
-            onRefresh: {}
+            onRefresh: {},
+            onLoadMore: {}
         )
 
         #expect(view.moments.count == 2)

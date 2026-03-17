@@ -6,18 +6,65 @@ struct TimelineNodeView: View {
 
     @State private var thumbnailImage: UIImage?
 
+    // MARK: - Layout Constants
+
+    private enum Layout {
+        static let cardWidth: CGFloat = 176
+        static let cardAreaHeight: CGFloat = 176
+        static let connectorHeight: CGFloat = 28
+        static let dateLabelHeight: CGFloat = 32
+        static let circleOuter: CGFloat = 30
+        static let circleInner: CGFloat = 14
+        static let thumbnailHeight: CGFloat = 76
+    }
+
     var body: some View {
         VStack(spacing: 0) {
-            if viewModel.isTopAligned {
-                contentCard
-                connector
-                circleNode
-            } else {
-                circleNode
-                connector
-                contentCard
+            // Zone 1: Top card area
+            Group {
+                if viewModel.isTopAligned {
+                    contentCard
+                } else {
+                    Color.clear
+                }
             }
+            .frame(height: Layout.cardAreaHeight, alignment: .bottom)
+
+            // Zone 2: Top connector or date
+            Group {
+                if viewModel.isTopAligned {
+                    connector
+                } else {
+                    dateLabel
+                }
+            }
+            .frame(height: Layout.connectorHeight)
+
+            // Zone 3: Circle node (timeline line drawn at parent level)
+            circleNode
+                .frame(height: Layout.circleOuter)
+
+            // Zone 4: Bottom date or connector
+            Group {
+                if viewModel.isTopAligned {
+                    dateLabel
+                } else {
+                    connector
+                }
+            }
+            .frame(height: Layout.connectorHeight)
+
+            // Zone 5: Bottom card area
+            Group {
+                if viewModel.isTopAligned {
+                    Color.clear
+                } else {
+                    contentCard
+                }
+            }
+            .frame(height: Layout.cardAreaHeight, alignment: .top)
         }
+        .frame(width: Layout.cardWidth)
         .contentShape(Rectangle())
         .onTapGesture { onTap() }
         .task {
@@ -32,69 +79,127 @@ struct TimelineNodeView: View {
     private var circleNode: some View {
         ZStack {
             Circle()
-                .fill(viewModel.categoryColor.opacity(0.2))
-                .frame(width: 28, height: 28)
+                .fill(viewModel.categoryColor.opacity(0.12))
+                .frame(width: Layout.circleOuter, height: Layout.circleOuter)
 
             Circle()
                 .fill(viewModel.categoryColor)
-                .frame(width: 16, height: 16)
+                .frame(width: Layout.circleInner, height: Layout.circleInner)
                 .overlay(
                     Circle()
-                        .stroke(Color(.systemBackground), lineWidth: 2)
+                        .stroke(Color(.systemBackground), lineWidth: 2.5)
                 )
-                .shadow(color: viewModel.categoryColor.opacity(0.25), radius: 3, y: 1)
+                .shadow(color: viewModel.categoryColor.opacity(0.35), radius: 4, y: 1)
         }
     }
 
     // MARK: - Connector
 
     private var connector: some View {
-        Rectangle()
+        RoundedRectangle(cornerRadius: 1)
             .fill(
                 LinearGradient(
-                    colors: [viewModel.categoryColor.opacity(0.35), viewModel.categoryColor.opacity(0.1)],
+                    colors: [
+                        viewModel.categoryColor.opacity(0.4),
+                        viewModel.categoryColor.opacity(0.08)
+                    ],
                     startPoint: viewModel.isTopAligned ? .top : .bottom,
                     endPoint: viewModel.isTopAligned ? .bottom : .top
                 )
             )
-            .frame(width: 2, height: 20)
+            .frame(width: 2)
+    }
+
+    // MARK: - Date Label
+
+    private var dateLabel: some View {
+        VStack(spacing: 1) {
+            Text(viewModel.formattedDate)
+                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                .foregroundStyle(BrandColors.textSecondary)
+
+            Text(viewModel.formattedTime)
+                .font(.system(size: 9, weight: .medium, design: .rounded))
+                .foregroundStyle(BrandColors.textSecondary.opacity(0.7))
+        }
     }
 
     // MARK: - Content Card
 
     private var contentCard: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 8) {
+            // Thumbnail
             if let image = thumbnailImage {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 150, height: 56)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                ZStack(alignment: .topTrailing) {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: Layout.cardWidth - 16, height: Layout.thumbnailHeight)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .overlay(
+                            // Subtle bottom gradient for depth
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(
+                                    LinearGradient(
+                                        colors: [.clear, .black.opacity(0.08)],
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    )
+                                )
+                        )
+
+                    // Category emoji pill
+                    if let emoji = viewModel.categoryEmoji {
+                        Text(emoji)
+                            .font(.system(size: 11))
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 2)
+                            .background(
+                                Capsule()
+                                    .fill(.ultraThinMaterial)
+                            )
+                            .padding(6)
+                    }
+                }
+            } else {
+                // Placeholder when no thumbnail
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(viewModel.categoryColor.opacity(0.08))
+                    .frame(width: Layout.cardWidth - 16, height: 40)
+                    .overlay(
+                        HStack(spacing: 4) {
+                            if let emoji = viewModel.categoryEmoji {
+                                Text(emoji)
+                                    .font(.system(size: 13))
+                            }
+                            mediaBadges
+                        }
+                    )
             }
 
+            // Title
             Text(viewModel.displayTitle)
-                .font(.system(.caption, design: .rounded, weight: .semibold))
+                .font(.system(.footnote, design: .rounded, weight: .semibold))
                 .lineLimit(2)
                 .foregroundStyle(.primary)
 
-            Text(viewModel.createdAt, style: .relative)
-                .font(.system(.caption2, design: .rounded))
-                .foregroundStyle(BrandColors.textSecondary)
-
-            mediaBadges
+            // Media badges (only when thumbnail exists, since placeholder already shows them)
+            if thumbnailImage != nil {
+                mediaBadges
+            }
         }
-        .padding(10)
-        .frame(width: 170)
+        .padding(8)
+        .frame(width: Layout.cardWidth, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 14)
-                .fill(Color(.systemBackground))
+                .fill(.ultraThinMaterial)
         )
-        .shadow(color: Color.black.opacity(0.05), radius: 6, y: 2)
-        .shadow(color: viewModel.categoryColor.opacity(0.08), radius: 3, y: 1)
         .overlay(
             RoundedRectangle(cornerRadius: 14)
-                .stroke(viewModel.categoryColor.opacity(0.15), lineWidth: 0.5)
+                .stroke(viewModel.categoryColor.opacity(0.18), lineWidth: 0.5)
         )
+        .shadow(color: viewModel.categoryColor.opacity(0.1), radius: 8, y: 3)
+        .shadow(color: Color.black.opacity(0.04), radius: 4, y: 2)
     }
 
     // MARK: - Media Badges
