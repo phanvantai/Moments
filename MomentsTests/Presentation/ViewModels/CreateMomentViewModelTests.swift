@@ -620,6 +620,24 @@ struct CreateMomentViewModelTests {
         #expect(vm.capturedMediaItems.first?.type == .video)
     }
 
+    @Test func test_saveGalleryItem_video_generatesThumbnail() async {
+        let vm = makeSUT()
+
+        await vm.saveGalleryItem(data: Data([0x01]), isVideo: true)
+
+        #expect(vm.capturedMediaItems.first?.thumbnailPath == "Thumbnails/thumb.jpg")
+        #expect(mockMediaRepository.generateVideoThumbnailCallCount == 1)
+    }
+
+    @Test func test_saveGalleryItem_photo_doesNotGenerateThumbnail() async {
+        let vm = makeSUT()
+
+        await vm.saveGalleryItem(data: Data([0x01]), isVideo: false)
+
+        #expect(vm.capturedMediaItems.first?.thumbnailPath == nil)
+        #expect(mockMediaRepository.generateVideoThumbnailCallCount == 0)
+    }
+
     @Test func test_saveGalleryItem_failure_setsErrorMessage() async {
         mockMediaRepository.errorToThrow = TestError.saveFailed
         let vm = makeSUT()

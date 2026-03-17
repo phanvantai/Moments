@@ -341,7 +341,8 @@ private struct MediaThumbnailView: View {
             .offset(x: 6, y: -6)
         }
         .task {
-            thumbnailImage = await ThumbnailCache.shared.loadThumbnail(for: item.filePath)
+            let path = item.thumbnailPath ?? item.filePath
+            thumbnailImage = await ThumbnailCache.shared.loadThumbnail(for: path)
         }
     }
 }
