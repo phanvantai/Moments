@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct ContentView: View {
     let container: DependencyContainer
@@ -7,9 +8,12 @@ struct ContentView: View {
     @State private var selectedMoment: Moment?
     @State private var timelineViewModel: TimelineViewModel?
     @State private var createMomentViewModel: CreateMomentViewModel?
+    @State private var initialCaptureStep: CreateMomentStep?
+    @State private var showCaptureMenu = false
     @State private var fabScale: CGFloat = 1.0
     @State private var fabRotation: Double = 0
     @State private var momentToDelete: UUID?
+    @State private var permissionDeniedType: String?
     @Namespace private var animationNamespace
 
     var body: some View {
@@ -46,23 +50,24 @@ struct ContentView: View {
                             .foregroundStyle(BrandColors.accent)
                     }
                 }
-                if let vm = timelineViewModel {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            HapticManager.viewModeToggle()
-                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                                vm.toggleViewMode()
-                            }
-                        } label: {
-                            Image(systemName: vm.viewMode == .timeline
-                                  ? "square.grid.2x2"
-                                  : "timeline.selection")
-                                .font(.body)
-                                .foregroundStyle(BrandColors.accent)
-                                .contentTransition(.symbolEffect(.replace))
-                        }
-                    }
-                }
+                // TODO: Re-enable grid view toggle after grid pagination is fully tested
+//                if let vm = timelineViewModel {
+//                    ToolbarItem(placement: .topBarTrailing) {
+//                        Button {
+//                            HapticManager.viewModeToggle()
+//                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+//                                vm.toggleViewMode()
+//                            }
+//                        } label: {
+//                            Image(systemName: vm.viewMode == .timeline
+//                                  ? "square.grid.2x2"
+//                                  : "timeline.selection")
+//                                .font(.body)
+//                                .foregroundStyle(BrandColors.accent)
+//                                .contentTransition(.symbolEffect(.replace))
+//                        }
+//                    }
+//                }
             }
             .confirmationDialog(
                 String(localized: "delete.confirm.title", bundle: LanguageManager.shared.bundle),
@@ -89,9 +94,15 @@ struct ContentView: View {
             }
         }
         .tint(BrandColors.accent)
+        .sheet(isPresented: $showCaptureMenu) {
+            captureMenuSheet
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
+        }
         .fullScreenCover(item: $createMomentViewModel) { vm in
             CreateMomentView(
                 viewModel: vm,
+                initialStep: initialCaptureStep ?? .camera,
                 onDismiss: {
                     createMomentViewModel = nil
                 },
@@ -133,7 +144,7 @@ struct ContentView: View {
                     fabScale = 1.0
                     fabRotation = 0
                 }
-                createMomentViewModel = container.makeCreateMomentViewModel()
+                showCaptureMenu = true
             }
         } label: {
             Image(systemName: "plus")
@@ -149,6 +160,90 @@ struct ContentView: View {
                 .rotationEffect(.degrees(fabRotation))
         }
         .accessibilityLabel(String(localized: "fab.accessibility", bundle: LanguageManager.shared.bundle))
+    }
+
+    // MARK: - Capture Menu Sheet
+
+    private var captureMenuSheet: some View {
+        VStack(spacing: 12) {
+            if let denied = permissionDeniedType {
+                permissionDeniedBanner(for: denied)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+
+            CaptureMenuView(
+                isCameraAvailable: true,
+                isVoiceAvailable: true,
+                isGalleryAvailable: true,
+                onCameraTap: {
+                    Task {
+                        let status = await container.permissionService.request(.camera)
+                        if status == .authorized {
+                            startCapture(step: .camera)
+                        } else if status == .denied {
+                            withAnimation { permissionDeniedType = "Camera" }
+                        }
+                    }
+                },
+                onVoiceTap: {
+                    Task {
+                        let status = await container.permissionService.request(.microphone)
+                        if status == .authorized {
+                            _ = await container.permissionService.request(.speechRecognition)
+                            startCapture(step: .voice)
+                        } else if status == .denied {
+                            withAnimation { permissionDeniedType = "Microphone" }
+                        }
+                    }
+                },
+                onGalleryTap: {
+                    Task {
+                        let status = await container.permissionService.request(.photoLibrary)
+                        if status == .authorized {
+                            startCapture(step: .gallery)
+                        } else if status == .denied {
+                            withAnimation { permissionDeniedType = "Photo Library" }
+                        }
+                    }
+                }
+            )
+        }
+        .padding(.top, 8)
+    }
+
+    private func startCapture(step: CreateMomentStep) {
+        initialCaptureStep = step
+        showCaptureMenu = false
+        permissionDeniedType = nil
+        createMomentViewModel = container.makeCreateMomentViewModel()
+    }
+
+    private func permissionDeniedBanner(for type: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "exclamationmark.circle.fill")
+                .foregroundStyle(.orange)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(String(localized: "permission.denied \(type)", bundle: LanguageManager.shared.bundle))
+                    .font(.system(.subheadline, design: .rounded, weight: .medium))
+                Text(String(localized: "permission.enable.settings", bundle: LanguageManager.shared.bundle))
+                    .font(.system(.caption, design: .rounded))
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+            Button(String(localized: "settings", bundle: LanguageManager.shared.bundle)) {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            .font(.system(.caption, design: .rounded, weight: .semibold))
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(Capsule().fill(.blue))
+            .foregroundStyle(.white)
+        }
+        .padding(12)
+        .background(RoundedRectangle(cornerRadius: 12).fill(.ultraThinMaterial))
+        .padding(.horizontal, 20)
     }
 
     // MARK: - Main Content
@@ -186,6 +281,8 @@ struct ContentView: View {
             case .grid:
                 GridView(
                     moments: vm.moments,
+                    isLoadingMore: vm.isLoadingMore,
+                    hasMoreOlderMoments: vm.hasMoreOlderMoments,
                     onMomentTap: { moment in
                         withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                             selectedMoment = moment
@@ -196,6 +293,9 @@ struct ContentView: View {
                     },
                     onRefresh: {
                         await vm.loadMoments()
+                    },
+                    onLoadMore: {
+                        await vm.loadMoreMoments()
                     }
                 )
                 .transition(.move(edge: .trailing).combined(with: .opacity))

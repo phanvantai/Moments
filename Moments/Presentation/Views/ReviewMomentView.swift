@@ -2,7 +2,6 @@ import SwiftUI
 
 struct ReviewMomentView: View {
     @Bindable var viewModel: CreateMomentViewModel
-    var onAddMoreMedia: () -> Void
     var onDismiss: () -> Void
 
     @State private var newTag: String = ""
@@ -27,9 +26,6 @@ struct ReviewMomentView: View {
 
                     // Tags
                     tagsSection
-
-                    // Add More Media
-                    addMoreMediaButton
                 }
                 .padding()
             }
@@ -257,27 +253,6 @@ struct ReviewMomentView: View {
                         .foregroundStyle(BrandColors.textSecondary)
                 }
             }
-        }
-    }
-
-    // MARK: - Add More Media
-
-    private var addMoreMediaButton: some View {
-        Button(action: onAddMoreMedia) {
-            HStack(spacing: 6) {
-                Image(systemName: "plus.circle")
-                    .font(.system(size: 16, weight: .medium))
-                Text(String(localized: "add.more.media", bundle: LanguageManager.shared.bundle))
-                    .font(.system(.body, design: .rounded, weight: .medium))
-            }
-            .foregroundStyle(BrandColors.accent)
-            .frame(maxWidth: .infinity)
-            .padding(14)
-            .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(BrandColors.accent.opacity(0.25), lineWidth: 1.5)
-                    .fill(BrandColors.accent.opacity(0.03))
-            )
         }
     }
 

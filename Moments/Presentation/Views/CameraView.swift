@@ -1,8 +1,16 @@
 import SwiftUI
 import AVFoundation
 
+// MARK: - Capture Mode
+
+private enum CaptureMode: String, CaseIterable {
+    case photo
+    case video
+}
+
 struct CameraView: View {
     @State private var capturedImage: UIImage?
+    @State private var captureMode: CaptureMode = .photo
     @State private var isRecordingVideo = false
     @State private var showError = false
     @State private var errorText = ""
@@ -45,8 +53,11 @@ struct CameraView: View {
                 Spacer()
 
                 // Bottom controls
-                CameraControlsView(isRecordingVideo: $isRecordingVideo)
-                    .padding(.bottom, 40)
+                CameraControlsView(
+                    captureMode: $captureMode,
+                    isRecordingVideo: $isRecordingVideo
+                )
+                .padding(.bottom, 40)
             }
         }
         .alert(String(localized: "camera.error", bundle: LanguageManager.shared.bundle), isPresented: $showError) {
@@ -60,46 +71,98 @@ struct CameraView: View {
 // MARK: - Camera Controls
 
 private struct CameraControlsView: View {
+    @Binding var captureMode: CaptureMode
     @Binding var isRecordingVideo: Bool
 
     var body: some View {
-        HStack(spacing: 60) {
-            // Photo capture button
+        VStack(spacing: 24) {
+            // Capture button
             Button {
-                // Photo capture is handled via notification
-                NotificationCenter.default.post(name: .capturePhoto, object: nil)
-            } label: {
-                Circle()
-                    .fill(.white)
-                    .frame(width: 72, height: 72)
-                    .overlay(
-                        Circle()
-                            .stroke(.white.opacity(0.5), lineWidth: 4)
-                            .frame(width: 80, height: 80)
-                    )
-            }
-
-            // Video record button
-            Button {
-                isRecordingVideo.toggle()
-                if isRecordingVideo {
-                    NotificationCenter.default.post(name: .startVideoRecording, object: nil)
+                if captureMode == .photo {
+                    NotificationCenter.default.post(name: .capturePhoto, object: nil)
                 } else {
-                    NotificationCenter.default.post(name: .stopVideoRecording, object: nil)
+                    isRecordingVideo.toggle()
+                    if isRecordingVideo {
+                        NotificationCenter.default.post(name: .startVideoRecording, object: nil)
+                    } else {
+                        NotificationCenter.default.post(name: .stopVideoRecording, object: nil)
+                    }
                 }
             } label: {
                 ZStack {
-                    Circle()
-                        .fill(isRecordingVideo ? .red : .red.opacity(0.7))
-                        .frame(width: isRecordingVideo ? 36 : 72, height: isRecordingVideo ? 36 : 72)
-                        .animation(.easeInOut(duration: 0.2), value: isRecordingVideo)
+                    if captureMode == .photo {
+                        // Photo: white filled circle
+                        Circle()
+                            .fill(.white)
+                            .frame(width: 72, height: 72)
+                    } else {
+                        // Video: red circle that shrinks to rounded rect when recording
+                        RoundedRectangle(cornerRadius: isRecordingVideo ? 8 : 36)
+                            .fill(.red)
+                            .frame(
+                                width: isRecordingVideo ? 36 : 72,
+                                height: isRecordingVideo ? 36 : 72
+                            )
+                    }
 
+                    // Outer ring
                     Circle()
-                        .stroke(.white.opacity(0.5), lineWidth: 4)
+                        .stroke(
+                            captureMode == .photo ? .white.opacity(0.5) : .red.opacity(0.5),
+                            lineWidth: 4
+                        )
                         .frame(width: 80, height: 80)
+                }
+                .animation(.easeInOut(duration: 0.2), value: isRecordingVideo)
+                .animation(.easeInOut(duration: 0.25), value: captureMode)
+            }
+            .disabled(captureMode == .photo && isRecordingVideo)
+
+            // Mode toggle switch
+            CaptureModeSwitcher(captureMode: $captureMode)
+                .opacity(isRecordingVideo ? 0.3 : 1.0)
+                .allowsHitTesting(!isRecordingVideo)
+                .animation(.easeInOut(duration: 0.2), value: isRecordingVideo)
+        }
+    }
+}
+
+// MARK: - Capture Mode Switcher
+
+private struct CaptureModeSwitcher: View {
+    @Binding var captureMode: CaptureMode
+    @Namespace private var modeNamespace
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(CaptureMode.allCases, id: \.self) { mode in
+                Button {
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        captureMode = mode
+                    }
+                } label: {
+                    Text(mode == .photo
+                         ? String(localized: "capture.mode.photo", bundle: LanguageManager.shared.bundle)
+                         : String(localized: "capture.mode.video", bundle: LanguageManager.shared.bundle))
+                        .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                        .foregroundStyle(captureMode == mode ? .black : .white.opacity(0.7))
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 8)
+                        .background {
+                            if captureMode == mode {
+                                Capsule()
+                                    .fill(.white)
+                                    .matchedGeometryEffect(id: "modeIndicator", in: modeNamespace)
+                            }
+                        }
                 }
             }
         }
+        .padding(3)
+        .background(
+            Capsule()
+                .fill(.white.opacity(0.2))
+        )
     }
 }
 

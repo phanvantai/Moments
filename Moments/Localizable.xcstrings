@@ -33,6 +33,7 @@
 
     },
     "add.more.media" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -77,6 +78,7 @@
       }
     },
     "back" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -248,6 +250,50 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Chọn từ thư viện"
+          }
+        }
+      }
+    },
+    "capture.mode.photo" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Photo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "写真"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ảnh"
+          }
+        }
+      }
+    },
+    "capture.mode.video" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "動画"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video"
           }
         }
       }
@@ -561,6 +607,7 @@
       }
     },
     "gallery.select.prompt" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -583,6 +630,7 @@
       }
     },
     "gallery.title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

@@ -5,7 +5,8 @@ import UniformTypeIdentifiers
 
 struct CreateMomentView: View {
     @Bindable var viewModel: CreateMomentViewModel
-    @State private var currentStep: CreateMomentStep = .captureMenu
+    let initialStep: CreateMomentStep
+    @State private var currentStep: CreateMomentStep?
     @State private var selectedPhotos: [PhotosPickerItem] = []
     @State private var isLoadingPhotos = false
 
@@ -14,11 +15,7 @@ struct CreateMomentView: View {
 
     var body: some View {
         ZStack {
-            switch currentStep {
-            case .captureMenu:
-                captureMenuContent
-                    .transition(.opacity)
-
+            switch currentStep ?? initialStep {
             case .camera:
                 CameraView(
                     onPhotoCaptured: { data in
@@ -28,9 +25,7 @@ struct CreateMomentView: View {
                         handleVideoCaptured(url)
                     },
                     onDismiss: {
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                            currentStep = .captureMenu
-                        }
+                        onDismiss()
                     }
                 )
                 .transition(.move(edge: .trailing).combined(with: .opacity))
@@ -41,9 +36,7 @@ struct CreateMomentView: View {
                         handleVoiceRecorded(url: url, duration: duration, transcript: transcript)
                     },
                     onDismiss: {
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                            currentStep = .captureMenu
-                        }
+                        onDismiss()
                     }
                 )
                 .transition(.move(edge: .trailing).combined(with: .opacity))
@@ -55,11 +48,6 @@ struct CreateMomentView: View {
             case .review:
                 ReviewMomentView(
                     viewModel: viewModel,
-                    onAddMoreMedia: {
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                            currentStep = .captureMenu
-                        }
-                    },
                     onDismiss: onDismiss
                 )
                 .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -77,151 +65,40 @@ struct CreateMomentView: View {
         }
     }
 
-    @State private var permissionDeniedType: String?
-
-    // MARK: - Capture Menu
-
-    private var captureMenuContent: some View {
-        ZStack {
-            Color.black.opacity(0.4)
-                .ignoresSafeArea()
-                .onTapGesture { onDismiss() }
-
-            VStack {
-                Spacer()
-
-                if let denied = permissionDeniedType {
-                    permissionDeniedBanner(for: denied)
-                        .padding(.horizontal, 24)
-                        .padding(.bottom, 8)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                }
-
-                CaptureMenuView(
-                    isCameraAvailable: viewModel.isCameraAvailable,
-                    isVoiceAvailable: viewModel.isVoiceAvailable,
-                    isGalleryAvailable: viewModel.isGalleryAvailable,
-                    onCameraTap: {
-                        Task {
-                            let status = await viewModel.requestPermission(.camera)
-                            if status == .authorized {
-                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                    currentStep = .camera
-                                }
-                            } else if status == .denied {
-                                withAnimation { permissionDeniedType = "Camera" }
-                            }
-                            await viewModel.refreshPermissions()
-                        }
-                    },
-                    onVoiceTap: {
-                        Task {
-                            let status = await viewModel.requestPermission(.microphone)
-                            if status == .authorized {
-                                _ = await viewModel.requestPermission(.speechRecognition)
-                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                    currentStep = .voice
-                                }
-                            } else if status == .denied {
-                                withAnimation { permissionDeniedType = "Microphone" }
-                            }
-                            await viewModel.refreshPermissions()
-                        }
-                    },
-                    onGalleryTap: {
-                        Task {
-                            let status = await viewModel.requestPermission(.photoLibrary)
-                            if status == .authorized {
-                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                    currentStep = .gallery
-                                }
-                            } else if status == .denied {
-                                withAnimation { permissionDeniedType = "Photo Library" }
-                            }
-                            await viewModel.refreshPermissions()
-                        }
-                    },
-                    onDismiss: onDismiss
-                )
-                .padding(.bottom, 40)
-            }
-        }
-    }
-
-    private func permissionDeniedBanner(for type: String) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: "exclamationmark.circle.fill")
-                .foregroundStyle(.orange)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(String(localized: "permission.denied \(type)", bundle: LanguageManager.shared.bundle))
-                    .font(.system(.subheadline, design: .rounded, weight: .medium))
-                Text(String(localized: "permission.enable.settings", bundle: LanguageManager.shared.bundle))
-                    .font(.system(.caption, design: .rounded))
-                    .foregroundStyle(.secondary)
-            }
-            Spacer()
-            Button(String(localized: "settings", bundle: LanguageManager.shared.bundle)) {
-                if let url = URL(string: UIApplication.openSettingsURLString) {
-                    UIApplication.shared.open(url)
-                }
-            }
-            .font(.system(.caption, design: .rounded, weight: .semibold))
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(Capsule().fill(.blue))
-            .foregroundStyle(.white)
-        }
-        .padding(12)
-        .background(RoundedRectangle(cornerRadius: 12).fill(.ultraThinMaterial))
-    }
-
     // MARK: - Gallery
 
     @State private var showPhotoPicker = false
 
     private var galleryContent: some View {
-        NavigationStack {
-            VStack(spacing: 16) {
-                if isLoadingPhotos {
-                    Spacer()
-                    ProgressView(String(localized: "loading.media", bundle: LanguageManager.shared.bundle))
-                    Spacer()
-                } else {
-                    Spacer()
-                    Image(systemName: "photo.on.rectangle.angled")
-                        .font(.system(size: 48))
-                        .foregroundStyle(.secondary)
-                    Text(String(localized: "gallery.select.prompt", bundle: LanguageManager.shared.bundle))
-                        .font(.system(.body, design: .rounded))
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                }
+        VStack(spacing: 16) {
+            if isLoadingPhotos {
+                Spacer()
+                ProgressView(String(localized: "loading.media", bundle: LanguageManager.shared.bundle))
+                    .font(.system(.body, design: .rounded))
+                Spacer()
+            } else {
+                Spacer()
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .navigationTitle(String(localized: "gallery.title", bundle: LanguageManager.shared.bundle))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(String(localized: "back", bundle: LanguageManager.shared.bundle)) {
-                        currentStep = viewModel.capturedMediaItems.isEmpty ? .captureMenu : .review
-                    }
-                }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .photosPicker(
+            isPresented: $showPhotoPicker,
+            selection: $selectedPhotos,
+            maxSelectionCount: 20,
+            matching: .any(of: [.images, .videos]),
+            photoLibrary: .shared()
+        )
+        .onChange(of: selectedPhotos) { _, newValue in
+            guard !newValue.isEmpty else { return }
+            Task { await loadSelectedPhotos() }
+        }
+        .onChange(of: showPhotoPicker) { _, isShowing in
+            if !isShowing && selectedPhotos.isEmpty && !isLoadingPhotos {
+                onDismiss()
             }
-            .photosPicker(
-                isPresented: $showPhotoPicker,
-                selection: $selectedPhotos,
-                maxSelectionCount: 20,
-                matching: .any(of: [.images, .videos]),
-                photoLibrary: .shared()
-            )
-            .onChange(of: selectedPhotos) { _, newValue in
-                guard !newValue.isEmpty else { return }
-                print("[Gallery] selection confirmed: \(newValue.count) items")
-                Task { await loadSelectedPhotos() }
-            }
-            .onAppear {
-                showPhotoPicker = true
-            }
+        }
+        .onAppear {
+            showPhotoPicker = true
         }
     }
 

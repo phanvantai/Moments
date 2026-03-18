@@ -7,9 +7,12 @@ struct GridViewTests {
     @Test func test_emptyMoments_showsEmptyState() {
         let view = GridView(
             moments: [],
+            isLoadingMore: false,
+            hasMoreOlderMoments: false,
             onMomentTap: { _ in },
             onDeleteRequest: { _ in },
-            onRefresh: {}
+            onRefresh: {},
+            onLoadMore: {}
         )
 
         #expect(view.moments.isEmpty)
@@ -23,9 +26,12 @@ struct GridViewTests {
         ]
         let view = GridView(
             moments: moments,
+            isLoadingMore: false,
+            hasMoreOlderMoments: true,
             onMomentTap: { _ in },
             onDeleteRequest: { _ in },
-            onRefresh: {}
+            onRefresh: {},
+            onLoadMore: {}
         )
 
         #expect(view.moments.count == 3)

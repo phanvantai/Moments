@@ -8,18 +8,11 @@ struct CaptureMenuView: View {
     var onCameraTap: () -> Void
     var onVoiceTap: () -> Void
     var onGalleryTap: () -> Void
-    var onDismiss: () -> Void
 
     @State private var appeared = false
 
     var body: some View {
         VStack(spacing: 12) {
-            // Handle indicator
-            Capsule()
-                .fill(Color.secondary.opacity(0.25))
-                .frame(width: 36, height: 4)
-                .padding(.top, 4)
-
             if isCameraAvailable {
                 CaptureOptionButton(
                     icon: "camera.fill",
@@ -58,25 +51,9 @@ struct CaptureMenuView: View {
                 .opacity(appeared ? 1 : 0)
                 .animation(.spring(response: 0.45, dampingFraction: 0.75).delay(0.12), value: appeared)
             }
-
-            Button(String(localized: "cancel", bundle: LanguageManager.shared.bundle), action: onDismiss)
-                .font(.system(.body, design: .rounded, weight: .medium))
-                .foregroundStyle(.secondary)
-                .padding(.top, 4)
-                .padding(.bottom, 4)
-                .opacity(appeared ? 1 : 0)
-                .animation(.spring(response: 0.45, dampingFraction: 0.75).delay(0.18), value: appeared)
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
-        .background(
-            RoundedRectangle(cornerRadius: 24)
-                .fill(.regularMaterial)
-                .shadow(color: Color.black.opacity(0.08), radius: 20, y: -4)
-        )
-        .padding(.horizontal, 16)
-        .scaleEffect(appeared ? 1 : 0.85)
-        .animation(.spring(response: 0.4, dampingFraction: 0.75), value: appeared)
         .onAppear {
             appeared = true
         }
