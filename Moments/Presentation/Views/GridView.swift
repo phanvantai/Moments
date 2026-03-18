@@ -2,9 +2,12 @@ import SwiftUI
 
 struct GridView: View {
     let moments: [Moment]
+    let isLoadingMore: Bool
+    let hasMoreOlderMoments: Bool
     let onMomentTap: (Moment) -> Void
     let onDeleteRequest: (UUID) -> Void
     let onRefresh: () async -> Void
+    let onLoadMore: () async -> Void
 
     @State private var appearedCards: Set<UUID> = []
 
@@ -12,6 +15,12 @@ struct GridView: View {
         GridItem(.flexible(), spacing: 12),
         GridItem(.flexible(), spacing: 12)
     ]
+
+    /// Moments reversed so oldest is first (top) and newest is last (bottom),
+    /// matching iOS Photos library layout.
+    private var reversedMoments: [Moment] {
+        moments.reversed()
+    }
 
     var body: some View {
         if moments.isEmpty {
@@ -32,7 +41,7 @@ struct GridView: View {
         var currentLabel = ""
         var currentGroup: [Moment] = []
 
-        for moment in moments {
+        for moment in reversedMoments {
             let label = sectionLabel(for: moment.createdAt, now: now, calendar: calendar)
             if label == currentLabel {
                 currentGroup.append(moment)
@@ -69,52 +78,91 @@ struct GridView: View {
     // MARK: - Grid Content
 
     private var gridContent: some View {
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: 20) {
-                ForEach(Array(groupedMoments.enumerated()), id: \.offset) { _, section in
-                    let (label, sectionMoments) = section
-
-                    Section {
-                        LazyVGrid(columns: columns, spacing: 14) {
-                            ForEach(sectionMoments) { moment in
-                                GridCardView(viewModel: GridCardViewModel(moment: moment))
-                                    .onTapGesture { onMomentTap(moment) }
-                                    .scaleEffect(appearedCards.contains(moment.id) ? 1.0 : 0.9)
-                                    .opacity(appearedCards.contains(moment.id) ? 1.0 : 0)
-                                    .onAppear {
-                                        let animation = Animation.spring(response: 0.4, dampingFraction: 0.75)
-                                            .delay(0.05)
-                                        withAnimation(animation) {
-                                            appearedCards.insert(moment.id)
-                                        }
-                                    }
-                                    .contextMenu {
-                                        Button(role: .destructive) {
-                                            onDeleteRequest(moment.id)
-                                        } label: {
-                                            Label(String(localized: "delete", bundle: LanguageManager.shared.bundle), systemImage: "trash")
-                                        }
-                                    }
-                                    .transition(.asymmetric(
-                                        insertion: .opacity.combined(with: .scale(scale: 0.9)),
-                                        removal: .opacity.combined(with: .scale(scale: 0.85))
-                                    ))
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 20) {
+                    // Load-more indicator at the top (older content)
+                    if hasMoreOlderMoments {
+                        loadMoreIndicator
+                            .onAppear {
+                                Task { await onLoadMore() }
                             }
+                    }
+
+                    ForEach(Array(groupedMoments.enumerated()), id: \.offset) { _, section in
+                        let (label, sectionMoments) = section
+
+                        Section {
+                            LazyVGrid(columns: columns, spacing: 14) {
+                                ForEach(sectionMoments) { moment in
+                                    GridCardView(viewModel: GridCardViewModel(moment: moment))
+                                        .id(moment.id)
+                                        .onTapGesture { onMomentTap(moment) }
+                                        .scaleEffect(appearedCards.contains(moment.id) ? 1.0 : 0.9)
+                                        .opacity(appearedCards.contains(moment.id) ? 1.0 : 0)
+                                        .onAppear {
+                                            let animation = Animation.spring(response: 0.4, dampingFraction: 0.75)
+                                                .delay(0.05)
+                                            withAnimation(animation) {
+                                                appearedCards.insert(moment.id)
+                                            }
+                                        }
+                                        .contextMenu {
+                                            Button(role: .destructive) {
+                                                onDeleteRequest(moment.id)
+                                            } label: {
+                                                Label(String(localized: "delete", bundle: LanguageManager.shared.bundle), systemImage: "trash")
+                                            }
+                                        }
+                                        .transition(.asymmetric(
+                                            insertion: .opacity.combined(with: .scale(scale: 0.9)),
+                                            removal: .opacity.combined(with: .scale(scale: 0.85))
+                                        ))
+                                }
+                            }
+                        } header: {
+                            Text(label)
+                                .font(.system(.footnote, design: .rounded, weight: .semibold))
+                                .foregroundStyle(BrandColors.sectionHeader)
+                                .textCase(.uppercase)
+                                .tracking(0.5)
                         }
-                    } header: {
-                        Text(label)
-                            .font(.system(.footnote, design: .rounded, weight: .semibold))
-                            .foregroundStyle(BrandColors.sectionHeader)
-                            .textCase(.uppercase)
-                            .tracking(0.5)
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+            }
+            .refreshable {
+                await onRefresh()
+            }
+            .onAppear {
+                // Auto-scroll to bottom (newest moments) like iOS Photos
+                if let newestMoment = moments.first {
+                    proxy.scrollTo(newestMoment.id, anchor: .bottom)
+                }
+            }
+            .onChange(of: moments.count) {
+                // Keep scrolled to newest when new moments are added
+                if let newestMoment = moments.first {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                        proxy.scrollTo(newestMoment.id, anchor: .bottom)
                     }
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
         }
-        .refreshable {
-            await onRefresh()
+    }
+
+    // MARK: - Load More Indicator
+
+    private var loadMoreIndicator: some View {
+        HStack {
+            Spacer()
+            if isLoadingMore {
+                ProgressView()
+                    .tint(BrandColors.accent)
+            }
+            Spacer()
         }
+        .frame(height: 44)
     }
 }

@@ -4,13 +4,6 @@ import Foundation
 
 struct CreateMomentStepTests {
 
-    @Test func test_captureMenu_equatable() {
-        let step1 = CreateMomentStep.captureMenu
-        let step2 = CreateMomentStep.captureMenu
-
-        #expect(step1 == step2)
-    }
-
     @Test func test_camera_equatable() {
         let step1 = CreateMomentStep.camera
         let step2 = CreateMomentStep.camera
@@ -37,21 +30,18 @@ struct CreateMomentStepTests {
     }
 
     @Test func test_differentSteps_areNotEqual() {
-        #expect(CreateMomentStep.captureMenu != CreateMomentStep.camera)
         #expect(CreateMomentStep.camera != CreateMomentStep.voice)
         #expect(CreateMomentStep.voice != CreateMomentStep.gallery)
         #expect(CreateMomentStep.gallery != CreateMomentStep.review)
-        #expect(CreateMomentStep.review != CreateMomentStep.captureMenu)
+        #expect(CreateMomentStep.review != CreateMomentStep.camera)
     }
 
-    @Test func test_allCases_areFive() {
+    @Test func test_allCases_areFour() {
         let steps: [CreateMomentStep] = [
-            .captureMenu, .camera, .voice, .gallery, .review
+            .camera, .voice, .gallery, .review
         ]
-        // Verify we have all the steps
-        #expect(steps.count == 5)
-        // Verify they are all unique
+        #expect(steps.count == 4)
         let uniqueSteps = Set(steps.map { "\($0)" })
-        #expect(uniqueSteps.count == 5)
+        #expect(uniqueSteps.count == 4)
     }
 }

@@ -17,8 +17,7 @@ struct CaptureMenuViewTests {
             isGalleryAvailable: true,
             onCameraTap: { cameraTapped = true },
             onVoiceTap: { voiceTapped = true },
-            onGalleryTap: { galleryTapped = true },
-            onDismiss: {}
+            onGalleryTap: { galleryTapped = true }
         )
 
         #expect(view.isCameraAvailable == true)
@@ -33,8 +32,7 @@ struct CaptureMenuViewTests {
             isGalleryAvailable: true,
             onCameraTap: {},
             onVoiceTap: {},
-            onGalleryTap: {},
-            onDismiss: {}
+            onGalleryTap: {}
         )
 
         #expect(view.isCameraAvailable == false)
@@ -49,8 +47,7 @@ struct CaptureMenuViewTests {
             isGalleryAvailable: true,
             onCameraTap: {},
             onVoiceTap: {},
-            onGalleryTap: {},
-            onDismiss: {}
+            onGalleryTap: {}
         )
 
         #expect(view.isVoiceAvailable == false)
@@ -63,8 +60,7 @@ struct CaptureMenuViewTests {
             isGalleryAvailable: false,
             onCameraTap: {},
             onVoiceTap: {},
-            onGalleryTap: {},
-            onDismiss: {}
+            onGalleryTap: {}
         )
 
         #expect(view.isGalleryAvailable == false)
@@ -77,8 +73,7 @@ struct CaptureMenuViewTests {
             isGalleryAvailable: false,
             onCameraTap: {},
             onVoiceTap: {},
-            onGalleryTap: {},
-            onDismiss: {}
+            onGalleryTap: {}
         )
 
         #expect(view.isCameraAvailable == false)

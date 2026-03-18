@@ -6,16 +6,10 @@ struct CreateMomentViewTests {
 
     // MARK: - CreateMomentStep enum
 
-    @Test func test_step_captureMenu_isDefault() {
-        let step: CreateMomentStep = .captureMenu
-
-        #expect(step == .captureMenu)
-    }
-
     @Test func test_step_allCasesExist() {
-        let steps: [CreateMomentStep] = [.captureMenu, .camera, .voice, .gallery, .review]
+        let steps: [CreateMomentStep] = [.camera, .voice, .gallery, .review]
 
-        #expect(steps.count == 5)
+        #expect(steps.count == 4)
     }
 
     @Test func test_step_camera_notEqualToVoice() {
@@ -26,16 +20,12 @@ struct CreateMomentViewTests {
         #expect(CreateMomentStep.gallery != CreateMomentStep.review)
     }
 
-    @Test func test_step_captureMenu_notEqualToCamera() {
-        #expect(CreateMomentStep.captureMenu != CreateMomentStep.camera)
-    }
-
     @Test func test_step_voice_notEqualToGallery() {
         #expect(CreateMomentStep.voice != CreateMomentStep.gallery)
     }
 
-    @Test func test_step_review_notEqualToCaptureMenu() {
-        #expect(CreateMomentStep.review != CreateMomentStep.captureMenu)
+    @Test func test_step_review_notEqualToCamera() {
+        #expect(CreateMomentStep.review != CreateMomentStep.camera)
     }
 
     @Test func test_step_equatable_sameValues() {
@@ -43,7 +33,6 @@ struct CreateMomentViewTests {
         #expect(CreateMomentStep.voice == CreateMomentStep.voice)
         #expect(CreateMomentStep.gallery == CreateMomentStep.gallery)
         #expect(CreateMomentStep.review == CreateMomentStep.review)
-        #expect(CreateMomentStep.captureMenu == CreateMomentStep.captureMenu)
     }
 
     // MARK: - GalleryMediaResult

@@ -37,7 +37,6 @@ struct ReviewMomentViewTests {
 
         let view = ReviewMomentView(
             viewModel: vm,
-            onAddMoreMedia: {},
             onDismiss: {}
         )
 
