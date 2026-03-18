@@ -118,6 +118,11 @@ final class VoiceRecorderState {
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var recognitionTask: SFSpeechRecognitionTask?
     private var audioEngine: AVAudioEngine?
+    private let audioSessionManager: AudioSessionManaging
+
+    init(audioSessionManager: AudioSessionManaging = AudioSessionManager.shared) {
+        self.audioSessionManager = audioSessionManager
+    }
 
     var formattedDuration: String {
         DurationFormatter.paddedFormat(duration)
@@ -137,9 +142,7 @@ final class VoiceRecorderState {
         ]
 
         do {
-            let session = AVAudioSession.sharedInstance()
-            try session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker])
-            try session.setActive(true)
+            audioSessionManager.configureForRecording()
 
             audioRecorder = try AVAudioRecorder(url: url, settings: settings)
             audioRecorder?.isMeteringEnabled = true
@@ -160,7 +163,7 @@ final class VoiceRecorderState {
         stopTimer()
         stopTranscription()
 
-        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        audioSessionManager.deactivate()
     }
 
     private func startTimer() {
