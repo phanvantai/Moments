@@ -21,6 +21,7 @@ final class VoicePlayerViewModel {
     private var audioPlayer: AudioPlayerProtocol?
     private var timer: Timer?
     private let fileManager: FileManager
+    private let audioSessionManager: AudioSessionManaging
 
     var currentTimeFormatted: String {
         DurationFormatter.shortFormat(currentTime)
@@ -47,9 +48,14 @@ final class VoicePlayerViewModel {
         voiceNote.duration
     }
 
-    init(voiceNote: VoiceNote, fileManager: FileManager = .default) {
+    init(
+        voiceNote: VoiceNote,
+        fileManager: FileManager = .default,
+        audioSessionManager: AudioSessionManaging = AudioSessionManager.shared
+    ) {
         self.voiceNote = voiceNote
         self.fileManager = fileManager
+        self.audioSessionManager = audioSessionManager
     }
 
     func togglePlayback() {
@@ -67,6 +73,8 @@ final class VoicePlayerViewModel {
         guard fileManager.fileExists(atPath: fileURL.path) else { return }
 
         do {
+            audioSessionManager.configureForPlayback()
+
             let player = try AVAudioPlayer(contentsOf: fileURL)
             player.currentTime = currentTime
             _ = player.play()
@@ -90,6 +98,8 @@ final class VoicePlayerViewModel {
         isPlaying = false
         currentTime = 0
         stopTimer()
+
+        audioSessionManager.deactivate()
     }
 
     func setAudioPlayer(_ player: AudioPlayerProtocol) {

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct VoicePlayerView: View {
     @Bindable var viewModel: VoicePlayerViewModel
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         VStack(spacing: 8) {
@@ -42,6 +43,11 @@ struct VoicePlayerView: View {
         )
         .onDisappear {
             viewModel.stopPlayback()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase != .active {
+                viewModel.pausePlayback()
+            }
         }
     }
 

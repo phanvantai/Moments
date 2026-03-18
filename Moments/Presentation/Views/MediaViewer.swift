@@ -36,8 +36,7 @@ struct MediaViewer: View {
 
     private func videoView(for item: MediaItem) -> some View {
         let fileURL = viewModel.mediaFileURL(for: item)
-        return VideoPlayer(player: AVPlayer(url: fileURL))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+        return VideoPlayerView(url: fileURL, audioSessionManager: viewModel.audioSessionManager)
     }
 
     // MARK: - Page Indicator
@@ -146,5 +145,34 @@ struct ZoomableImageView: View {
                 .font(.largeTitle)
                 .foregroundStyle(.secondary)
         }
+    }
+}
+
+// MARK: - Video Player View
+
+private struct VideoPlayerView: View {
+    let url: URL
+    let audioSessionManager: AudioSessionManaging
+    @State private var player: AVPlayer?
+    @Environment(\.scenePhase) private var scenePhase
+
+    var body: some View {
+        VideoPlayer(player: player)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .onAppear {
+                audioSessionManager.configureForPlayback()
+                if player == nil {
+                    player = AVPlayer(url: url)
+                }
+            }
+            .onDisappear {
+                player?.pause()
+                player = nil
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                if newPhase != .active {
+                    player?.pause()
+                }
+            }
     }
 }

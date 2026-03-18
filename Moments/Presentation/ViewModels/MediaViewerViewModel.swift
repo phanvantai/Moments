@@ -4,10 +4,12 @@ import Foundation
 @MainActor
 final class MediaViewerViewModel {
     let mediaItems: [MediaItem]
+    let audioSessionManager: AudioSessionManaging
     var currentPage: Int = 0
 
-    init(mediaItems: [MediaItem]) {
+    init(mediaItems: [MediaItem], audioSessionManager: AudioSessionManaging = AudioSessionManager.shared) {
         self.mediaItems = mediaItems
+        self.audioSessionManager = audioSessionManager
     }
 
     var showPagerDots: Bool {
