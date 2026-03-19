@@ -57,8 +57,9 @@ final class DependencyContainer {
         )
     }
 
-    func makeCreateMomentViewModel() -> CreateMomentViewModel {
+    func makeCreateMomentViewModel(initialStep: CreateMomentStep) -> CreateMomentViewModel {
         CreateMomentViewModel(
+            initialStep: initialStep,
             createMomentUseCase: createMomentUseCase,
             permissionService: permissionService,
             mediaRepository: mediaRepository,

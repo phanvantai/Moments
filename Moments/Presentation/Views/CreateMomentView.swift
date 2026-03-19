@@ -5,7 +5,6 @@ import UniformTypeIdentifiers
 
 struct CreateMomentView: View {
     @Bindable var viewModel: CreateMomentViewModel
-    let initialStep: CreateMomentStep
     @State private var currentStep: CreateMomentStep?
     @State private var selectedPhotos: [PhotosPickerItem] = []
     @State private var isLoadingPhotos = false
@@ -15,7 +14,7 @@ struct CreateMomentView: View {
 
     var body: some View {
         ZStack {
-            switch currentStep ?? initialStep {
+            switch currentStep ?? viewModel.initialStep {
             case .camera:
                 CameraView(
                     onPhotoCaptured: { data in

@@ -21,6 +21,7 @@ struct IntegrationTests {
         let fetchUseCase = FetchMomentsUseCase(momentRepository: mockMomentRepo)
 
         let vm = CreateMomentViewModel(
+            initialStep: .camera,
             createMomentUseCase: createUseCase,
             permissionService: mockPermissionService,
             mediaRepository: mockMediaRepo,
@@ -205,6 +206,7 @@ struct IntegrationTests {
         let mockCreateUseCase = MockCreateMomentUseCase()
 
         let vm = CreateMomentViewModel(
+            initialStep: .camera,
             createMomentUseCase: mockCreateUseCase,
             permissionService: mockPermissionService,
             mediaRepository: mockMediaRepo,
@@ -280,6 +282,7 @@ struct IntegrationTests {
         mockMediaRepo.savedFilePath = "Media/photo.jpg"
 
         let vm = CreateMomentViewModel(
+            initialStep: .camera,
             createMomentUseCase: mockCreateUseCase,
             permissionService: mockPermissionService,
             mediaRepository: mockMediaRepo,
@@ -308,6 +311,7 @@ struct IntegrationTests {
         mockMediaRepo.savedVoicePath = "Voice/note.m4a"
 
         let vm = CreateMomentViewModel(
+            initialStep: .camera,
             createMomentUseCase: mockCreateUseCase,
             permissionService: mockPermissionService,
             mediaRepository: mockMediaRepo,
