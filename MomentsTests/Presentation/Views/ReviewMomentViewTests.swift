@@ -27,6 +27,7 @@ struct ReviewMomentViewTests {
         let mockPermissionService = MockPermissionService()
         let mockMediaRepo = MockMediaRepository()
         let vm = CreateMomentViewModel(
+            initialStep: .camera,
             createMomentUseCase: mockUseCase,
             permissionService: mockPermissionService,
             mediaRepository: mockMediaRepo,
@@ -51,6 +52,7 @@ struct ReviewMomentViewTests {
         let mockPermissionService = MockPermissionService()
         let mockMediaRepo = MockMediaRepository()
         let vm = CreateMomentViewModel(
+            initialStep: .camera,
             createMomentUseCase: mockUseCase,
             permissionService: mockPermissionService,
             mediaRepository: mockMediaRepo,

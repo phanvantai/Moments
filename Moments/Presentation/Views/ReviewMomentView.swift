@@ -5,6 +5,7 @@ struct ReviewMomentView: View {
     var onDismiss: () -> Void
 
     @State private var newTag: String = ""
+    @State private var isShowingLocationPicker = false
 
     var body: some View {
         NavigationStack {
@@ -20,6 +21,9 @@ struct ReviewMomentView: View {
 
                     // Text Field
                     textSection
+
+                    // Date & Time
+                    dateTimeSection
 
                     // Smart Features
                     smartFeaturesSection
@@ -72,6 +76,18 @@ struct ReviewMomentView: View {
                 Button(String(localized: "cancel", bundle: LanguageManager.shared.bundle), role: .cancel) {}
             } message: {
                 Text(viewModel.errorMessage ?? String(localized: "save.error.message", bundle: LanguageManager.shared.bundle))
+            }
+            .fullScreenCover(isPresented: $isShowingLocationPicker) {
+                LocationPickerView(
+                    initialLocation: viewModel.currentLocation,
+                    onLocationSelected: { location in
+                        Task { await viewModel.updateLocation(location) }
+                        isShowingLocationPicker = false
+                    },
+                    onDismiss: {
+                        isShowingLocationPicker = false
+                    }
+                )
             }
         }
     }
@@ -206,15 +222,69 @@ struct ReviewMomentView: View {
         }
     }
 
+    // MARK: - Date & Time
+
+    private var dateTimeSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(String(localized: "date.time", bundle: LanguageManager.shared.bundle))
+                .font(.system(.subheadline, design: .rounded, weight: .medium))
+                .foregroundStyle(BrandColors.sectionHeader)
+
+            DatePicker(
+                String(localized: "date.time", bundle: LanguageManager.shared.bundle),
+                selection: $viewModel.selectedDate,
+                in: ...Date(),
+                displayedComponents: [.date, .hourAndMinute]
+            )
+            .datePickerStyle(.compact)
+            .labelsHidden()
+            .font(.system(.body, design: .rounded))
+            .tint(BrandColors.accent)
+            .onChange(of: viewModel.selectedDate) { _, newDate in
+                Task { await viewModel.updateDate(newDate) }
+            }
+        }
+    }
+
     // MARK: - Smart Features
 
     private var smartFeaturesSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             // Location
             if let location = viewModel.currentLocation, viewModel.isLocationEnabled {
-                LocationBadgeView(location: location) {
-                    viewModel.disableLocation()
+                HStack {
+                    LocationBadgeView(location: location) {
+                        viewModel.disableLocation()
+                    }
+
+                    Spacer()
+
+                    Button {
+                        isShowingLocationPicker = true
+                    } label: {
+                        Label(String(localized: "edit.location", bundle: LanguageManager.shared.bundle),
+                              systemImage: "pencil")
+                            .font(.system(.caption, design: .rounded, weight: .medium))
+                            .foregroundStyle(BrandColors.accent)
+                    }
+                    .buttonStyle(.plain)
                 }
+            } else {
+                Button {
+                    isShowingLocationPicker = true
+                } label: {
+                    Label(String(localized: "add.location", bundle: LanguageManager.shared.bundle),
+                          systemImage: "mappin.circle")
+                        .font(.system(.caption, design: .rounded, weight: .medium))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(
+                            Capsule()
+                                .stroke(BrandColors.categoryRed.opacity(0.3), lineWidth: 1)
+                        )
+                        .foregroundStyle(BrandColors.categoryRed)
+                }
+                .buttonStyle(.plain)
             }
 
             // Weather

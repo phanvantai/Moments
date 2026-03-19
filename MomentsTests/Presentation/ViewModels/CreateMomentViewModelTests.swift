@@ -11,8 +11,9 @@ struct CreateMomentViewModelTests {
     let mockWeatherService = MockWeatherService()
     let mockCategoryEngine = MockCategoryEngine()
 
-    func makeSUT() -> CreateMomentViewModel {
+    func makeSUT(initialStep: CreateMomentStep = .camera) -> CreateMomentViewModel {
         CreateMomentViewModel(
+            initialStep: initialStep,
             createMomentUseCase: mockUseCase,
             permissionService: mockPermissionService,
             mediaRepository: mockMediaRepository,
@@ -673,6 +674,44 @@ struct CreateMomentViewModelTests {
 
     // MARK: - Smart Features: Load
 
+    @Test func test_loadSmartFeatures_requestsLocationPermission_whenNotDetermined() async {
+        mockLocationService.locationToReturn = MockMomentFactory.makeLocation()
+        let vm = makeSUT()
+
+        await vm.loadSmartFeatures()
+
+        #expect(mockPermissionService.lastRequestedPermission == .location)
+        #expect(mockLocationService.getCurrentLocationCallCount == 1)
+        #expect(vm.currentLocation != nil)
+    }
+
+    @Test func test_loadSmartFeatures_skipsPermissionRequest_whenAlreadyAuthorized() async {
+        mockPermissionService.permissionStatuses[.location] = .authorized
+        mockLocationService.locationToReturn = MockMomentFactory.makeLocation()
+        let vm = makeSUT()
+        let initialRequestCount = mockPermissionService.requestCallCount
+
+        await vm.loadSmartFeatures()
+
+        // Should NOT have called request since already authorized
+        #expect(mockPermissionService.requestCallCount == initialRequestCount)
+        #expect(mockLocationService.getCurrentLocationCallCount == 1)
+        #expect(vm.currentLocation != nil)
+    }
+
+    @Test func test_loadSmartFeatures_skipsPermissionRequest_whenDenied() async {
+        mockPermissionService.permissionStatuses[.location] = .denied
+        mockLocationService.locationToReturn = nil
+        let vm = makeSUT()
+        let initialRequestCount = mockPermissionService.requestCallCount
+
+        await vm.loadSmartFeatures()
+
+        // Should NOT have called request since already denied
+        #expect(mockPermissionService.requestCallCount == initialRequestCount)
+        #expect(mockLocationService.getCurrentLocationCallCount == 1)
+    }
+
     @Test func test_loadSmartFeatures_callsLocationService() async {
         mockLocationService.locationToReturn = MockMomentFactory.makeLocation()
         let vm = makeSUT()
@@ -868,6 +907,162 @@ struct CreateMomentViewModelTests {
         #expect(savedMoment?.location == location)
         #expect(savedMoment?.weather == weather)
         #expect(savedMoment?.categories.map(\.key) == ["outdoor"])
+    }
+
+    // MARK: - Date Editing
+
+    @Test func test_initial_selectedDate_isApproximatelyNow() {
+        let vm = makeSUT()
+        let now = Date()
+
+        #expect(abs(vm.selectedDate.timeIntervalSince(now)) < 5)
+    }
+
+    @Test func test_updateDate_updatesSelectedDate() async {
+        let vm = makeSUT()
+        let pastDate = Date(timeIntervalSince1970: 1_700_000_000)
+
+        await vm.updateDate(pastDate)
+
+        #expect(vm.selectedDate == pastDate)
+    }
+
+    @Test func test_updateDate_refetchesWeather_whenLocationExists() async {
+        let location = MockMomentFactory.makeLocation()
+        let weather = MockMomentFactory.makeWeather()
+        mockLocationService.locationToReturn = location
+        mockWeatherService.weatherToReturn = weather
+        let vm = makeSUT()
+        await vm.loadSmartFeatures()
+        let initialCallCount = mockWeatherService.fetchWeatherCallCount
+
+        let pastDate = Date(timeIntervalSince1970: 1_700_000_000)
+        await vm.updateDate(pastDate)
+
+        #expect(mockWeatherService.fetchWeatherCallCount > initialCallCount)
+        #expect(mockWeatherService.lastDate == pastDate)
+    }
+
+    @Test func test_updateDate_noLocation_doesNotFetchWeather() async {
+        mockLocationService.locationToReturn = nil
+        let vm = makeSUT()
+        await vm.loadSmartFeatures()
+        let initialCallCount = mockWeatherService.fetchWeatherCallCount
+
+        await vm.updateDate(Date())
+
+        #expect(mockWeatherService.fetchWeatherCallCount == initialCallCount)
+    }
+
+    @Test func test_save_usesSelectedDate_asCreatedAt() async {
+        let vm = makeSUT()
+        vm.addMedia(MockMomentFactory.makePhotoMediaItem())
+        let customDate = Date(timeIntervalSince1970: 1_600_000_000)
+        await vm.updateDate(customDate)
+
+        await vm.save()
+
+        let savedMoment = mockUseCase.lastExecutedMoment
+        #expect(savedMoment?.createdAt == customDate)
+    }
+
+    @Test func test_save_defaultDate_isApproximatelyNow() async {
+        let vm = makeSUT()
+        vm.addMedia(MockMomentFactory.makePhotoMediaItem())
+        let now = Date()
+
+        await vm.save()
+
+        let savedMoment = mockUseCase.lastExecutedMoment
+        #expect(savedMoment != nil)
+        #expect(abs(savedMoment!.createdAt.timeIntervalSince(now)) < 5)
+    }
+
+    @Test func test_resetState_resetsSelectedDate() async {
+        let vm = makeSUT()
+        await vm.updateDate(Date(timeIntervalSince1970: 1_600_000_000))
+
+        vm.resetState()
+
+        let now = Date()
+        #expect(abs(vm.selectedDate.timeIntervalSince(now)) < 5)
+    }
+
+    // MARK: - Location Editing
+
+    @Test func test_updateLocation_setsNewLocation() async {
+        let vm = makeSUT()
+        let newLocation = Location(latitude: 35.6762, longitude: 139.6503, name: "Tokyo")
+
+        await vm.updateLocation(newLocation)
+
+        #expect(vm.currentLocation == newLocation)
+        #expect(vm.isLocationEnabled == true)
+    }
+
+    @Test func test_updateLocation_reEnablesLocation() async {
+        let vm = makeSUT()
+        vm.disableLocation()
+        #expect(vm.isLocationEnabled == false)
+
+        let newLocation = MockMomentFactory.makeLocation()
+        await vm.updateLocation(newLocation)
+
+        #expect(vm.isLocationEnabled == true)
+        #expect(vm.currentLocation == newLocation)
+    }
+
+    @Test func test_updateLocation_refetchesWeather() async {
+        mockWeatherService.weatherToReturn = MockMomentFactory.makeWeather()
+        let vm = makeSUT()
+        let newLocation = Location(latitude: 35.6762, longitude: 139.6503, name: "Tokyo")
+
+        await vm.updateLocation(newLocation)
+
+        #expect(mockWeatherService.fetchWeatherCallCount == 1)
+        #expect(mockWeatherService.lastLatitude == 35.6762)
+        #expect(mockWeatherService.lastLongitude == 139.6503)
+    }
+
+    @Test func test_updateLocation_refreshesCategories() async {
+        mockCategoryEngine.categoriesToReturn = ["travel"]
+        let vm = makeSUT()
+        let newLocation = Location(latitude: 35.6762, longitude: 139.6503, name: "Tokyo")
+
+        await vm.updateLocation(newLocation)
+
+        #expect(mockCategoryEngine.suggestCallCount == 1)
+    }
+
+    @Test func test_updateLocation_clearsOldWeather_beforeRefetch() async {
+        let location = MockMomentFactory.makeLocation()
+        let weather = MockMomentFactory.makeWeather()
+        mockLocationService.locationToReturn = location
+        mockWeatherService.weatherToReturn = weather
+        let vm = makeSUT()
+        await vm.loadSmartFeatures()
+        #expect(vm.currentWeather != nil)
+
+        // Set weatherToReturn to nil to simulate fetch returning nil
+        mockWeatherService.weatherToReturn = nil
+        let newLocation = Location(latitude: 0, longitude: 0, name: "Null Island")
+        await vm.updateLocation(newLocation)
+
+        // Old weather should be cleared even though new fetch returned nil
+        #expect(vm.currentWeather == nil)
+    }
+
+    @Test func test_save_afterUpdateLocation_passesNewLocation() async {
+        mockWeatherService.weatherToReturn = MockMomentFactory.makeWeather()
+        let vm = makeSUT()
+        vm.addMedia(MockMomentFactory.makePhotoMediaItem())
+        let newLocation = Location(latitude: 48.8566, longitude: 2.3522, name: "Paris")
+        await vm.updateLocation(newLocation)
+
+        await vm.save()
+
+        let savedMoment = mockUseCase.lastExecutedMoment
+        #expect(savedMoment?.location == newLocation)
     }
 }
 

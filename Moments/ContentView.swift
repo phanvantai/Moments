@@ -8,7 +8,6 @@ struct ContentView: View {
     @State private var selectedMoment: Moment?
     @State private var timelineViewModel: TimelineViewModel?
     @State private var createMomentViewModel: CreateMomentViewModel?
-    @State private var initialCaptureStep: CreateMomentStep?
     @State private var showCaptureMenu = false
     @State private var fabScale: CGFloat = 1.0
     @State private var fabRotation: Double = 0
@@ -102,7 +101,6 @@ struct ContentView: View {
         .fullScreenCover(item: $createMomentViewModel) { vm in
             CreateMomentView(
                 viewModel: vm,
-                initialStep: initialCaptureStep ?? .camera,
                 onDismiss: {
                     createMomentViewModel = nil
                 },
@@ -212,10 +210,9 @@ struct ContentView: View {
     }
 
     private func startCapture(step: CreateMomentStep) {
-        initialCaptureStep = step
         showCaptureMenu = false
         permissionDeniedType = nil
-        createMomentViewModel = container.makeCreateMomentViewModel()
+        createMomentViewModel = container.makeCreateMomentViewModel(initialStep: step)
     }
 
     private func permissionDeniedBanner(for type: String) -> some View {

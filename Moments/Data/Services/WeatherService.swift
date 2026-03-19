@@ -19,6 +19,42 @@ final class WeatherService: WeatherServiceProtocol, @unchecked Sendable {
         }
     }
 
+    func fetchWeather(latitude: Double, longitude: Double, date: Date) async -> Weather? {
+        let calendar = Calendar.current
+
+        // If today, use current weather
+        if calendar.isDateInToday(date) {
+            return await fetchWeather(latitude: latitude, longitude: longitude)
+        }
+
+        // WeatherKit historical data available from Aug 1, 2021
+        guard let cutoffDate = calendar.date(from: DateComponents(year: 2021, month: 8, day: 1)),
+              date >= cutoffDate else {
+            return nil
+        }
+
+        let location = CLLocation(latitude: latitude, longitude: longitude)
+        let startOfHour = calendar.dateInterval(of: .hour, for: date)?.start ?? date
+        let endOfHour = startOfHour.addingTimeInterval(3600)
+
+        do {
+            let forecast = try await weatherService.weather(
+                for: location,
+                including: .hourly(startDate: startOfHour, endDate: endOfHour)
+            )
+            guard let hourWeather = forecast.forecast.first else {
+                return nil
+            }
+            return Weather(
+                condition: hourWeather.condition.description,
+                temperature: hourWeather.temperature.converted(to: .celsius).value,
+                icon: mapConditionToSFSymbol(hourWeather.condition)
+            )
+        } catch {
+            return nil
+        }
+    }
+
     private func mapConditionToSFSymbol(_ condition: WeatherKit.WeatherCondition) -> String {
         switch condition {
         case .clear:

@@ -4,6 +4,8 @@ import Foundation
 @MainActor
 final class CreateMomentViewModel: Identifiable {
     let id = UUID()
+    let initialStep: CreateMomentStep
+
     // MARK: - State
 
     var capturedMediaItems: [MediaItem] = []
@@ -21,6 +23,9 @@ final class CreateMomentViewModel: Identifiable {
     var selectedCategoryKeys: Set<String> = []
     var isLocationEnabled: Bool = true
     private(set) var isLoadingSmartFeatures: Bool = false
+
+    // Date/time editing
+    var selectedDate: Date = Date()
 
     // Permission availability
     private(set) var isCameraAvailable: Bool = true
@@ -41,6 +46,7 @@ final class CreateMomentViewModel: Identifiable {
     private let categoryEngine: CategoryEngineProtocol
 
     init(
+        initialStep: CreateMomentStep,
         createMomentUseCase: CreateMomentUseCaseProtocol,
         permissionService: PermissionServiceProtocol,
         mediaRepository: MediaRepositoryProtocol,
@@ -48,6 +54,7 @@ final class CreateMomentViewModel: Identifiable {
         weatherService: WeatherServiceProtocol,
         categoryEngine: CategoryEngineProtocol
     ) {
+        self.initialStep = initialStep
         self.createMomentUseCase = createMomentUseCase
         self.permissionService = permissionService
         self.mediaRepository = mediaRepository
@@ -187,14 +194,19 @@ final class CreateMomentViewModel: Identifiable {
     func loadSmartFeatures() async {
         isLoadingSmartFeatures = true
 
-        // Fetch location
+        // Request location permission if not yet determined, then fetch location
+        let locationStatus = await permissionService.status(for: .location)
+        if locationStatus == .notDetermined {
+            _ = await permissionService.request(.location)
+        }
         currentLocation = await locationService.getCurrentLocation()
 
         // Fetch weather if location available
         if let location = currentLocation {
             currentWeather = await weatherService.fetchWeather(
                 latitude: location.latitude,
-                longitude: location.longitude
+                longitude: location.longitude,
+                date: selectedDate
             )
         }
 
@@ -229,6 +241,34 @@ final class CreateMomentViewModel: Identifiable {
         currentWeather = nil
     }
 
+    // MARK: - Date Editing
+
+    func updateDate(_ newDate: Date) async {
+        selectedDate = newDate
+        await refetchWeatherIfNeeded()
+    }
+
+    // MARK: - Location Editing
+
+    func updateLocation(_ newLocation: Location) async {
+        currentLocation = newLocation
+        isLocationEnabled = true
+        await refetchWeatherIfNeeded()
+        await refreshCategories()
+    }
+
+    // MARK: - Weather Re-fetch
+
+    private func refetchWeatherIfNeeded() async {
+        currentWeather = nil
+        guard let location = currentLocation, isLocationEnabled else { return }
+        currentWeather = await weatherService.fetchWeather(
+            latitude: location.latitude,
+            longitude: location.longitude,
+            date: selectedDate
+        )
+    }
+
     // MARK: - Save
 
     func save() async {
@@ -240,6 +280,7 @@ final class CreateMomentViewModel: Identifiable {
 
         let moment = Moment(
             userId: User.default.id,
+            createdAt: selectedDate,
             text: text.isEmpty ? nil : text,
             mediaItems: capturedMediaItems,
             voiceNote: voiceNote,
@@ -273,5 +314,6 @@ final class CreateMomentViewModel: Identifiable {
         suggestedCategoryKeys = []
         selectedCategoryKeys = []
         isLocationEnabled = true
+        selectedDate = Date()
     }
 }
