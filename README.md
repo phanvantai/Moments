@@ -1,4 +1,4 @@
-# Moments
+# Littlemark
 
 A simple, fast iOS app to capture and save meaningful moments in life without friction.
 
@@ -12,7 +12,7 @@ Capture photos, videos, and voice notes — enriched automatically with location
 
 ## Getting Started
 
-1. Open `Moments.xcodeproj` in Xcode
+1. Open `Littlemark.xcodeproj` in Xcode
 2. Select an iOS 17+ simulator or device
 3. Build and run (Cmd+R)
 
@@ -32,7 +32,7 @@ Dependency injection via `DependencyContainer` — all dependencies are explicit
 
 ```bash
 # Run all tests
-xcodebuild -scheme Moments -destination 'platform=iOS Simulator,name=iPhone 16' test
+xcodebuild -scheme Littlemark -destination 'platform=iOS Simulator,name=iPhone 16' test
 ```
 
 Tests use Swift Testing framework (`@Test`, `#expect`) with protocol-based mocking. Test structure mirrors source layout.

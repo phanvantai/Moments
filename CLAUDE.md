@@ -8,21 +8,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 # List available simulators
-xcodebuild -scheme Moments -showdestinations 2>&1 | grep 'iOS Simulator'
+xcodebuild -scheme Littlemark -showdestinations 2>&1 | grep 'iOS Simulator'
 
 # Build (use an available simulator from the list above)
-xcodebuild -scheme Moments -destination 'platform=iOS Simulator,name=<DEVICE>' build
+xcodebuild -scheme Littlemark -destination 'platform=iOS Simulator,name=<DEVICE>' build
 
 # Run all unit tests
-xcodebuild -scheme Moments -destination 'platform=iOS Simulator,name=<DEVICE>' test
+xcodebuild -scheme Littlemark -destination 'platform=iOS Simulator,name=<DEVICE>' test
 
 # Run a single test class
-xcodebuild -scheme Moments -destination 'platform=iOS Simulator,name=<DEVICE>' \
-  -only-testing:MomentsTests/CreateMomentUseCaseTests test
+xcodebuild -scheme Littlemark -destination 'platform=iOS Simulator,name=<DEVICE>' \
+  -only-testing:LittlemarkTests/CreateMomentUseCaseTests test
 
 # Run a single test method
-xcodebuild -scheme Moments -destination 'platform=iOS Simulator,name=<DEVICE>' \
-  -only-testing:MomentsTests/CreateMomentUseCaseTests/test_execute_withMedia_createsMoment test
+xcodebuild -scheme Littlemark -destination 'platform=iOS Simulator,name=<DEVICE>' \
+  -only-testing:LittlemarkTests/CreateMomentUseCaseTests/test_execute_withMedia_createsMoment test
 ```
 
 No linter or formatter is configured. No package manager (SPM/CocoaPods) — all dependencies are Apple frameworks.
@@ -59,7 +59,7 @@ Presentation (SwiftUI)
   └── Utils/           — HapticManager, ThumbnailCache, DurationFormatter, etc.
 ```
 
-**DI**: `DependencyContainer` (in `DI/`) wires everything. Created once in `MomentsApp.init()`, passed to `ContentView`. ViewModels are created via factory methods (`makeTimelineViewModel()`, `makeCreateMomentViewModel()`).
+**DI**: `DependencyContainer` (in `DI/`) wires everything. Created once in `LittlemarkApp.init()`, passed to `ContentView`. ViewModels are created via factory methods (`makeTimelineViewModel()`, `makeCreateMomentViewModel()`).
 
 **Persistence**: SwiftData with `SDMoment`/`SDMediaItem`/`SDUser` models. `MomentMapper` converts between domain entities and SwiftData models bidirectionally.
 
@@ -69,17 +69,17 @@ Presentation (SwiftUI)
 
 - **Framework**: Swift Testing (`@Test`, `#expect`) — not XCTest
 - **TDD required**: Write tests first, then implementation. All code must be testable.
-- **Pattern**: Protocol-based mocking. Every service/repository has a protocol in Domain and a mock in `MomentsTests/Mocks/`.
+- **Pattern**: Protocol-based mocking. Every service/repository has a protocol in Domain and a mock in `LittlemarkTests/Mocks/`.
 - **Mock conventions**: Mocks track call counts (`createCallCount`), capture arguments (`lastCreatedMoment`), and support error injection (`errorToThrow`).
 - **Test data**: `MockMomentFactory` provides pre-built domain objects for tests.
-- **Test structure**: Mirrors source layout — `MomentsTests/Domain/UseCases/`, `MomentsTests/Data/Services/`, etc.
+- **Test structure**: Mirrors source layout — `LittlemarkTests/Domain/UseCases/`, `LittlemarkTests/Data/Services/`, etc.
 - **Naming**: `test_methodName_condition_expectedResult` pattern.
 
 When adding a new service or repository:
 
 1. Define protocol in `Domain/Services/` or `Domain/Repositories/`
 2. Write tests using a mock
-3. Create mock in `MomentsTests/Mocks/`
+3. Create mock in `LittlemarkTests/Mocks/`
 4. Implement concrete class in `Data/`
 5. Wire into `DependencyContainer`
 
