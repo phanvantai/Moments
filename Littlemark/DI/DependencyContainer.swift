@@ -21,14 +21,14 @@ final class DependencyContainer {
     let fetchMomentsUseCase: FetchMomentsUseCaseProtocol
     let deleteMomentUseCase: DeleteMomentUseCaseProtocol
 
-    init(modelContainer: ModelContainer) {
+    init(modelContainer: ModelContainer, locationService: LocationServiceProtocol = LocationService()) {
         self.modelContainer = modelContainer
 
         // Services
         let mediaFileService = MediaFileService()
         self.mediaFileService = mediaFileService
         self.permissionService = PermissionService()
-        self.locationService = LocationService()
+        self.locationService = locationService
         self.weatherService = WeatherService()
         self.categoryEngine = CategoryEngine()
 

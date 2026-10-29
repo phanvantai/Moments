@@ -62,7 +62,18 @@ enum ScreenshotDemo {
             count: requested > 0 ? requested : samples.count,
             language: LanguageManager.shared.currentLanguage
         )
-        return DependencyContainer(modelContainer: container)
+        // A fixed place, so the review screen shows a place and weather on any simulator
+        return DependencyContainer(modelContainer: container, locationService: FixedLocationService(location: reviewLocation(language: LanguageManager.shared.currentLanguage)))
+    }
+
+    private struct FixedLocationService: LocationServiceProtocol {
+        let location: Location
+        func getCurrentLocation() async -> Location? { location }
+    }
+
+    private static func reviewLocation(language: AppLanguage) -> Location {
+        let names: [AppLanguage: String] = [.english: "Hoan Kiem Lake", .vietnamese: "Hồ Hoàn Kiếm", .japanese: "ホアンキエム湖"]
+        return Location(latitude: 21.0287, longitude: 105.8524, name: names[language])
     }
 
     static func makeModelContainer(count: Int, language: AppLanguage, now: Date = .now) throws -> ModelContainer {

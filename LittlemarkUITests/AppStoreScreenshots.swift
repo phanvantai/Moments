@@ -34,7 +34,7 @@ final class AppStoreScreenshots: XCTestCase {
         let timeline = launch(language: language, viewMode: "timeline")
         // Bring the two newest moments to the middle of the screen
         let start = timeline.coordinate(withNormalizedOffset: CGVector(dx: 0.3, dy: 0.3))
-        start.press(forDuration: 0.05, thenDragTo: timeline.coordinate(withNormalizedOffset: CGVector(dx: 0.65, dy: 0.3)))
+        start.press(forDuration: 0.05, thenDragTo: timeline.coordinate(withNormalizedOffset: CGVector(dx: 0.75, dy: 0.3)))
         snap(timeline, "\(language)-1-timeline", wait: 2)
 
         snap(launch(language: language, viewMode: "grid", screen: "review"), "\(language)-2-review", wait: 6)
