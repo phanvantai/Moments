@@ -24,7 +24,7 @@ Do these in order. Each item: write tests → implement → targeted tests → f
 - [x] **A5. Apple Weather attribution** — `WeatherAttributionView` (mark + "Other data sources") under the weather on Review and Detail
 - [x] **A6. iPhone only** — `TARGETED_DEVICE_FAMILY = 1`
 - [x] **A7. Grid view** — toggle back on; fixed grid order (was reversed) and the jump-to-end when older pages load (grid + timeline)
-  - [ ] Check pagination in the app with 60+ demo moments
+  - [x] Checked paging in the app with 80 demo moments (grid + timeline)
 - [x] **A8. Privacy manifest** — `PrivacyInfo.xcprivacy` (UserDefaults reason `CA92.1`, no tracking, no collected data)
 - [x] **A9. Cleanup** — remove `[Gallery]` debug `print`s and other leftover logging
 - [x] **A10. Dynamic Type** — the fixed-size text labels (timeline date/time, grid category badges) use text styles, capped at xxxLarge; remaining fixed sizes are icons/emoji

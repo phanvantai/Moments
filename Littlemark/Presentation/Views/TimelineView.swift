@@ -27,20 +27,10 @@ struct TimelineView: View {
     private var timelineContent: some View {
         ScrollViewReader { proxy in
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(alignment: .center, spacing: nodeSpacing) {
-                    // Load-more indicator at the leading edge
+                LazyHStack(alignment: .center, spacing: nodeSpacing) {
+                    // Spinner at the leading edge while an older page loads
                     if hasMoreOlderMoments {
                         loadMoreIndicator
-                            .onAppear {
-                                // Keep the first visible node in place after older moments are inserted before it
-                                let anchorID = moments.first?.id
-                                Task {
-                                    await onLoadMore()
-                                    if let anchorID {
-                                        proxy.scrollTo(anchorID, anchor: .leading)
-                                    }
-                                }
-                            }
                     }
 
                     ForEach(Array(moments.enumerated()), id: \.element.id) { index, moment in
@@ -59,10 +49,18 @@ struct TimelineView: View {
                             }
                         }
                         .onAppear {
+                            // Stagger from the newest node (where the timeline opens), capped so
+                            // older pages don't wait seconds to appear
+                            let distanceFromNewest = moments.count - 1 - index
                             let animation = Animation.spring(response: 0.5, dampingFraction: 0.75)
-                                .delay(Double(index) * 0.06)
+                                .delay(Double(min(distanceFromNewest, 5)) * 0.06)
                             withAnimation(animation) {
                                 appearedNodes.insert(moment.id)
+                            }
+                            // The oldest loaded node coming into view loads the next page. Lazy stack
+                            // items appear only when scrolled to, unlike a static load-more row.
+                            if index == 0, hasMoreOlderMoments {
+                                loadOlderMoments(proxy: proxy)
                             }
                         }
                         .transition(.asymmetric(
@@ -92,14 +90,27 @@ struct TimelineView: View {
 
     // MARK: - Load More Indicator
 
-    private var loadMoreIndicator: some View {
-        VStack {
-            if isLoadingMore {
-                ProgressView()
-                    .tint(BrandColors.accent)
+    /// Loads the next older page and keeps the node the user was looking at in place.
+    private func loadOlderMoments(proxy: ScrollViewProxy) {
+        let anchorID = moments.first?.id
+        Task {
+            await onLoadMore()
+            if let anchorID {
+                proxy.scrollTo(anchorID, anchor: .leading)
             }
         }
-        .frame(width: 44, height: 44)
+    }
+
+    private var loadMoreIndicator: some View {
+        // Color.clear, not an empty stack: an empty view may never get onAppear
+        Color.clear
+            .frame(width: 44, height: 44)
+            .overlay {
+                if isLoadingMore {
+                    ProgressView()
+                        .tint(BrandColors.accent)
+                }
+            }
     }
 
     // MARK: - Timeline Line

@@ -50,6 +50,8 @@ struct GridView: View {
                     // Load-more indicator at the top (older content)
                     if hasMoreOlderMoments {
                         loadMoreIndicator
+                            // A new identity per page, so onAppear fires again when the user reaches it
+                            .id("load-more-\(moments.first?.id.uuidString ?? "")")
                             .onAppear {
                                 // Keep the first visible card in place after older moments are inserted above it
                                 let anchorID = moments.first?.id
