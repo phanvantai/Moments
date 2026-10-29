@@ -26,7 +26,7 @@ Do these in order. Each item: write tests → implement → targeted tests → f
 - [x] **A7. Grid view** — toggle back on; fixed grid order (was reversed) and the jump-to-end when older pages load (grid + timeline)
   - [ ] Check pagination in the app with 60+ demo moments
 - [x] **A8. Privacy manifest** — `PrivacyInfo.xcprivacy` (UserDefaults reason `CA92.1`, no tracking, no collected data)
-- [ ] **A9. Cleanup** — remove `[Gallery]` debug `print`s and other leftover logging
+- [x] **A9. Cleanup** — remove `[Gallery]` debug `print`s and other leftover logging
 - [ ] **A10. Dynamic Type** — replace fixed `.font(.system(size:))` with text styles where it matters
 
 ## Phase B — Store & device (needs you)

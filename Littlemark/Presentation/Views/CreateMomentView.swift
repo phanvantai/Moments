@@ -1,4 +1,5 @@
 import SwiftUI
+import os
 import PhotosUI
 import UIKit
 import UniformTypeIdentifiers
@@ -138,43 +139,27 @@ struct CreateMomentView: View {
     }
 
     private func loadSelectedPhotos() async {
-        print("[Gallery] loadSelectedPhotos called, count: \(selectedPhotos.count)")
         isLoadingPhotos = true
-        for (index, item) in selectedPhotos.enumerated() {
-            let types = item.supportedContentTypes
-            print("[Gallery] Item \(index): contentTypes = \(types.map(\.identifier))")
-            let isVideo = types.contains(where: { $0.conforms(to: .movie) })
-            print("[Gallery] Item \(index): isVideo = \(isVideo)")
-            if isVideo {
-                do {
-                    let movie = try await item.loadTransferable(type: TransferableMovie.self)
-                    if let movie {
+        for item in selectedPhotos {
+            let isVideo = item.supportedContentTypes.contains(where: { $0.conforms(to: .movie) })
+            do {
+                if isVideo {
+                    if let movie = try await item.loadTransferable(type: TransferableMovie.self) {
                         await viewModel.saveVideo(fileURL: movie.url)
-                    } else {
-                        print("[Gallery] Item \(index): loadTransferable(TransferableMovie) returned nil")
                     }
-                } catch {
-                    print("[Gallery] Item \(index): video load error: \(error)")
+                } else if let image = try await item.loadTransferable(type: TransferableImage.self) {
+                    await viewModel.savePhoto(data: image.data)
                 }
-            } else {
-                do {
-                    let imageData = try await item.loadTransferable(type: TransferableImage.self)
-                    if let imageData {
-                        print("[Gallery] Item \(index): image loaded, bytes = \(imageData.data.count)")
-                        await viewModel.savePhoto(data: imageData.data)
-                    } else {
-                        print("[Gallery] Item \(index): loadTransferable(TransferableImage) returned nil")
-                    }
-                } catch {
-                    print("[Gallery] Item \(index): image load error: \(error)")
-                }
+            } catch {
+                Self.logger.error("Could not load picked item: \(error.localizedDescription, privacy: .public)")
             }
         }
-        print("[Gallery] Done loading. capturedMediaItems count: \(viewModel.capturedMediaItems.count)")
         selectedPhotos = []
         isLoadingPhotos = false
         currentStep = .review
     }
+
+    private static let logger = Logger(subsystem: "com.randomtech.littlemark", category: "Gallery")
 }
 
 // MARK: - Transferable Types
