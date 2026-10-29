@@ -4,7 +4,12 @@ import SwiftData
 @main
 struct LittlemarkApp: App {
     @State private var launch = AppLaunchViewModel {
-        DependencyContainer(modelContainer: try ModelContainerFactory.make())
+        #if DEBUG
+        if ScreenshotDemo.isEnabled {
+            return try ScreenshotDemo.makeDependencyContainer()
+        }
+        #endif
+        return DependencyContainer(modelContainer: try ModelContainerFactory.make())
     }
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var languageManager = LanguageManager.shared
