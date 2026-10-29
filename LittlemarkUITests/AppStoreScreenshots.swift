@@ -10,8 +10,6 @@ import XCTest
 /// xcrun xcresulttool export attachments --path <xcresult> --output-path screenshots/appstore/raw
 /// ```
 final class AppStoreScreenshots: XCTestCase {
-    private let languages = ["en", "vi", "ja"]
-
     private var demoMediaPath: String {
         URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()
@@ -26,20 +24,23 @@ final class AppStoreScreenshots: XCTestCase {
         continueAfterFailure = true
     }
 
-    @MainActor
-    func testTakeScreenshots() throws {
-        for language in languages {
-            let timeline = launch(language: language, viewMode: "timeline")
-            // Bring the two newest moments to the middle of the screen
-            let start = timeline.coordinate(withNormalizedOffset: CGVector(dx: 0.3, dy: 0.3))
-            start.press(forDuration: 0.05, thenDragTo: timeline.coordinate(withNormalizedOffset: CGVector(dx: 0.65, dy: 0.3)))
-            snap(timeline, "\(language)-1-timeline", wait: 2)
+    // One test per language, so a stuck simulator only costs one run
+    @MainActor func testEnglish() { takeScreenshots(language: "en") }
+    @MainActor func testVietnamese() { takeScreenshots(language: "vi") }
+    @MainActor func testJapanese() { takeScreenshots(language: "ja") }
 
-            snap(launch(language: language, viewMode: "grid", screen: "review"), "\(language)-2-review", wait: 6)
-            snap(launch(language: language, viewMode: "timeline", screen: "detail"), "\(language)-3-detail", wait: 5)
-            snap(launch(language: language, viewMode: "grid"), "\(language)-4-grid", wait: 4)
-            snap(launch(language: language, viewMode: "grid", screen: "capture"), "\(language)-5-capture", wait: 3)
-        }
+    @MainActor
+    private func takeScreenshots(language: String) {
+        let timeline = launch(language: language, viewMode: "timeline")
+        // Bring the two newest moments to the middle of the screen
+        let start = timeline.coordinate(withNormalizedOffset: CGVector(dx: 0.3, dy: 0.3))
+        start.press(forDuration: 0.05, thenDragTo: timeline.coordinate(withNormalizedOffset: CGVector(dx: 0.65, dy: 0.3)))
+        snap(timeline, "\(language)-1-timeline", wait: 2)
+
+        snap(launch(language: language, viewMode: "grid", screen: "review"), "\(language)-2-review", wait: 6)
+        snap(launch(language: language, viewMode: "timeline", screen: "detail"), "\(language)-3-detail", wait: 5)
+        snap(launch(language: language, viewMode: "grid"), "\(language)-4-grid", wait: 4)
+        snap(launch(language: language, viewMode: "grid", screen: "capture"), "\(language)-5-capture", wait: 3)
     }
 
     @MainActor
