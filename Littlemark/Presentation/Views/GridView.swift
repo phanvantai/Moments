@@ -10,6 +10,9 @@ struct GridView: View {
     let onLoadMore: () async -> Void
 
     @State private var appearedCards: Set<UUID> = []
+    /// Off until the grid has scrolled to the newest moment, so the top load-more row
+    /// can't fire during the first layout (which starts at the top).
+    @State private var canLoadOlder = false
 
     private let columns = [
         GridItem(.flexible(), spacing: 12),
@@ -53,6 +56,7 @@ struct GridView: View {
                             // A new identity per page, so onAppear fires again when the user reaches it
                             .id("load-more-\(moments.first?.id.uuidString ?? "")")
                             .onAppear {
+                                guard canLoadOlder else { return }
                                 // Keep the first visible card in place after older moments are inserted above it
                                 let anchorID = moments.first?.id
                                 Task {
@@ -105,9 +109,19 @@ struct GridView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
             }
-            // Open at the bottom (newest moments) like iOS Photos. Starting there, instead of
-            // scrolling on appear, keeps the top load-more row from firing before the user scrolls.
+            // Open at the bottom (newest moments) like iOS Photos
             .defaultScrollAnchor(.bottom)
+            .onAppear {
+                // defaultScrollAnchor alone can land short of the bottom while the lazy grid
+                // is still measuring its cards
+                if let newestMoment = moments.last {
+                    proxy.scrollTo(newestMoment.id, anchor: .bottom)
+                }
+                Task {
+                    try? await Task.sleep(for: .milliseconds(500))
+                    canLoadOlder = true
+                }
+            }
             .refreshable {
                 await onRefresh()
             }
