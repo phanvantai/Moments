@@ -23,7 +23,8 @@ Do these in order. Each item: write tests → implement → targeted tests → f
 - [x] **A4. Speech recognition** — `SpeechRecognitionPolicy`: on-device only, locale follows the app language; no on-device model → saved without transcript
 - [x] **A5. Apple Weather attribution** — `WeatherAttributionView` (mark + "Other data sources") under the weather on Review and Detail
 - [x] **A6. iPhone only** — `TARGETED_DEVICE_FAMILY = 1`
-- [ ] **A7. Grid view** — re-enable the toggle (`ContentView.swift:52`) and test pagination
+- [x] **A7. Grid view** — toggle back on; fixed grid order (was reversed) and the jump-to-end when older pages load (grid + timeline)
+  - [ ] Check pagination in the app with 60+ demo moments
 - [ ] **A8. Privacy manifest** — `PrivacyInfo.xcprivacy` (UserDefaults reason `CA92.1`, no tracking, no collected data)
 - [ ] **A9. Cleanup** — remove `[Gallery]` debug `print`s and other leftover logging
 - [ ] **A10. Dynamic Type** — replace fixed `.font(.system(size:))` with text styles where it matters

@@ -16,12 +16,6 @@ struct GridView: View {
         GridItem(.flexible(), spacing: 12)
     ]
 
-    /// Moments reversed so oldest is first (top) and newest is last (bottom),
-    /// matching iOS Photos library layout.
-    private var reversedMoments: [Moment] {
-        moments.reversed()
-    }
-
     var body: some View {
         if moments.isEmpty {
             EmptyMomentsView()
@@ -33,46 +27,18 @@ struct GridView: View {
 
     // MARK: - Grouped Moments
 
-    private var groupedMoments: [(String, [Moment])] {
-        let calendar = Calendar.current
-        let now = Date()
-
-        var groups: [(String, [Moment])] = []
-        var currentLabel = ""
-        var currentGroup: [Moment] = []
-
-        for moment in reversedMoments {
-            let label = sectionLabel(for: moment.createdAt, now: now, calendar: calendar)
-            if label == currentLabel {
-                currentGroup.append(moment)
-            } else {
-                if !currentGroup.isEmpty {
-                    groups.append((currentLabel, currentGroup))
-                }
-                currentLabel = label
-                currentGroup = [moment]
-            }
-        }
-        if !currentGroup.isEmpty {
-            groups.append((currentLabel, currentGroup))
-        }
-
-        return groups
-    }
-
-    private func sectionLabel(for date: Date, now: Date, calendar: Calendar) -> String {
-        if calendar.isDateInToday(date) {
-            return String(localized: "today", bundle: LanguageManager.shared.bundle)
-        } else if calendar.isDateInYesterday(date) {
-            return String(localized: "yesterday", bundle: LanguageManager.shared.bundle)
-        } else if let weekAgo = calendar.date(byAdding: .day, value: -7, to: now),
-                  date >= weekAgo {
-            return String(localized: "this.week", bundle: LanguageManager.shared.bundle)
-        } else {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "MMMM yyyy"
-            return formatter.string(from: date)
-        }
+    /// `moments` is oldest-first: older pages load at the top, newest moments sit at the bottom.
+    private var sections: [MomentGridSections.Section] {
+        let bundle = LanguageManager.shared.bundle
+        return MomentGridSections.make(
+            from: moments,
+            locale: Locale(identifier: LanguageManager.shared.currentLanguage.rawValue),
+            labels: .init(
+                today: String(localized: "today", bundle: bundle),
+                yesterday: String(localized: "yesterday", bundle: bundle),
+                thisWeek: String(localized: "this.week", bundle: bundle)
+            )
+        )
     }
 
     // MARK: - Grid Content
@@ -85,16 +51,21 @@ struct GridView: View {
                     if hasMoreOlderMoments {
                         loadMoreIndicator
                             .onAppear {
-                                Task { await onLoadMore() }
+                                // Keep the first visible card in place after older moments are inserted above it
+                                let anchorID = moments.first?.id
+                                Task {
+                                    await onLoadMore()
+                                    if let anchorID {
+                                        proxy.scrollTo(anchorID, anchor: .top)
+                                    }
+                                }
                             }
                     }
 
-                    ForEach(Array(groupedMoments.enumerated()), id: \.offset) { _, section in
-                        let (label, sectionMoments) = section
-
+                    ForEach(sections) { section in
                         Section {
                             LazyVGrid(columns: columns, spacing: 14) {
-                                ForEach(sectionMoments) { moment in
+                                ForEach(section.moments) { moment in
                                     GridCardView(viewModel: GridCardViewModel(moment: moment))
                                         .id(moment.id)
                                         .onTapGesture { onMomentTap(moment) }
@@ -121,7 +92,7 @@ struct GridView: View {
                                 }
                             }
                         } header: {
-                            Text(label)
+                            Text(section.title)
                                 .font(.system(.footnote, design: .rounded, weight: .semibold))
                                 .foregroundStyle(BrandColors.sectionHeader)
                                 .textCase(.uppercase)
@@ -136,14 +107,14 @@ struct GridView: View {
                 await onRefresh()
             }
             .onAppear {
-                // Auto-scroll to bottom (newest moments) like iOS Photos
-                if let newestMoment = moments.first {
+                // Start at the bottom (newest moments) like iOS Photos
+                if let newestMoment = moments.last {
                     proxy.scrollTo(newestMoment.id, anchor: .bottom)
                 }
             }
-            .onChange(of: moments.count) {
-                // Keep scrolled to newest when new moments are added
-                if let newestMoment = moments.first {
+            .onChange(of: moments.last?.id) {
+                // Only follow a newly added moment; loading older pages must not jump to the bottom
+                if let newestMoment = moments.last {
                     withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                         proxy.scrollTo(newestMoment.id, anchor: .bottom)
                     }

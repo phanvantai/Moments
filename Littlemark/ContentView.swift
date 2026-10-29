@@ -49,24 +49,26 @@ struct ContentView: View {
                             .foregroundStyle(BrandColors.accent)
                     }
                 }
-                // TODO: Re-enable grid view toggle after grid pagination is fully tested
-//                if let vm = timelineViewModel {
-//                    ToolbarItem(placement: .topBarTrailing) {
-//                        Button {
-//                            HapticManager.viewModeToggle()
-//                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-//                                vm.toggleViewMode()
-//                            }
-//                        } label: {
-//                            Image(systemName: vm.viewMode == .timeline
-//                                  ? "square.grid.2x2"
-//                                  : "timeline.selection")
-//                                .font(.body)
-//                                .foregroundStyle(BrandColors.accent)
-//                                .contentTransition(.symbolEffect(.replace))
-//                        }
-//                    }
-//                }
+                if let vm = timelineViewModel {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            HapticManager.viewModeToggle()
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                vm.toggleViewMode()
+                            }
+                        } label: {
+                            Image(systemName: vm.viewMode == .timeline
+                                  ? "square.grid.2x2"
+                                  : "timeline.selection")
+                                .font(.body)
+                                .foregroundStyle(BrandColors.accent)
+                                .contentTransition(.symbolEffect(.replace))
+                        }
+                        .accessibilityLabel(vm.viewMode == .timeline
+                            ? String(localized: "view.mode.grid", bundle: LanguageManager.shared.bundle)
+                            : String(localized: "view.mode.timeline", bundle: LanguageManager.shared.bundle))
+                    }
+                }
             }
             .confirmationDialog(
                 String(localized: "delete.confirm.title", bundle: LanguageManager.shared.bundle),

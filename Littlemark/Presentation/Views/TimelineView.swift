@@ -32,7 +32,14 @@ struct TimelineView: View {
                     if hasMoreOlderMoments {
                         loadMoreIndicator
                             .onAppear {
-                                Task { await onLoadMore() }
+                                // Keep the first visible node in place after older moments are inserted before it
+                                let anchorID = moments.first?.id
+                                Task {
+                                    await onLoadMore()
+                                    if let anchorID {
+                                        proxy.scrollTo(anchorID, anchor: .leading)
+                                    }
+                                }
                             }
                     }
 
@@ -74,7 +81,8 @@ struct TimelineView: View {
                     proxy.scrollTo(lastMoment.id, anchor: .trailing)
                 }
             }
-            .onChange(of: moments.count) {
+            .onChange(of: moments.last?.id) {
+                // Only follow a newly added moment; loading older pages must not jump to the end
                 if let lastMoment = moments.last {
                     withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                         proxy.scrollTo(lastMoment.id, anchor: .trailing)
