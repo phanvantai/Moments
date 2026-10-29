@@ -188,15 +188,16 @@ final class VoiceRecorderState {
         Task { @MainActor in
             guard SFSpeechRecognizer.authorizationStatus() == .authorized else { return }
 
-            let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "vi-VN"))
-            ?? SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
-            guard let speechRecognizer, speechRecognizer.isAvailable else { return }
+            let locale = SpeechRecognitionPolicy.locale(for: LanguageManager.shared.currentLanguage)
+            guard let speechRecognizer = SFSpeechRecognizer(locale: locale),
+                  speechRecognizer.isAvailable,
+                  let recognitionRequest = SpeechRecognitionPolicy.makeRequest(
+                      supportsOnDeviceRecognition: speechRecognizer.supportsOnDeviceRecognition
+                  ) else { return }
             self.speechRecognizer = speechRecognizer
 
             let audioEngine = AVAudioEngine()
             self.audioEngine = audioEngine
-            let recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
-            recognitionRequest.shouldReportPartialResults = true
             self.recognitionRequest = recognitionRequest
 
             let inputNode = audioEngine.inputNode

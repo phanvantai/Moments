@@ -20,7 +20,7 @@ Do these in order. Each item: write tests → implement → targeted tests → f
   - Optional later: turn off iCloud + Push Notifications on the App ID in the developer portal
 - [x] **A2. Stream videos to disk** — videos and voice recordings are moved into place by URL (`importMedia` / `importVoiceNote`); removed the unused `GalleryPickerView`
 - [x] **A3. No orphan media files** — `removeMedia` / `removeVoiceNote` delete their files (+ video thumbnails); leaving the capture flow calls `discardDraft()`
-- [ ] **A4. Speech recognition** — on-device only (`requiresOnDeviceRecognition`), locale follows the app language instead of hardcoded `vi-VN` (`VoiceRecorderView.swift:191`)
+- [x] **A4. Speech recognition** — `SpeechRecognitionPolicy`: on-device only, locale follows the app language; no on-device model → saved without transcript
 - [ ] **A5. Apple Weather attribution** — Apple Weather mark + legal link wherever weather is shown
 - [ ] **A6. iPhone only** — `TARGETED_DEVICE_FAMILY = 1`
 - [ ] **A7. Grid view** — re-enable the toggle (`ContentView.swift:52`) and test pagination

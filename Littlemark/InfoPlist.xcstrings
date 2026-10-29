@@ -122,19 +122,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "To convert your voice notes to text automatically"
+            "value" : "To turn your voice notes into text, right on your iPhone"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "音声メモを自動的にテキストに変換するために使用します"
+            "value" : "音声メモをiPhone上でテキストに変換するために使用します"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Để tự động chuyển đổi ghi âm thành văn bản"
+            "value" : "Để chuyển ghi âm thành văn bản ngay trên iPhone của bạn"
           }
         }
       }

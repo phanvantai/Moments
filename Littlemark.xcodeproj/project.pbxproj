@@ -310,7 +310,7 @@
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "To remember where your moments happened";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "To record voice notes for your moments";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "To choose existing photos and videos";
-				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "To convert your voice notes to text automatically";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "To turn your voice notes into text, right on your iPhone";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -351,7 +351,7 @@
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "To remember where your moments happened";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "To record voice notes for your moments";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "To choose existing photos and videos";
-				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "To convert your voice notes to text automatically";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "To turn your voice notes into text, right on your iPhone";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
