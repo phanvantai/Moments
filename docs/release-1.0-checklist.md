@@ -27,20 +27,32 @@ Do these in order. Each item: write tests → implement → targeted tests → f
   - [x] Checked paging in the app with 80 demo moments (grid + timeline)
 - [x] **A8. Privacy manifest** — `PrivacyInfo.xcprivacy` (UserDefaults reason `CA92.1`, no tracking, no collected data)
 - [x] **A9. Cleanup** — remove `[Gallery]` debug `print`s and other leftover logging
+- [x] **A11. Privacy policy + support links in Settings** (guideline 5.1.1)
+- [x] **A12. Found while testing:** category labels were Vietnamese in every language; timeline stopped after 2 pages; grid could open at the top; review date row was off-center
 - [x] **A10. Dynamic Type** — the fixed-size text labels (timeline date/time, grid category badges) use text styles, capped at xxxLarge; remaining fixed sizes are icons/emoji
 
-## Phase B — Store & device (needs you)
+## Phase B — Store & device
 
-- [ ] Privacy policy page online (Claude can draft the text)
-- [ ] Support page online
-- [ ] App Store description + keywords (Claude can draft, en/vi/ja)
-- [ ] Category, age rating, App Privacy ("Data Not Collected"), price + countries, EU trader status
-- [ ] iPhone 6.3" screenshots
-- [ ] Archive + upload build, TestFlight on a real device
-- [ ] Device QC: launch < 1s, smooth timeline scroll, memory with hundreds of moments
-- [ ] Notes for App Review (WeatherKit, permissions)
+- [x] Privacy policy, support and landing pages written (`littlemark-landing/`, en/vi/ja)
+- [ ] **Host the site** (blocked — needs you): repo `phanvantai/Moments` is private, so GitHub Pages
+  needs a paid plan or a separate public repo. Then add DNS `littlemark CNAME phanvantai.github.io`
+  on Cloudflare (taiphanvan.dev). The listing draft already uses `https://littlemark.taiphanvan.dev/…`
+- [x] App Store metadata en/vi/ja (`APP_STORE_METADATA.md`) and saved as the Shipdeck listing draft
+  (name, subtitle, promo, keywords, description, URLs, copyright, review contact + notes, manual release)
+- [ ] Push the listing draft to App Store Connect (`asc.pushListing`, needs your approval) — after the site is live
+- [ ] Review contact phone number (App Review needs one; not in the draft)
+- [ ] Category: Lifestyle / Photo & Video · Age rating 4+ · App Privacy "Data Not Collected" · Free, all countries · EU trader status
+- [x] Screenshots 6.9" en/vi/ja (`screenshots/appstore/`, taken by `AppStoreScreenshots` UI test)
+- [ ] Upload screenshots to App Store Connect
+- [ ] **Upload build 9** (blocked — needs you): `xcodebuild` has no Apple account ("No Accounts") and no
+  Apple Distribution certificate on this Mac. Either archive in Xcode (Product → Archive → Distribute),
+  or fix the Xcode Cloud workflow "Build main" (it still builds scheme **Moments**; the scheme is now
+  **Littlemark**) and merge `develop` → `main`
+- [ ] Select build 9 for version 1.0 (build 3 attached now has expired)
+- [ ] TestFlight on a real device + device QC (launch < 1s, smooth scrolling with hundreds of moments)
+- [ ] Optional: turn off iCloud + Push Notifications on the App ID (the app no longer uses them)
 
 ## Phase C — Submit
 
 - [ ] Submit 1.0 for review
-- [ ] Live on the App Store
+- [ ] Release (manual release is set — release when you're ready after approval)

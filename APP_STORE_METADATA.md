@@ -11,6 +11,7 @@ App Store submission metadata for Littlemark in English, Vietnamese and Japanese
 - **Privacy Policy URL:** https://littlemark.taiphanvan.dev/privacy.html *(site not deployed yet — see `docs/release-1.0-checklist.md`)*
 - **Support URL:** https://littlemark.taiphanvan.dev/support.html
 - **Marketing URL:** https://littlemark.taiphanvan.dev
+- **Release:** manual after approval
 - **Screenshots:** `screenshots/appstore/<lang>/` (6.9", 1320×2868)
 
 ---
@@ -127,10 +128,10 @@ Chụp ảnh, thu âm hay chọn từ thư viện. Littlemark tự thêm địa 
 ### Keywords VI
 
 ```text
-nhật ký,kỷ niệm,ảnh,ghi âm,em bé,cột mốc,gia đình,du lịch,dòng thời gian,riêng tư,ghi chú
+nhật ký,kỷ niệm,ảnh,ghi âm,em bé,cột mốc,gia đình,du lịch,riêng tư
 ```
 
-**Character count: 89** ✅
+**Byte count: 87** ✅ (App Store Connect limits keywords to 100 bytes)
 
 ### Description VI
 
@@ -210,10 +211,10 @@ Littlemark: モーメント日記
 ### Keywords JA
 
 ```text
-日記,思い出,写真,ボイスメモ,育児,成長記録,家族,旅行,タイムライン,プライベート,ジャーナル,記念日,アルバム,ライフログ
+日記,思い出,写真,ボイスメモ,育児,成長記録,家族,旅行,アルバム
 ```
 
-**Character count: 64** ✅
+**Byte count: 86** ✅ (App Store Connect limits keywords to 100 bytes)
 
 ### Description JA
 
