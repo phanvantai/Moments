@@ -115,13 +115,15 @@ struct TimelineNodeView: View {
     private var dateLabel: some View {
         VStack(spacing: 1) {
             Text(viewModel.formattedDate)
-                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                .font(.system(.caption2, design: .rounded, weight: .semibold))
                 .foregroundStyle(BrandColors.textSecondary)
 
             Text(viewModel.formattedTime)
-                .font(.system(size: 9, weight: .medium, design: .rounded))
+                .font(.system(.caption2, design: .rounded, weight: .medium))
                 .foregroundStyle(BrandColors.textSecondary.opacity(0.7))
         }
+        // Scales with the text size setting, capped so the fixed-width node keeps its shape
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     }
 
     // MARK: - Content Card

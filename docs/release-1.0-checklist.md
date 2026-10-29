@@ -27,7 +27,7 @@ Do these in order. Each item: write tests → implement → targeted tests → f
   - [ ] Check pagination in the app with 60+ demo moments
 - [x] **A8. Privacy manifest** — `PrivacyInfo.xcprivacy` (UserDefaults reason `CA92.1`, no tracking, no collected data)
 - [x] **A9. Cleanup** — remove `[Gallery]` debug `print`s and other leftover logging
-- [ ] **A10. Dynamic Type** — replace fixed `.font(.system(size:))` with text styles where it matters
+- [x] **A10. Dynamic Type** — the fixed-size text labels (timeline date/time, grid category badges) use text styles, capped at xxxLarge; remaining fixed sizes are icons/emoji
 
 ## Phase B — Store & device (needs you)
 

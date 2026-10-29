@@ -130,9 +130,10 @@ struct GridCardView: View {
             ForEach(viewModel.categoryBadges) { category in
                 HStack(spacing: 2) {
                     Text(category.emoji)
-                        .font(.system(size: 10))
+                        .font(.caption2)
                     Text(category.label)
-                        .font(.system(size: 9, weight: .medium, design: .rounded))
+                        .font(.system(.caption2, design: .rounded, weight: .medium))
+                        .lineLimit(1)
                 }
                 .padding(.horizontal, 6)
                 .padding(.vertical, 3)
@@ -143,5 +144,6 @@ struct GridCardView: View {
                 .foregroundStyle(MomentDisplayHelper.color(forCategoryKey: category.key))
             }
         }
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     }
 }
