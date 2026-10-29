@@ -57,6 +57,9 @@ struct MomentDetailView: View {
 
                                 if let weather = viewModel.weather {
                                     weatherBadge(weather)
+                                    if let attribution = viewModel.weatherAttribution {
+                                        WeatherAttributionView(attribution: attribution)
+                                    }
                                 }
                             }
                             .padding(14)
@@ -98,6 +101,9 @@ struct MomentDetailView: View {
                 withAnimation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.1)) {
                     appeared = true
                 }
+            }
+            .task {
+                await viewModel.loadWeatherAttribution()
             }
         }
     }

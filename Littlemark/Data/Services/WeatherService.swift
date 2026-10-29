@@ -55,6 +55,15 @@ final class WeatherService: WeatherServiceProtocol, @unchecked Sendable {
         }
     }
 
+    func fetchAttribution() async -> WeatherAttribution? {
+        guard let attribution = try? await weatherService.attribution else { return nil }
+        return WeatherAttribution(
+            lightMarkURL: attribution.combinedMarkLightURL,
+            darkMarkURL: attribution.combinedMarkDarkURL,
+            legalPageURL: attribution.legalPageURL
+        )
+    }
+
     private func mapConditionToSFSymbol(_ condition: WeatherKit.WeatherCondition) -> String {
         switch condition {
         case .clear:

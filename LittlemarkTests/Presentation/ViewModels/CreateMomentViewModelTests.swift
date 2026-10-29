@@ -781,6 +781,27 @@ struct CreateMomentViewModelTests {
         #expect(vm.currentWeather != nil)
     }
 
+    @Test func test_loadSmartFeatures_withWeather_loadsAttribution() async {
+        mockLocationService.locationToReturn = MockMomentFactory.makeLocation()
+        mockWeatherService.weatherToReturn = MockMomentFactory.makeWeather()
+        let vm = makeSUT()
+
+        await vm.loadSmartFeatures()
+
+        #expect(vm.weatherAttribution == mockWeatherService.attributionToReturn)
+    }
+
+    @Test func test_loadSmartFeatures_noWeather_doesNotLoadAttribution() async {
+        mockLocationService.locationToReturn = MockMomentFactory.makeLocation()
+        mockWeatherService.weatherToReturn = nil
+        let vm = makeSUT()
+
+        await vm.loadSmartFeatures()
+
+        #expect(vm.weatherAttribution == nil)
+        #expect(mockWeatherService.fetchAttributionCallCount == 0)
+    }
+
     @Test func test_loadSmartFeatures_skipsWeather_whenNoLocation() async {
         mockLocationService.locationToReturn = nil
         let vm = makeSUT()

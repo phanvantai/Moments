@@ -19,6 +19,7 @@ final class CreateMomentViewModel: Identifiable {
     // Smart features state
     private(set) var currentLocation: Location?
     private(set) var currentWeather: Weather?
+    private(set) var weatherAttribution: WeatherAttribution?
     private(set) var suggestedCategoryKeys: [String] = []
     var selectedCategoryKeys: Set<String> = []
     var isLocationEnabled: Bool = true
@@ -209,6 +210,7 @@ final class CreateMomentViewModel: Identifiable {
                 longitude: location.longitude,
                 date: selectedDate
             )
+            await loadWeatherAttributionIfNeeded()
         }
 
         // Suggest categories
@@ -268,6 +270,12 @@ final class CreateMomentViewModel: Identifiable {
             longitude: location.longitude,
             date: selectedDate
         )
+        await loadWeatherAttributionIfNeeded()
+    }
+
+    private func loadWeatherAttributionIfNeeded() async {
+        guard currentWeather != nil, weatherAttribution == nil else { return }
+        weatherAttribution = await weatherService.fetchAttribution()
     }
 
     // MARK: - Save

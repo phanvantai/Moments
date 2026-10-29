@@ -114,7 +114,7 @@ struct ContentView: View {
         }
         .sheet(item: $selectedMoment) { moment in
             MomentDetailView(
-                viewModel: MomentDetailViewModel(moment: moment),
+                viewModel: MomentDetailViewModel(moment: moment, weatherService: container.weatherService),
                 onDismiss: { selectedMoment = nil }
             )
         }

@@ -4,9 +4,17 @@ import Foundation
 @MainActor
 final class MomentDetailViewModel {
     let moment: Moment
+    private(set) var weatherAttribution: WeatherAttribution?
+    private let weatherService: WeatherServiceProtocol?
 
-    init(moment: Moment) {
+    init(moment: Moment, weatherService: WeatherServiceProtocol? = nil) {
         self.moment = moment
+        self.weatherService = weatherService
+    }
+
+    func loadWeatherAttribution() async {
+        guard moment.weather != nil, let weatherService else { return }
+        weatherAttribution = await weatherService.fetchAttribution()
     }
 
     var title: String? {

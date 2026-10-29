@@ -5,6 +5,29 @@ import Foundation
 @MainActor
 struct MomentDetailViewModelTests {
 
+    // MARK: - Weather Attribution
+
+    @Test func test_loadWeatherAttribution_withWeather_setsAttribution() async {
+        let weatherService = MockWeatherService()
+        let moment = MockMomentFactory.makeMoment(weather: MockMomentFactory.makeWeather())
+        let vm = MomentDetailViewModel(moment: moment, weatherService: weatherService)
+
+        await vm.loadWeatherAttribution()
+
+        #expect(vm.weatherAttribution == weatherService.attributionToReturn)
+    }
+
+    @Test func test_loadWeatherAttribution_noWeather_skipsFetch() async {
+        let weatherService = MockWeatherService()
+        let moment = MockMomentFactory.makeMoment(weather: nil)
+        let vm = MomentDetailViewModel(moment: moment, weatherService: weatherService)
+
+        await vm.loadWeatherAttribution()
+
+        #expect(vm.weatherAttribution == nil)
+        #expect(weatherService.fetchAttributionCallCount == 0)
+    }
+
     // MARK: - Visibility
 
     @Test func test_showMap_noLocation_returnsFalse() {

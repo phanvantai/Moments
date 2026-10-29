@@ -290,6 +290,9 @@ struct ReviewMomentView: View {
             // Weather
             if let weather = viewModel.currentWeather {
                 WeatherBadgeView(weather: weather)
+                if let attribution = viewModel.weatherAttribution {
+                    WeatherAttributionView(attribution: attribution)
+                }
             }
 
             // Suggested Categories
