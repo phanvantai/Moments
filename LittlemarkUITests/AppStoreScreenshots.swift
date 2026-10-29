@@ -34,11 +34,17 @@ final class AppStoreScreenshots: XCTestCase {
         let timeline = launch(language: language, viewMode: "timeline")
         // Bring the two newest moments to the middle of the screen
         let start = timeline.coordinate(withNormalizedOffset: CGVector(dx: 0.3, dy: 0.3))
-        start.press(forDuration: 0.05, thenDragTo: timeline.coordinate(withNormalizedOffset: CGVector(dx: 0.75, dy: 0.3)))
+        // Slow drag with a hold at the end: no momentum, so the framing is the same every run
+        start.press(
+            forDuration: 0.1,
+            thenDragTo: timeline.coordinate(withNormalizedOffset: CGVector(dx: 0.72, dy: 0.3)),
+            withVelocity: .slow,
+            thenHoldForDuration: 0.5
+        )
         snap(timeline, "\(language)-1-timeline", wait: 2)
 
         snap(launch(language: language, viewMode: "grid", screen: "review"), "\(language)-2-review", wait: 6)
-        snap(launch(language: language, viewMode: "timeline", screen: "detail"), "\(language)-3-detail", wait: 5)
+        snap(launch(language: language, viewMode: "timeline", screen: "detail"), "\(language)-3-detail", wait: 9)
         snap(launch(language: language, viewMode: "grid"), "\(language)-4-grid", wait: 4)
         snap(launch(language: language, viewMode: "grid", screen: "capture"), "\(language)-5-capture", wait: 3)
     }
