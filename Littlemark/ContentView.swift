@@ -127,8 +127,31 @@ struct ContentView: View {
             let vm = container.makeTimelineViewModel()
             timelineViewModel = vm
             await vm.loadMoments()
+            #if DEBUG
+            if ScreenshotDemo.isEnabled {
+                openScreenshotDemoScreen(timeline: vm)
+            }
+            #endif
         }
     }
+
+    #if DEBUG
+    private func openScreenshotDemoScreen(timeline: TimelineViewModel) {
+        switch ScreenshotDemo.screen {
+        case .detail:
+            selectedMoment = timeline.moments.last { $0.voiceNote != nil }
+        case .capture:
+            showCaptureMenu = true
+        case .review:
+            let draft = container.makeCreateMomentViewModel(initialStep: .review)
+            draft.addMedia(ScreenshotDemo.reviewMediaItem)
+            draft.text = ScreenshotDemo.reviewText(language: LanguageManager.shared.currentLanguage)
+            createMomentViewModel = draft
+        case nil:
+            break
+        }
+    }
+    #endif
 
     // MARK: - FAB Button
 

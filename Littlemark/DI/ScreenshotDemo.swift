@@ -17,6 +17,36 @@ enum ScreenshotDemo {
     nonisolated static let launchArgument = "-ScreenshotDemo"
     static let mediaDirectoryKey = "SCREENSHOT_DEMO_MEDIA"
     static let countKey = "ScreenshotDemoCount"
+    static let screenKey = "ScreenshotDemoScreen"
+
+    /// `-ScreenshotDemoScreen detail|capture|review` opens that screen on launch
+    /// (timeline and grid come from `-moments_view_mode`).
+    enum Screen: String {
+        case detail, capture, review
+    }
+
+    static var screen: Screen? {
+        UserDefaults.standard.string(forKey: screenKey).flatMap(Screen.init(rawValue:))
+    }
+
+    /// The draft shown on the review screen: one photo and a line of text.
+    static var reviewMediaItem: MediaItem {
+        MediaItem(
+            momentId: UUID(),
+            type: .photo,
+            filePath: "\(MediaFileService.mediaDirectoryName)/demo-picsum-1060.jpg",
+            width: 900,
+            height: 1200
+        )
+    }
+
+    static func reviewText(language: AppLanguage) -> String {
+        switch language {
+        case .english: "Slow morning pour-over by the lake."
+        case .vietnamese: "Sáng chậm rãi, pha cà phê bên hồ."
+        case .japanese: "湖のそばで、ゆっくり朝のハンドドリップ。"
+        }
+    }
 
     nonisolated static var isEnabled: Bool {
         ProcessInfo.processInfo.arguments.contains(launchArgument)
