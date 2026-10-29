@@ -244,6 +244,7 @@ struct ReviewMomentView: View {
                 Task { await viewModel.updateDate(newDate) }
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     // MARK: - Smart Features
