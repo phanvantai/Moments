@@ -19,7 +19,7 @@ struct GridCardViewTests {
         let vm = GridCardViewModel(moment: moment)
         let view = GridCardView(viewModel: vm)
 
-        #expect(view.viewModel.displayTitle == "This is a long text descriptio")
+        #expect(view.viewModel.displayTitle == "This is a long text description of the moment")
     }
 
     @Test func test_viewCreation_emptyTitle_displaysTextSnippet() {
@@ -36,7 +36,7 @@ struct GridCardViewTests {
         let vm = GridCardViewModel(moment: moment)
         let view = GridCardView(viewModel: vm)
 
-        #expect(view.viewModel.displayTitle == category.label)
+        #expect(view.viewModel.displayTitle == MomentDisplayHelper.label(for: category))
     }
 
     @Test func test_viewCreation_noContent_displaysMoment() {

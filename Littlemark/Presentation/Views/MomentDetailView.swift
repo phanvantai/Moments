@@ -120,7 +120,7 @@ struct MomentDetailView: View {
                     HStack(spacing: 4) {
                         Text(category.emoji)
                             .font(.system(size: 14))
-                        Text(category.label)
+                        Text(MomentDisplayHelper.label(for: category))
                             .font(.system(.caption, design: .rounded, weight: .medium))
                     }
                     .padding(.horizontal, 10)

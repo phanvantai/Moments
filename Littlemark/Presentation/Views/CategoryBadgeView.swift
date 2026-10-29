@@ -17,7 +17,7 @@ struct CategoryBadgeView: View {
             HStack(spacing: 5) {
                 Text(category.emoji)
                     .font(.system(size: 14))
-                Text(category.label)
+                Text(MomentDisplayHelper.label(for: category))
                     .font(.system(.caption, design: .rounded, weight: .medium))
             }
             .padding(.horizontal, 12)
@@ -33,7 +33,7 @@ struct CategoryBadgeView: View {
             .foregroundStyle(isSelected ? categoryColor : .secondary)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("\(category.emoji) \(category.label)")
+        .accessibilityLabel("\(category.emoji) \(MomentDisplayHelper.label(for: category))")
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .animation(.easeOut(duration: 0.15), value: isSelected)
     }

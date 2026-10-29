@@ -49,7 +49,7 @@ struct EdgeCaseTests {
         #expect(moment.text?.count ?? 0 > 1000)
     }
 
-    @Test func test_displayTitle_longText_truncatesGracefully() {
+    @Test func test_displayTitle_longText_returnsFullText_viewTruncates() {
         let longText = String(repeating: "X", count: 2000)
         let moment = MockMomentFactory.makeMoment(
             title: nil,
@@ -58,7 +58,8 @@ struct EdgeCaseTests {
 
         let title = MomentDisplayHelper.displayTitle(for: moment)
 
-        #expect(title.count == 30)
+        // GridCardView / TimelineNodeView use lineLimit(2), which adds the ellipsis
+        #expect(title == longText)
     }
 
     // MARK: - Voice duration = 0

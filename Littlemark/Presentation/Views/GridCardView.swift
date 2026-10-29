@@ -131,7 +131,7 @@ struct GridCardView: View {
                 HStack(spacing: 2) {
                     Text(category.emoji)
                         .font(.caption2)
-                    Text(category.label)
+                    Text(MomentDisplayHelper.label(for: category))
                         .font(.system(.caption2, design: .rounded, weight: .medium))
                         .lineLimit(1)
                 }

@@ -6,12 +6,19 @@ enum MomentDisplayHelper {
             return title
         }
         if let text = moment.text, !text.isEmpty {
-            return String(text.prefix(30))
+            // Views limit the lines and add the ellipsis
+            return text
         }
         if let category = moment.categories.first {
-            return category.label
+            return label(for: category)
         }
         return "Moment"
+    }
+
+    /// Category name in the app language (the domain `label` is the Vietnamese default).
+    static func label(for category: MomentCategory, bundle: Bundle? = nil) -> String {
+        (bundle ?? LanguageManager.shared.bundle)
+            .localizedString(forKey: "category.\(category.key)", value: category.label, table: nil)
     }
 
     static func categoryColor(for moment: Moment) -> Color {

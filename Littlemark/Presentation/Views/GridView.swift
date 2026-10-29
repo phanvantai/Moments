@@ -103,14 +103,11 @@ struct GridView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
             }
+            // Open at the bottom (newest moments) like iOS Photos. Starting there, instead of
+            // scrolling on appear, keeps the top load-more row from firing before the user scrolls.
+            .defaultScrollAnchor(.bottom)
             .refreshable {
                 await onRefresh()
-            }
-            .onAppear {
-                // Start at the bottom (newest moments) like iOS Photos
-                if let newestMoment = moments.last {
-                    proxy.scrollTo(newestMoment.id, anchor: .bottom)
-                }
             }
             .onChange(of: moments.last?.id) {
                 // Only follow a newly added moment; loading older pages must not jump to the bottom

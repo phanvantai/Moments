@@ -76,11 +76,9 @@ struct TimelineView: View {
                     timelineLine
                 }
             }
-            .onAppear {
-                if let lastMoment = moments.last {
-                    proxy.scrollTo(lastMoment.id, anchor: .trailing)
-                }
-            }
+            // Open at the newest moment. Starting there, instead of scrolling on appear,
+            // keeps the leading load-more node from firing before the user scrolls.
+            .defaultScrollAnchor(.trailing)
             .onChange(of: moments.last?.id) {
                 // Only follow a newly added moment; loading older pages must not jump to the end
                 if let lastMoment = moments.last {

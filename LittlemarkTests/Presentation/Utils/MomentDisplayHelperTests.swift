@@ -19,23 +19,56 @@ struct MomentDisplayHelperTests {
         #expect(MomentDisplayHelper.displayTitle(for: moment) == "Some long text description")
     }
 
-    @Test func test_displayTitle_noTitle_returnsTextSnippet() {
+    @Test func test_displayTitle_noTitle_returnsFullText_viewTruncatesWithEllipsis() {
         let moment = MockMomentFactory.makeMoment(title: nil, text: "This is a long text description of the moment")
 
-        #expect(MomentDisplayHelper.displayTitle(for: moment) == "This is a long text descriptio")
+        #expect(MomentDisplayHelper.displayTitle(for: moment) == "This is a long text description of the moment")
     }
 
     @Test func test_displayTitle_noTitleNoText_returnsCategoryLabel() {
         let category = MomentCategory.predefined[0]
         let moment = MockMomentFactory.makeMoment(title: nil, text: nil, categories: [category])
 
-        #expect(MomentDisplayHelper.displayTitle(for: moment) == category.label)
+        #expect(MomentDisplayHelper.displayTitle(for: moment) == MomentDisplayHelper.label(for: category))
     }
 
     @Test func test_displayTitle_nothing_returnsMoment() {
         let moment = MockMomentFactory.makeMoment(title: nil, text: nil, categories: [])
 
         #expect(MomentDisplayHelper.displayTitle(for: moment) == "Moment")
+    }
+
+    // MARK: - Category Label
+
+    private func bundle(for language: String) throws -> Bundle {
+        let path = try #require(Bundle.main.path(forResource: language, ofType: "lproj"))
+        return try #require(Bundle(path: path))
+    }
+
+    @Test(arguments: [("en", "Travel"), ("vi", "Du lịch"), ("ja", "旅行")])
+    func test_label_followsLanguage(language: String, expected: String) throws {
+        let travel = try #require(MomentCategory.find(byKey: "travel"))
+
+        #expect(MomentDisplayHelper.label(for: travel, bundle: try bundle(for: language)) == expected)
+    }
+
+    @Test(arguments: ["en", "vi", "ja"])
+    func test_label_everyCategoryIsTranslated(language: String) throws {
+        let bundle = try bundle(for: language)
+
+        for category in MomentCategory.predefined {
+            let label = MomentDisplayHelper.label(for: category, bundle: bundle)
+            #expect(!label.isEmpty)
+            #expect(label != "category.\(category.key)")
+        }
+    }
+
+    @Test func test_label_english_differsFromVietnameseDefault() throws {
+        let english = try bundle(for: "en")
+
+        for category in MomentCategory.predefined {
+            #expect(MomentDisplayHelper.label(for: category, bundle: english) != category.label)
+        }
     }
 
     // MARK: - Category Color

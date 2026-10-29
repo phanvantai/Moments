@@ -17,7 +17,7 @@ struct GridCardViewModelTests {
         let moment = MockMomentFactory.makeMoment(title: nil, text: "This is a long text description of the moment")
         let vm = GridCardViewModel(moment: moment)
 
-        #expect(vm.displayTitle == "This is a long text descriptio")
+        #expect(vm.displayTitle == "This is a long text description of the moment")
     }
 
     @Test func test_displayTitle_emptyTitle_usesText() {
@@ -32,7 +32,7 @@ struct GridCardViewModelTests {
         let moment = MockMomentFactory.makeMoment(title: nil, text: nil, categories: [category])
         let vm = GridCardViewModel(moment: moment)
 
-        #expect(vm.displayTitle == category.label)
+        #expect(vm.displayTitle == MomentDisplayHelper.label(for: category))
     }
 
     @Test func test_displayTitle_nothing_returnsMoment() {
