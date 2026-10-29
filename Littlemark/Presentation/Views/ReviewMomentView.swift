@@ -108,7 +108,7 @@ struct ReviewMomentView: View {
                 HStack(spacing: 10) {
                     ForEach(viewModel.capturedMediaItems) { item in
                         MediaThumbnailView(item: item) {
-                            viewModel.removeMedia(item.id)
+                            Task { await viewModel.removeMedia(item.id) }
                         }
                     }
                 }
@@ -143,7 +143,7 @@ struct ReviewMomentView: View {
             Spacer()
 
             Button {
-                viewModel.removeVoiceNote()
+                Task { await viewModel.removeVoiceNote() }
             } label: {
                 Image(systemName: "xmark.circle.fill")
                     .font(.system(size: 20))

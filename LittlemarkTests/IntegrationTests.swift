@@ -321,7 +321,7 @@ struct IntegrationTests {
         )
 
         // Speech failed - no transcript
-        await vm.saveVoiceRecording(data: Data([0x01]), duration: 5.0, transcript: nil)
+        await vm.saveVoiceRecording(fileURL: URL(fileURLWithPath: "/tmp/recording.m4a"), duration: 5.0, transcript: nil)
 
         #expect(vm.voiceNote != nil)
         #expect(vm.voiceNote?.transcript == nil)

@@ -7,11 +7,15 @@ final class MockMediaFileService: MediaFileServiceProtocol, @unchecked Sendable 
     var deleteFileCallCount = 0
     var generateVideoThumbnailCallCount = 0
     var fileExistsCallCount = 0
+    var importFileCallCount = 0
 
     var lastSavedDirectory: String?
     var lastSavedFileName: String?
     var lastLoadedPath: String?
     var lastDeletedPath: String?
+    var lastImportedURL: URL?
+    var lastImportedDirectory: String?
+    var lastImportedFileName: String?
 
     var savedFilePath = "Media/test.jpg"
     var dataToReturn = Data()
@@ -23,6 +27,15 @@ final class MockMediaFileService: MediaFileServiceProtocol, @unchecked Sendable 
         saveFileCallCount += 1
         lastSavedDirectory = directory
         lastSavedFileName = fileName
+        if let error = errorToThrow { throw error }
+        return "\(directory)/\(fileName)"
+    }
+
+    func importFile(from sourceURL: URL, directory: String, fileName: String) throws -> String {
+        importFileCallCount += 1
+        lastImportedURL = sourceURL
+        lastImportedDirectory = directory
+        lastImportedFileName = fileName
         if let error = errorToThrow { throw error }
         return "\(directory)/\(fileName)"
     }

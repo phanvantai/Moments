@@ -10,6 +10,8 @@ final class MockMediaRepository: MediaRepositoryProtocol, @unchecked Sendable {
     var loadVoiceNoteCallCount = 0
     var deleteVoiceNoteCallCount = 0
     var generateVideoThumbnailCallCount = 0
+    var importMediaCallCount = 0
+    var importVoiceNoteCallCount = 0
 
     // Captured arguments
     var lastSavedMediaFileName: String?
@@ -19,6 +21,11 @@ final class MockMediaRepository: MediaRepositoryProtocol, @unchecked Sendable {
     var lastLoadedVoicePath: String?
     var lastDeletedVoicePath: String?
     var lastVideoThumbnailPath: String?
+    var lastImportedMediaURL: URL?
+    var lastImportedMediaFileName: String?
+    var lastImportedVoiceURL: URL?
+    var deletedMediaPaths: [String] = []
+    var deletedVoicePaths: [String] = []
 
     // Configurable return values
     var savedFilePath = "Media/test.jpg"
@@ -44,6 +51,7 @@ final class MockMediaRepository: MediaRepositoryProtocol, @unchecked Sendable {
     func deleteMedia(filePath: String) async throws {
         deleteMediaCallCount += 1
         lastDeletedMediaPath = filePath
+        deletedMediaPaths.append(filePath)
         if let error = errorToThrow { throw error }
     }
 
@@ -64,7 +72,23 @@ final class MockMediaRepository: MediaRepositoryProtocol, @unchecked Sendable {
     func deleteVoiceNote(filePath: String) async throws {
         deleteVoiceNoteCallCount += 1
         lastDeletedVoicePath = filePath
+        deletedVoicePaths.append(filePath)
         if let error = errorToThrow { throw error }
+    }
+
+    func importMedia(from fileURL: URL, fileName: String) async throws -> String {
+        importMediaCallCount += 1
+        lastImportedMediaURL = fileURL
+        lastImportedMediaFileName = fileName
+        if let error = errorToThrow { throw error }
+        return savedFilePath
+    }
+
+    func importVoiceNote(from fileURL: URL, fileName: String) async throws -> String {
+        importVoiceNoteCallCount += 1
+        lastImportedVoiceURL = fileURL
+        if let error = errorToThrow { throw error }
+        return savedVoicePath
     }
 
     func generateVideoThumbnail(videoPath: String) async throws -> String {

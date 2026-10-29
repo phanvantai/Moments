@@ -17,6 +17,43 @@ struct MediaFileServiceTests {
         )
     }
 
+    // MARK: - Import File
+
+    private func makeSourceFile(contents: String) throws -> URL {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("MediaFileServiceTests_source_\(UUID().uuidString).mov")
+        try contents.data(using: .utf8)!.write(to: url)
+        return url
+    }
+
+    @Test func test_importFile_movesFileIntoDirectory() throws {
+        let source = try makeSourceFile(contents: "video bytes")
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let path = try sut.importFile(from: source, directory: "Media", fileName: "clip.mov")
+
+        #expect(path == "Media/clip.mov")
+        #expect(try sut.loadFile(filePath: path) == "video bytes".data(using: .utf8))
+        #expect(!FileManager.default.fileExists(atPath: source.path))
+    }
+
+    @Test func test_importFile_createsDirectoryIfNeeded() throws {
+        let source = try makeSourceFile(contents: "x")
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let path = try sut.importFile(from: source, directory: "Voice", fileName: "note.m4a")
+
+        #expect(sut.fileExists(filePath: path))
+    }
+
+    @Test func test_importFile_missingSource_throws() {
+        let missing = FileManager.default.temporaryDirectory.appendingPathComponent("missing_\(UUID().uuidString).mov")
+
+        #expect(throws: (any Error).self) {
+            try sut.importFile(from: missing, directory: "Media", fileName: "clip.mov")
+        }
+    }
+
     // MARK: - Save File
 
     @Test func test_saveFile_createsFileAndReturnsPath() throws {

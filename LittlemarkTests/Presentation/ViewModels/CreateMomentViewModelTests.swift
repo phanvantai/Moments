@@ -10,6 +10,8 @@ struct CreateMomentViewModelTests {
     let mockLocationService = MockLocationService()
     let mockWeatherService = MockWeatherService()
     let mockCategoryEngine = MockCategoryEngine()
+    let videoURL = URL(fileURLWithPath: "/tmp/capture.mov")
+    let voiceURL = URL(fileURLWithPath: "/tmp/recording.m4a")
 
     func makeSUT(initialStep: CreateMomentStep = .camera) -> CreateMomentViewModel {
         CreateMomentViewModel(
@@ -88,57 +90,57 @@ struct CreateMomentViewModelTests {
         #expect(vm.canSave == true)
     }
 
-    @Test func test_removeLastMedia_canSaveBecomesFalse() {
+    @Test func test_removeLastMedia_canSaveBecomesFalse() async {
         let vm = makeSUT()
         let media = MockMomentFactory.makePhotoMediaItem()
         vm.addMedia(media)
 
-        vm.removeMedia(media.id)
+        await vm.removeMedia(media.id)
 
         #expect(vm.capturedMediaItems.isEmpty)
         #expect(vm.canSave == false)
     }
 
-    @Test func test_removeLastMedia_withVoiceNote_canSaveStaysTrue() {
+    @Test func test_removeLastMedia_withVoiceNote_canSaveStaysTrue() async {
         let vm = makeSUT()
         let media = MockMomentFactory.makePhotoMediaItem()
         vm.addMedia(media)
         vm.setVoiceNote(MockMomentFactory.makeVoiceNote())
 
-        vm.removeMedia(media.id)
+        await vm.removeMedia(media.id)
 
         #expect(vm.capturedMediaItems.isEmpty)
         #expect(vm.canSave == true)
     }
 
-    @Test func test_removeVoiceNote_removesNote() {
+    @Test func test_removeVoiceNote_removesNote() async {
         let vm = makeSUT()
         vm.setVoiceNote(MockMomentFactory.makeVoiceNote())
 
-        vm.removeVoiceNote()
+        await vm.removeVoiceNote()
 
         #expect(vm.voiceNote == nil)
         #expect(vm.canSave == false)
     }
 
-    @Test func test_removeVoiceNote_withMedia_canSaveStaysTrue() {
+    @Test func test_removeVoiceNote_withMedia_canSaveStaysTrue() async {
         let vm = makeSUT()
         let media = MockMomentFactory.makePhotoMediaItem()
         vm.addMedia(media)
         vm.setVoiceNote(MockMomentFactory.makeVoiceNote())
 
-        vm.removeVoiceNote()
+        await vm.removeVoiceNote()
 
         #expect(vm.voiceNote == nil)
         #expect(vm.canSave == true)
     }
 
-    @Test func test_removeMedia_nonExistentId_doesNothing() {
+    @Test func test_removeMedia_nonExistentId_doesNothing() async {
         let vm = makeSUT()
         let media = MockMomentFactory.makePhotoMediaItem()
         vm.addMedia(media)
 
-        vm.removeMedia(UUID()) // Non-existent ID
+        await vm.removeMedia(UUID()) // Non-existent ID
 
         #expect(vm.capturedMediaItems.count == 1)
     }
@@ -528,22 +530,24 @@ struct CreateMomentViewModelTests {
 
     // MARK: - Save Video
 
-    @Test func test_saveVideo_addsVideoMediaItem() async {
+    @Test func test_saveVideo_importsFileWithoutLoadingData() async {
         let vm = makeSUT()
-        let data = Data([0x01, 0x02])
 
-        await vm.saveVideo(data: data)
+        await vm.saveVideo(fileURL: videoURL)
 
         #expect(vm.capturedMediaItems.count == 1)
         #expect(vm.capturedMediaItems.first?.type == .video)
-        #expect(mockMediaRepository.saveMediaCallCount == 1)
+        #expect(mockMediaRepository.importMediaCallCount == 1)
+        #expect(mockMediaRepository.lastImportedMediaURL == videoURL)
+        #expect(mockMediaRepository.lastImportedMediaFileName?.hasSuffix(".mov") == true)
+        #expect(mockMediaRepository.saveMediaCallCount == 0)
     }
 
     @Test func test_saveVideo_generatesThumbnail() async {
         mockMediaRepository.thumbnailPath = "Thumbnails/thumb.jpg"
         let vm = makeSUT()
 
-        await vm.saveVideo(data: Data([0x01]))
+        await vm.saveVideo(fileURL: videoURL)
 
         #expect(vm.capturedMediaItems.first?.thumbnailPath == "Thumbnails/thumb.jpg")
         #expect(mockMediaRepository.generateVideoThumbnailCallCount == 1)
@@ -553,7 +557,7 @@ struct CreateMomentViewModelTests {
         mockMediaRepository.errorToThrow = TestError.saveFailed
         let vm = makeSUT()
 
-        await vm.saveVideo(data: Data([0x01]))
+        await vm.saveVideo(fileURL: videoURL)
 
         #expect(vm.capturedMediaItems.isEmpty)
         #expect(vm.errorMessage != nil)
@@ -563,20 +567,20 @@ struct CreateMomentViewModelTests {
 
     @Test func test_saveVoiceRecording_setsVoiceNote() async {
         let vm = makeSUT()
-        let data = Data([0x01, 0x02])
 
-        await vm.saveVoiceRecording(data: data, duration: 10.0, transcript: "Hello")
+        await vm.saveVoiceRecording(fileURL: voiceURL, duration: 10.0, transcript: "Hello")
 
         #expect(vm.voiceNote != nil)
         #expect(vm.voiceNote?.duration == 10.0)
         #expect(vm.voiceNote?.transcript == "Hello")
-        #expect(mockMediaRepository.saveVoiceNoteCallCount == 1)
+        #expect(mockMediaRepository.importVoiceNoteCallCount == 1)
+        #expect(mockMediaRepository.lastImportedVoiceURL == voiceURL)
     }
 
     @Test func test_saveVoiceRecording_withNilTranscript() async {
         let vm = makeSUT()
 
-        await vm.saveVoiceRecording(data: Data([0x01]), duration: 5.0, transcript: nil)
+        await vm.saveVoiceRecording(fileURL: voiceURL, duration: 5.0, transcript: nil)
 
         #expect(vm.voiceNote?.transcript == nil)
         #expect(vm.voiceNote?.duration == 5.0)
@@ -586,7 +590,7 @@ struct CreateMomentViewModelTests {
         mockMediaRepository.errorToThrow = TestError.saveFailed
         let vm = makeSUT()
 
-        await vm.saveVoiceRecording(data: Data([0x01]), duration: 10.0, transcript: nil)
+        await vm.saveVoiceRecording(fileURL: voiceURL, duration: 10.0, transcript: nil)
 
         #expect(vm.voiceNote == nil)
         #expect(vm.errorMessage != nil)
@@ -596,80 +600,121 @@ struct CreateMomentViewModelTests {
         mockMediaRepository.savedVoicePath = "Voice/custom.m4a"
         let vm = makeSUT()
 
-        await vm.saveVoiceRecording(data: Data([0x01]), duration: 5.0, transcript: nil)
+        await vm.saveVoiceRecording(fileURL: voiceURL, duration: 5.0, transcript: nil)
 
         #expect(vm.voiceNote?.filePath == "Voice/custom.m4a")
     }
 
-    // MARK: - Save Gallery Item
-
-    @Test func test_saveGalleryItem_photo_addsPhotoItem() async {
+    @Test func test_saveVoiceRecording_replacingExistingNote_deletesOldFile() async {
         let vm = makeSUT()
+        vm.setVoiceNote(MockMomentFactory.makeVoiceNote())
 
-        await vm.saveGalleryItem(data: Data([0x01]), isVideo: false)
+        await vm.saveVoiceRecording(fileURL: voiceURL, duration: 5.0, transcript: nil)
 
-        #expect(vm.capturedMediaItems.count == 1)
-        #expect(vm.capturedMediaItems.first?.type == .photo)
+        #expect(mockMediaRepository.deletedVoicePaths == ["Voice/note.m4a"])
     }
 
-    @Test func test_saveGalleryItem_video_addsVideoItem() async {
+    // MARK: - Mixed Media
+
+    @Test func test_savePhoto_doesNotGenerateThumbnail() async {
         let vm = makeSUT()
 
-        await vm.saveGalleryItem(data: Data([0x01]), isVideo: true)
-
-        #expect(vm.capturedMediaItems.count == 1)
-        #expect(vm.capturedMediaItems.first?.type == .video)
-    }
-
-    @Test func test_saveGalleryItem_video_generatesThumbnail() async {
-        let vm = makeSUT()
-
-        await vm.saveGalleryItem(data: Data([0x01]), isVideo: true)
-
-        #expect(vm.capturedMediaItems.first?.thumbnailPath == "Thumbnails/thumb.jpg")
-        #expect(mockMediaRepository.generateVideoThumbnailCallCount == 1)
-    }
-
-    @Test func test_saveGalleryItem_photo_doesNotGenerateThumbnail() async {
-        let vm = makeSUT()
-
-        await vm.saveGalleryItem(data: Data([0x01]), isVideo: false)
+        await vm.savePhoto(data: Data([0x01]))
 
         #expect(vm.capturedMediaItems.first?.thumbnailPath == nil)
         #expect(mockMediaRepository.generateVideoThumbnailCallCount == 0)
     }
 
-    @Test func test_saveGalleryItem_failure_setsErrorMessage() async {
-        mockMediaRepository.errorToThrow = TestError.saveFailed
+    @Test func test_mixedMedia_keepsOrderAndSortOrder() async {
         let vm = makeSUT()
 
-        await vm.saveGalleryItem(data: Data([0x01]), isVideo: false)
+        await vm.savePhoto(data: Data([0x01]))
+        await vm.saveVideo(fileURL: videoURL)
+        await vm.savePhoto(data: Data([0x03]))
+
+        #expect(vm.capturedMediaItems.map(\.type) == [.photo, .video, .photo])
+        #expect(vm.capturedMediaItems.map(\.sortOrder) == [0, 1, 2])
+    }
+
+    // MARK: - Removing Media Deletes Files
+
+    @Test func test_removeMedia_deletesFile() async {
+        let vm = makeSUT()
+        let photo = MockMomentFactory.makePhotoMediaItem()
+        vm.addMedia(photo)
+
+        await vm.removeMedia(photo.id)
+
+        #expect(mockMediaRepository.deletedMediaPaths == [photo.filePath])
+    }
+
+    @Test func test_removeMedia_video_deletesFileAndThumbnail() async {
+        let vm = makeSUT()
+        let video = MockMomentFactory.makeVideoMediaItem()
+        vm.addMedia(video)
+
+        await vm.removeMedia(video.id)
+
+        #expect(mockMediaRepository.deletedMediaPaths == [video.filePath, video.thumbnailPath!])
+    }
+
+    @Test func test_removeMedia_deleteFails_stillRemovesItem() async {
+        let vm = makeSUT()
+        let photo = MockMomentFactory.makePhotoMediaItem()
+        vm.addMedia(photo)
+        mockMediaRepository.errorToThrow = TestError.saveFailed
+
+        await vm.removeMedia(photo.id)
 
         #expect(vm.capturedMediaItems.isEmpty)
-        #expect(vm.errorMessage != nil)
     }
 
-    @Test func test_saveGalleryItem_multipleItems() async {
+    @Test func test_removeVoiceNote_deletesFile() async {
         let vm = makeSUT()
+        vm.setVoiceNote(MockMomentFactory.makeVoiceNote())
 
-        await vm.saveGalleryItem(data: Data([0x01]), isVideo: false)
-        await vm.saveGalleryItem(data: Data([0x02]), isVideo: true)
-        await vm.saveGalleryItem(data: Data([0x03]), isVideo: false)
+        await vm.removeVoiceNote()
 
-        #expect(vm.capturedMediaItems.count == 3)
-        #expect(vm.capturedMediaItems[0].type == .photo)
-        #expect(vm.capturedMediaItems[1].type == .video)
-        #expect(vm.capturedMediaItems[2].type == .photo)
+        #expect(mockMediaRepository.deletedVoicePaths == ["Voice/note.m4a"])
     }
 
-    @Test func test_saveGalleryItem_incrementsSortOrder() async {
+    // MARK: - Discard Draft
+
+    @Test func test_discardDraft_deletesAllCapturedFilesAndResets() async {
+        let vm = makeSUT()
+        let photo = MockMomentFactory.makePhotoMediaItem()
+        let video = MockMomentFactory.makeVideoMediaItem()
+        vm.addMedia(photo)
+        vm.addMedia(video)
+        vm.setVoiceNote(MockMomentFactory.makeVoiceNote())
+        vm.text = "Draft"
+
+        await vm.discardDraft()
+
+        #expect(mockMediaRepository.deletedMediaPaths == [photo.filePath, video.filePath, video.thumbnailPath!])
+        #expect(mockMediaRepository.deletedVoicePaths == ["Voice/note.m4a"])
+        #expect(vm.capturedMediaItems.isEmpty)
+        #expect(vm.voiceNote == nil)
+        #expect(vm.text.isEmpty)
+    }
+
+    @Test func test_discardDraft_emptyDraft_deletesNothing() async {
         let vm = makeSUT()
 
-        await vm.saveGalleryItem(data: Data([0x01]), isVideo: false)
-        await vm.saveGalleryItem(data: Data([0x02]), isVideo: true)
+        await vm.discardDraft()
 
-        #expect(vm.capturedMediaItems[0].sortOrder == 0)
-        #expect(vm.capturedMediaItems[1].sortOrder == 1)
+        #expect(mockMediaRepository.deleteMediaCallCount == 0)
+        #expect(mockMediaRepository.deleteVoiceNoteCallCount == 0)
+    }
+
+    @Test func test_discardDraft_afterSave_keepsSavedFiles() async {
+        let vm = makeSUT()
+        vm.addMedia(MockMomentFactory.makePhotoMediaItem())
+        await vm.save()
+
+        await vm.discardDraft()
+
+        #expect(mockMediaRepository.deleteMediaCallCount == 0)
     }
 
     // MARK: - Smart Features: Load

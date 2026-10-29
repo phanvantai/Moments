@@ -15,6 +15,14 @@ final class MediaRepository: MediaRepositoryProtocol, @unchecked Sendable {
         )
     }
 
+    func importMedia(from fileURL: URL, fileName: String) async throws -> String {
+        try mediaFileService.importFile(
+            from: fileURL,
+            directory: MediaFileService.mediaDirectoryName,
+            fileName: fileName
+        )
+    }
+
     func loadMedia(filePath: String) async throws -> Data {
         try mediaFileService.loadFile(filePath: filePath)
     }
@@ -26,6 +34,14 @@ final class MediaRepository: MediaRepositoryProtocol, @unchecked Sendable {
     func saveVoiceNote(data: Data, fileName: String) async throws -> String {
         try mediaFileService.saveFile(
             data: data,
+            directory: MediaFileService.voiceDirectoryName,
+            fileName: fileName
+        )
+    }
+
+    func importVoiceNote(from fileURL: URL, fileName: String) async throws -> String {
+        try mediaFileService.importFile(
+            from: fileURL,
             directory: MediaFileService.voiceDirectoryName,
             fileName: fileName
         )

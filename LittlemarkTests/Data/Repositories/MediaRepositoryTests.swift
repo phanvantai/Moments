@@ -22,6 +22,29 @@ struct MediaRepositoryTests {
         #expect(path == "Media/photo.jpg")
     }
 
+    // MARK: - Import Media
+
+    @Test func test_importMedia_callsServiceWithMediaDirectory() async throws {
+        let url = URL(fileURLWithPath: "/tmp/clip.mov")
+
+        let path = try await sut.importMedia(from: url, fileName: "video.mov")
+
+        #expect(mockService.importFileCallCount == 1)
+        #expect(mockService.lastImportedURL == url)
+        #expect(mockService.lastImportedDirectory == "Media")
+        #expect(path == "Media/video.mov")
+    }
+
+    @Test func test_importVoiceNote_callsServiceWithVoiceDirectory() async throws {
+        let url = URL(fileURLWithPath: "/tmp/recording.m4a")
+
+        let path = try await sut.importVoiceNote(from: url, fileName: "note.m4a")
+
+        #expect(mockService.importFileCallCount == 1)
+        #expect(mockService.lastImportedDirectory == "Voice")
+        #expect(path == "Voice/note.m4a")
+    }
+
     // MARK: - Load Media
 
     @Test func test_loadMedia_callsServiceWithPath() async throws {

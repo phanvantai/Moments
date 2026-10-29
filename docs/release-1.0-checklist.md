@@ -18,8 +18,8 @@ Do these in order. Each item: write tests → implement → targeted tests → f
   - [x] No `fatalError` on store load — `AppLaunchViewModel` + `StoreErrorView` with retry
   - [x] Remove CloudKit / `aps-environment` entitlements and the `remote-notification` background mode
   - Optional later: turn off iCloud + Push Notifications on the App ID in the developer portal
-- [ ] **A2. Stream videos to disk** — copy/move files by URL instead of `Data(contentsOf:)` (`CreateMomentView.swift:117,149`)
-- [ ] **A3. No orphan media files** — `removeMedia`, `removeVoiceNote` and `resetState` delete the files (and video thumbnails) they wrote
+- [x] **A2. Stream videos to disk** — videos and voice recordings are moved into place by URL (`importMedia` / `importVoiceNote`); removed the unused `GalleryPickerView`
+- [x] **A3. No orphan media files** — `removeMedia` / `removeVoiceNote` delete their files (+ video thumbnails); leaving the capture flow calls `discardDraft()`
 - [ ] **A4. Speech recognition** — on-device only (`requiresOnDeviceRecognition`), locale follows the app language instead of hardcoded `vi-VN` (`VoiceRecorderView.swift:191`)
 - [ ] **A5. Apple Weather attribution** — Apple Weather mark + legal link wherever weather is shown
 - [ ] **A6. iPhone only** — `TARGETED_DEVICE_FAMILY = 1`

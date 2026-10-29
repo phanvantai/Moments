@@ -34,35 +34,4 @@ struct CreateMomentViewTests {
         #expect(CreateMomentStep.gallery == CreateMomentStep.gallery)
         #expect(CreateMomentStep.review == CreateMomentStep.review)
     }
-
-    // MARK: - GalleryMediaResult
-
-    @Test func test_galleryMediaResult_photo_hasCorrectType() {
-        let data = Data([0x01, 0x02, 0x03])
-        let result = GalleryMediaResult(data: data, type: .photo)
-
-        #expect(result.type == .photo)
-        #expect(result.data == data)
-    }
-
-    @Test func test_galleryMediaResult_video_hasCorrectType() {
-        let data = Data([0x01, 0x02, 0x03])
-        let result = GalleryMediaResult(data: data, type: .video)
-
-        #expect(result.type == .video)
-    }
-
-    @Test func test_galleryMediaResult_emptyData_isValid() {
-        let result = GalleryMediaResult(data: Data(), type: .photo)
-
-        #expect(result.data.isEmpty)
-    }
-
-    @Test func test_galleryMediaResult_largeData() {
-        let data = Data(repeating: 0xFF, count: 1024 * 1024)
-        let result = GalleryMediaResult(data: data, type: .video)
-
-        #expect(result.data.count == 1024 * 1024)
-        #expect(result.type == .video)
-    }
 }

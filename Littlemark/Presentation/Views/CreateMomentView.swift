@@ -24,7 +24,7 @@ struct CreateMomentView: View {
                         handleVideoCaptured(url)
                     },
                     onDismiss: {
-                        onDismiss()
+                        discardAndDismiss()
                     }
                 )
                 .transition(.move(edge: .trailing).combined(with: .opacity))
@@ -35,7 +35,7 @@ struct CreateMomentView: View {
                         handleVoiceRecorded(url: url, duration: duration, transcript: transcript)
                     },
                     onDismiss: {
-                        onDismiss()
+                        discardAndDismiss()
                     }
                 )
                 .transition(.move(edge: .trailing).combined(with: .opacity))
@@ -47,7 +47,7 @@ struct CreateMomentView: View {
             case .review:
                 ReviewMomentView(
                     viewModel: viewModel,
-                    onDismiss: onDismiss
+                    onDismiss: discardAndDismiss
                 )
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
@@ -93,7 +93,7 @@ struct CreateMomentView: View {
         }
         .onChange(of: showPhotoPicker) { _, isShowing in
             if !isShowing && selectedPhotos.isEmpty && !isLoadingPhotos {
-                onDismiss()
+                discardAndDismiss()
             }
         }
         .onAppear {
@@ -102,6 +102,13 @@ struct CreateMomentView: View {
     }
 
     // MARK: - Media Handlers
+
+    /// Leaving without saving deletes the files already written for this draft.
+    private func discardAndDismiss() {
+        let viewModel = viewModel
+        Task { await viewModel.discardDraft() }
+        onDismiss()
+    }
 
     private func handlePhotoCaptured(_ data: Data) {
         Task {
@@ -114,9 +121,7 @@ struct CreateMomentView: View {
 
     private func handleVideoCaptured(_ url: URL) {
         Task {
-            if let data = try? Data(contentsOf: url) {
-                await viewModel.saveVideo(data: data)
-            }
+            await viewModel.saveVideo(fileURL: url)
             withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
                 currentStep = .review
             }
@@ -125,9 +130,7 @@ struct CreateMomentView: View {
 
     private func handleVoiceRecorded(url: URL, duration: TimeInterval, transcript: String?) {
         Task {
-            if let data = try? Data(contentsOf: url) {
-                await viewModel.saveVoiceRecording(data: data, duration: duration, transcript: transcript)
-            }
+            await viewModel.saveVoiceRecording(fileURL: url, duration: duration, transcript: transcript)
             withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
                 currentStep = .review
             }
@@ -146,9 +149,7 @@ struct CreateMomentView: View {
                 do {
                     let movie = try await item.loadTransferable(type: TransferableMovie.self)
                     if let movie {
-                        let data = try Data(contentsOf: movie.url)
-                        print("[Gallery] Item \(index): video loaded, bytes = \(data.count)")
-                        await viewModel.saveGalleryItem(data: data, isVideo: true)
+                        await viewModel.saveVideo(fileURL: movie.url)
                     } else {
                         print("[Gallery] Item \(index): loadTransferable(TransferableMovie) returned nil")
                     }
@@ -160,7 +161,7 @@ struct CreateMomentView: View {
                     let imageData = try await item.loadTransferable(type: TransferableImage.self)
                     if let imageData {
                         print("[Gallery] Item \(index): image loaded, bytes = \(imageData.data.count)")
-                        await viewModel.saveGalleryItem(data: imageData.data, isVideo: false)
+                        await viewModel.savePhoto(data: imageData.data)
                     } else {
                         print("[Gallery] Item \(index): loadTransferable(TransferableImage) returned nil")
                     }

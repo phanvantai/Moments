@@ -2,6 +2,9 @@ import Foundation
 
 protocol MediaFileServiceProtocol: Sendable {
     func saveFile(data: Data, directory: String, fileName: String) throws -> String
+    /// Moves (or copies, when it can't be moved) a file on disk into `directory`,
+    /// without loading it into memory. Use for videos and recordings.
+    func importFile(from sourceURL: URL, directory: String, fileName: String) throws -> String
     func loadFile(filePath: String) throws -> Data
     func deleteFile(filePath: String) throws
     func generateVideoThumbnail(videoPath: String) throws -> String
@@ -40,6 +43,18 @@ final class MediaFileService: MediaFileServiceProtocol, @unchecked Sendable {
         try fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true)
         let fileURL = directoryURL.appendingPathComponent(fileName)
         try data.write(to: fileURL)
+        return "\(directory)/\(fileName)"
+    }
+
+    func importFile(from sourceURL: URL, directory: String, fileName: String) throws -> String {
+        let directoryURL = baseDirectory.appendingPathComponent(directory)
+        try fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+        let fileURL = directoryURL.appendingPathComponent(fileName)
+        do {
+            try fileManager.moveItem(at: sourceURL, to: fileURL)
+        } catch {
+            try fileManager.copyItem(at: sourceURL, to: fileURL)
+        }
         return "\(directory)/\(fileName)"
     }
 

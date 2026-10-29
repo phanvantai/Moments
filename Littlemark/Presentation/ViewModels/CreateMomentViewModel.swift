@@ -69,16 +69,40 @@ final class CreateMomentViewModel: Identifiable {
         capturedMediaItems.append(item)
     }
 
-    func removeMedia(_ id: UUID) {
+    /// Removes the item and deletes the files it wrote (the media file and, for videos, its thumbnail).
+    func removeMedia(_ id: UUID) async {
+        guard let item = capturedMediaItems.first(where: { $0.id == id }) else { return }
         capturedMediaItems.removeAll { $0.id == id }
+        await deleteFiles(of: item)
     }
 
     func setVoiceNote(_ note: VoiceNote) {
         voiceNote = note
     }
 
-    func removeVoiceNote() {
+    func removeVoiceNote() async {
+        guard let note = voiceNote else { return }
         voiceNote = nil
+        try? await mediaRepository.deleteVoiceNote(filePath: note.filePath)
+    }
+
+    /// Called when the user leaves the capture flow without saving: deletes every
+    /// file written for this draft, then resets the state.
+    func discardDraft() async {
+        let items = capturedMediaItems
+        capturedMediaItems = []
+        for item in items {
+            await deleteFiles(of: item)
+        }
+        await removeVoiceNote()
+        resetState()
+    }
+
+    private func deleteFiles(of item: MediaItem) async {
+        try? await mediaRepository.deleteMedia(filePath: item.filePath)
+        if let thumbnailPath = item.thumbnailPath {
+            try? await mediaRepository.deleteMedia(filePath: thumbnailPath)
+        }
     }
 
     // MARK: - Tags
@@ -129,10 +153,11 @@ final class CreateMomentViewModel: Identifiable {
         }
     }
 
-    func saveVideo(data: Data) async {
+    /// Moves the recorded or picked video into the media folder without loading it into memory.
+    func saveVideo(fileURL: URL) async {
         do {
             let fileName = "\(UUID().uuidString).mov"
-            let filePath = try await mediaRepository.saveMedia(data: data, fileName: fileName)
+            let filePath = try await mediaRepository.importMedia(from: fileURL, fileName: fileName)
             let thumbnailPath = try? await mediaRepository.generateVideoThumbnail(videoPath: filePath)
             let mediaItem = MediaItem(
                 momentId: UUID(),
@@ -149,10 +174,11 @@ final class CreateMomentViewModel: Identifiable {
         }
     }
 
-    func saveVoiceRecording(data: Data, duration: TimeInterval, transcript: String?) async {
+    func saveVoiceRecording(fileURL: URL, duration: TimeInterval, transcript: String?) async {
         do {
             let fileName = "\(UUID().uuidString).m4a"
-            let filePath = try await mediaRepository.saveVoiceNote(data: data, fileName: fileName)
+            let filePath = try await mediaRepository.importVoiceNote(from: fileURL, fileName: fileName)
+            await removeVoiceNote()
             let voiceNote = VoiceNote(
                 filePath: filePath,
                 duration: duration,
@@ -160,31 +186,6 @@ final class CreateMomentViewModel: Identifiable {
             )
             setVoiceNote(voiceNote)
         } catch {
-            errorMessage = error.localizedDescription
-        }
-    }
-
-    func saveGalleryItem(data: Data, isVideo: Bool) async {
-        print("[VM] saveGalleryItem called, isVideo=\(isVideo), dataSize=\(data.count)")
-        do {
-            let ext = isVideo ? "mov" : "jpg"
-            let fileName = "\(UUID().uuidString).\(ext)"
-            let filePath = try await mediaRepository.saveMedia(data: data, fileName: fileName)
-            print("[VM] Media saved at: \(filePath)")
-            let thumbnailPath = isVideo ? (try? await mediaRepository.generateVideoThumbnail(videoPath: filePath)) : nil
-            let mediaItem = MediaItem(
-                momentId: UUID(),
-                type: isVideo ? .video : .photo,
-                filePath: filePath,
-                thumbnailPath: thumbnailPath,
-                width: 0,
-                height: 0,
-                sortOrder: capturedMediaItems.count
-            )
-            addMedia(mediaItem)
-            print("[VM] Media item added, total count: \(capturedMediaItems.count)")
-        } catch {
-            print("[VM] saveGalleryItem error: \(error)")
             errorMessage = error.localizedDescription
         }
     }
