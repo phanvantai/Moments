@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Littlemark — Keep life's little moments</title>
+  <meta name="description" content="Littlemark is a simple iPhone app to capture life's moments with a photo, video or voice note. Place and weather are added for you, and everything stays on your iPhone.">
+  <meta property="og:title" content="Littlemark — Keep life's little moments">
+  <meta property="og:description" content="Capture a moment in seconds. Photos, videos and voice notes, with place and weather. Private by design.">
+  <meta property="og:image" content="assets/app-icon.png">
+  <link rel="icon" type="image/png" href="assets/app-icon.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <nav>
+    <div class="wrap">
+      <a class="brand" href="index.html"><img src="assets/app-icon.png" alt="">Littlemark</a>
+      <div class="nav-links">
+        <a href="privacy.html" data-i18n="nav.privacy">Privacy</a>
+        <a href="support.html" data-i18n="nav.support">Support</a>
+        <select class="lang" aria-label="Language">
+          <option value="en">EN</option>
+          <option value="vi">VI</option>
+          <option value="ja">日本語</option>
+        </select>
+      </div>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <section class="hero">
+      <img class="icon" src="assets/app-icon.png" alt="Littlemark app icon">
+      <h1 data-i18n="hero.title">Keep life's little moments</h1>
+      <p class="lead" data-i18n="hero.lead">Open, snap a photo or say a few words, done. Littlemark adds the place and weather, suggests categories, and keeps everything on your iPhone.</p>
+      <a class="button" href="https://apps.apple.com/app/id6760618641" data-i18n="hero.cta">Download on the App Store</a>
+      <p class="tagline" data-i18n="hero.tagline">Every moment matters.</p>
+    </section>
+
+    <section class="shots" aria-label="Screenshots" id="shots"></section>
+
+    <section class="features">
+      <div class="card">
+        <div class="emoji">📸</div>
+        <h3 data-i18n="f1.title">Capture in seconds</h3>
+        <p data-i18n="f1.body">Photo, video, gallery or voice note. One tap from the home screen to a saved moment.</p>
+      </div>
+      <div class="card">
+        <div class="emoji">📍</div>
+        <h3 data-i18n="f2.title">Place and weather, added for you</h3>
+        <p data-i18n="f2.body">Littlemark remembers where it happened and what the sky looked like.</p>
+      </div>
+      <div class="card">
+        <div class="emoji">✨</div>
+        <h3 data-i18n="f3.title">Smart categories</h3>
+        <p data-i18n="f3.body">First times, milestones, travel, family and more, suggested on your device.</p>
+      </div>
+      <div class="card">
+        <div class="emoji">🕰️</div>
+        <h3 data-i18n="f4.title">Timeline and grid</h3>
+        <p data-i18n="f4.body">Scroll back through your life on a timeline, or see everything at a glance in a grid.</p>
+      </div>
+      <div class="card">
+        <div class="emoji">🔒</div>
+        <h3 data-i18n="f5.title">Private by design</h3>
+        <p data-i18n="f5.body">No account, no ads, no tracking. Your moments never leave your iPhone.</p>
+      </div>
+      <div class="card">
+        <div class="emoji">🌏</div>
+        <h3 data-i18n="f6.title">English, Tiếng Việt, 日本語</h3>
+        <p data-i18n="f6.body">Use Littlemark in your language, in light or dark mode.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span data-i18n="footer.rights">© 2026 Tai Phan Van</span>
+      <span><a href="privacy.html" data-i18n="nav.privacy">Privacy</a> · <a href="support.html" data-i18n="nav.support">Support</a></span>
+    </div>
+  </footer>
+
+  <script>
+    // Screenshots per language live in assets/screenshots/<lang>/1.png …
+    window.SCREENSHOT_COUNT = 5;
+    window.PAGE_STRINGS = {
+      vi: {
+        "meta.title": "Littlemark — Lưu giữ những khoảnh khắc nhỏ",
+        "hero.title": "Lưu giữ những khoảnh khắc nhỏ",
+        "hero.lead": "Mở app, chụp một tấm hoặc nói vài câu, xong. Littlemark tự thêm địa điểm, thời tiết, gợi ý danh mục, và giữ mọi thứ ngay trên iPhone của bạn.",
+        "hero.cta": "Tải trên App Store",
+        "hero.tagline": "Mỗi khoảnh khắc đều đáng nhớ.",
+        "f1.title": "Ghi lại trong vài giây",
+        "f1.body": "Ảnh, video, thư viện hoặc ghi âm. Một chạm từ màn hình chính là có ngay một khoảnh khắc.",
+        "f2.title": "Tự thêm địa điểm và thời tiết",
+        "f2.body": "Littlemark nhớ giúp bạn chuyện xảy ra ở đâu và trời hôm ấy thế nào.",
+        "f3.title": "Danh mục thông minh",
+        "f3.body": "Lần đầu tiên, cột mốc, du lịch, gia đình và hơn nữa, được gợi ý ngay trên máy.",
+        "f4.title": "Dòng thời gian và dạng lưới",
+        "f4.body": "Lướt ngược lại cuộc sống trên dòng thời gian, hoặc xem tất cả trong một lưới.",
+        "f5.title": "Riêng tư ngay từ thiết kế",
+        "f5.body": "Không tài khoản, không quảng cáo, không theo dõi. Khoảnh khắc của bạn không rời khỏi iPhone.",
+        "f6.title": "English, Tiếng Việt, 日本語",
+        "f6.body": "Dùng Littlemark bằng ngôn ngữ của bạn, ở giao diện sáng hoặc tối."
+      },
+      ja: {
+        "meta.title": "Littlemark — 日々の小さな瞬間を残そう",
+        "hero.title": "日々の小さな瞬間を残そう",
+        "hero.lead": "開いて、撮るか話すだけ。Littlemark が場所と天気を加え、カテゴリを提案し、すべてを iPhone の中に保存します。",
+        "hero.cta": "App Store でダウンロード",
+        "hero.tagline": "すべての瞬間に意味がある。",
+        "f1.title": "数秒で記録",
+        "f1.body": "写真、動画、ライブラリ、音声メモ。ホーム画面からワンタップで保存。",
+        "f2.title": "場所と天気を自動で",
+        "f2.body": "どこで起きたか、どんな空だったかを Littlemark が覚えておきます。",
+        "f3.title": "スマートなカテゴリ",
+        "f3.body": "初めて、節目、旅行、家族など、デバイス上で提案します。",
+        "f4.title": "タイムラインとグリッド",
+        "f4.body": "タイムラインで人生をさかのぼったり、グリッドで一覧したり。",
+        "f5.title": "プライバシー重視の設計",
+        "f5.body": "アカウント、広告、トラッキングなし。モーメントは iPhone の外に出ません。",
+        "f6.title": "English, Tiếng Việt, 日本語",
+        "f6.body": "お好みの言語で、ライトでもダークでも。"
+      }
+    };
+
+    // Show the screenshots for the current language (falls back to English)
+    function renderShots() {
+      var lang = document.documentElement.lang;
+      var shots = document.getElementById("shots");
+      shots.innerHTML = "";
+      for (var i = 1; i <= window.SCREENSHOT_COUNT; i++) {
+        var img = document.createElement("img");
+        img.src = "assets/screenshots/" + lang + "/" + i + ".png";
+        img.alt = "Littlemark screenshot " + i;
+        img.loading = "lazy";
+        img.onerror = function () {
+          if (this.src.indexOf("/en/") < 0) this.src = this.src.replace(/\/(vi|ja)\//, "/en/");
+          else this.remove();
+        };
+        shots.appendChild(img);
+      }
+    }
+    document.addEventListener("DOMContentLoaded", function () {
+      renderShots();
+      new MutationObserver(renderShots).observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
+    });
+  </script>
+  <script src="assets/i18n.js"></script>
+</body>
+</html>
