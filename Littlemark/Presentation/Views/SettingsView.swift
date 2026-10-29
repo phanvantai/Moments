@@ -39,6 +39,30 @@ struct SettingsView: View {
                 }
 
                 Section {
+                    Link(destination: AppLinks.privacyPolicy(language: languageManager.currentLanguage)) {
+                        settingsRow(
+                            title: String(localized: "settings.privacy", bundle: LanguageManager.shared.bundle),
+                            value: ""
+                        ) {
+                            Image(systemName: "hand.raised")
+                                .font(.body)
+                                .foregroundStyle(BrandColors.accent)
+                        }
+                    }
+
+                    Link(destination: AppLinks.support(language: languageManager.currentLanguage)) {
+                        settingsRow(
+                            title: String(localized: "settings.support", bundle: LanguageManager.shared.bundle),
+                            value: ""
+                        ) {
+                            Image(systemName: "questionmark.circle")
+                                .font(.body)
+                                .foregroundStyle(BrandColors.accent)
+                        }
+                    }
+                }
+
+                Section {
                     Text("Littlemark \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")")
                         .frame(maxWidth: .infinity)
                         .foregroundStyle(BrandColors.textSecondary)
