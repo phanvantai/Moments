@@ -1426,6 +1426,72 @@
         }
       }
     },
+    "store.error.message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your moments are still safe on this iPhone. Try again, or restart the app. If this keeps happening, update Littlemark from the App Store."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "モーメントはこのiPhoneに安全に保存されています。もう一度お試しいただくか、アプリを再起動してください。問題が続く場合は、App StoreでLittlemarkをアップデートしてください。"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Các khoảnh khắc của bạn vẫn được giữ an toàn trên iPhone này. Hãy thử lại hoặc khởi động lại app. Nếu vẫn lỗi, hãy cập nhật Littlemark trên App Store."
+          }
+        }
+      }
+    },
+    "store.error.retry" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try Again"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "再試行"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thử lại"
+          }
+        }
+      }
+    },
+    "store.error.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't open your moments"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "モーメントを開けませんでした"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không mở được khoảnh khắc của bạn"
+          }
+        }
+      }
+    },
     "tags" : {
       "localizations" : {
         "en" : {

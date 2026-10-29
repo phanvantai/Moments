@@ -3,45 +3,31 @@ import SwiftData
 
 @main
 struct LittlemarkApp: App {
-    let container: DependencyContainer
+    @State private var launch = AppLaunchViewModel {
+        DependencyContainer(modelContainer: try ModelContainerFactory.make())
+    }
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var languageManager = LanguageManager.shared
     @State private var themeManager = ThemeManager.shared
     @State private var languageId = UUID()
 
-    init() {
-        let schema = Schema([
-            SDMoment.self,
-            SDMediaItem.self,
-            SDUser.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            let appSupportURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-            if !FileManager.default.fileExists(atPath: appSupportURL.path) {
-                try FileManager.default.createDirectory(at: appSupportURL, withIntermediateDirectories: true)
-            }
-            let modelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
-            self.container = DependencyContainer(modelContainer: modelContainer)
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }
-
     var body: some Scene {
         WindowGroup {
             Group {
-                if hasCompletedOnboarding {
-                    ContentView(container: container)
-                        .task {
-                            await container.ensureDefaultUser()
+                if let container = launch.container {
+                    Group {
+                        if hasCompletedOnboarding {
+                            ContentView(container: container)
+                        } else {
+                            OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding)
                         }
+                    }
+                    .task {
+                        await container.ensureDefaultUser()
+                    }
+                    .modelContainer(container.modelContainer)
                 } else {
-                    OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding)
-                        .task {
-                            await container.ensureDefaultUser()
-                        }
+                    StoreErrorView(onRetry: launch.retry)
                 }
             }
             .id(languageId)
@@ -53,6 +39,5 @@ struct LittlemarkApp: App {
                 languageId = UUID()
             }
         }
-        .modelContainer(container.modelContainer)
     }
 }

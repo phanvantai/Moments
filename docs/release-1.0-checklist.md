@@ -1,0 +1,45 @@
+# Littlemark 1.0 — Release Checklist
+
+Status: In progress · Started 2026-10-29
+
+Decisions (2026-10-29):
+
+- iCloud sync **off** for 1.0 — data stays on device; sync is a v1.x feature.
+- **iPhone only** for 1.0 (`TARGETED_DEVICE_FAMILY = 1`).
+- **Grid view stays in** — re-enable the toggle and test pagination.
+
+## Phase A — Code (Claude, TDD)
+
+Do these in order. Each item: write tests → implement → targeted tests → full suite → commit.
+
+- [x] **A1. Safe persistence**
+  - [x] `VersionedSchema` (V1) + `SchemaMigrationPlan` for `SDMoment` / `SDMediaItem` / `SDUser` (`LittlemarkSchema.swift`)
+  - [x] `ModelConfiguration(cloudKitDatabase: .none)` (`ModelContainerFactory.swift`)
+  - [x] No `fatalError` on store load — `AppLaunchViewModel` + `StoreErrorView` with retry
+  - [x] Remove CloudKit / `aps-environment` entitlements and the `remote-notification` background mode
+  - Optional later: turn off iCloud + Push Notifications on the App ID in the developer portal
+- [ ] **A2. Stream videos to disk** — copy/move files by URL instead of `Data(contentsOf:)` (`CreateMomentView.swift:117,149`)
+- [ ] **A3. No orphan media files** — `removeMedia`, `removeVoiceNote` and `resetState` delete the files (and video thumbnails) they wrote
+- [ ] **A4. Speech recognition** — on-device only (`requiresOnDeviceRecognition`), locale follows the app language instead of hardcoded `vi-VN` (`VoiceRecorderView.swift:191`)
+- [ ] **A5. Apple Weather attribution** — Apple Weather mark + legal link wherever weather is shown
+- [ ] **A6. iPhone only** — `TARGETED_DEVICE_FAMILY = 1`
+- [ ] **A7. Grid view** — re-enable the toggle (`ContentView.swift:52`) and test pagination
+- [ ] **A8. Privacy manifest** — `PrivacyInfo.xcprivacy` (UserDefaults reason `CA92.1`, no tracking, no collected data)
+- [ ] **A9. Cleanup** — remove `[Gallery]` debug `print`s and other leftover logging
+- [ ] **A10. Dynamic Type** — replace fixed `.font(.system(size:))` with text styles where it matters
+
+## Phase B — Store & device (needs you)
+
+- [ ] Privacy policy page online (Claude can draft the text)
+- [ ] Support page online
+- [ ] App Store description + keywords (Claude can draft, en/vi/ja)
+- [ ] Category, age rating, App Privacy ("Data Not Collected"), price + countries, EU trader status
+- [ ] iPhone 6.3" screenshots
+- [ ] Archive + upload build, TestFlight on a real device
+- [ ] Device QC: launch < 1s, smooth timeline scroll, memory with hundreds of moments
+- [ ] Notes for App Review (WeatherKit, permissions)
+
+## Phase C — Submit
+
+- [ ] Submit 1.0 for review
+- [ ] Live on the App Store
